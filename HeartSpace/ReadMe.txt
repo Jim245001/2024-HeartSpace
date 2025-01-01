@@ -11,7 +11,7 @@ P2：登入
 控制器：AccountController
 
 P2-1：註冊-1
-名稱：Register1ㄡ
+名稱：Register1
 資料夾：Account
 控制器：AccountController
 

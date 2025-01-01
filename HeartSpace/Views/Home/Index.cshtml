@@ -1,5 +1,6 @@
 ﻿@using HeartSpace.Models
-
+@using Dapper
+ 
 @{
     ViewData["Title"] = "Home";
 }
@@ -26,6 +27,7 @@
                         <!-- 使用 gx-1 和 gy-2 控制間距 -->
                         @for (int i = 0; i < 6; i++)
                         {
+
                             <div class="col-6">
                                 <!-- 每行顯示2個卡片 -->
                                 <div class="card border-0 shadow-sm d-flex align-items-center justify-content-center" style="height: 150px;">
