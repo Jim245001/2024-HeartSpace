@@ -71,13 +71,26 @@ namespace HeartSpace.Controllers.Account
 		}
 
 
+		//======================================================
 
 
-
-
+		[HttpGet]
 		public ActionResult ForgotPassword()
 		{
 			return View();
+		}
+
+		[HttpPost]
+		public ActionResult ForgotPassword(ForgotPasswordViewModel model)
+		{
+			if (!ModelState.IsValid)
+			{
+				return View(model);
+			}
+
+			// 模擬發送重設密碼的信件
+			TempData["Message"] = "重設密碼的信件已發送到您的信箱。";
+			return RedirectToAction("Login");
 		}
 	}
 }
