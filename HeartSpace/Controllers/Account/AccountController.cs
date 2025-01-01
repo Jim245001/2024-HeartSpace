@@ -45,10 +45,35 @@ namespace HeartSpace.Controllers.Account
 			return RedirectToAction("Index", "Home");
 		}
 
+
+
+		//=======================================================
+
+
+
+		[HttpGet]
 		public ActionResult Register()
 		{
-			return View();
+			return View(new RegisterViewModel());
 		}
+
+		[HttpPost]
+		public ActionResult Register(RegisterViewModel model)
+		{
+			if (!ModelState.IsValid)
+			{
+				return View(model);
+			}
+
+			// 處理註冊邏輯，例如將資料存入資料庫
+			TempData["Message"] = "註冊成功！";
+			return RedirectToAction("Login");
+		}
+
+
+
+
+
 
 		public ActionResult ForgotPassword()
 		{
