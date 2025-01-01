@@ -5,9 +5,9 @@ using System.Linq;
 
 namespace HeartSpace.Models.EFModel
 {
-	public partial class EFModel : DbContext
+	public partial class EFModel1 : DbContext
 	{
-		public EFModel()
+		public EFModel1()
 			: base("name=EFModel1")
 		{
 		}

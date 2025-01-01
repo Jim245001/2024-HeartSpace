@@ -139,7 +139,7 @@
     </Compile>
     <Compile Include="Models\EFModel\Admin.cs" />
     <Compile Include="Models\EFModel\Category.cs" />
-    <Compile Include="Models\EFModel\EFModel.cs" />
+    <Compile Include="Models\EFModel\EFModel1.cs" />
     <Compile Include="Models\EFModel\Event.cs" />
     <Compile Include="Models\EFModel\EventComment.cs" />
     <Compile Include="Models\EFModel\EventMember.cs" />
