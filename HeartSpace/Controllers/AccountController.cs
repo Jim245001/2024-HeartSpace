@@ -12,7 +12,7 @@ namespace HeartSpace.Controllers.Account
 	public class AccountController : Controller
 	{
 		// GET: Account
-		private readonly EFModel1 _db = new EFModel1(); // 替換為您的 DbContext 類別
+		private readonly AppDbContext _db = new AppDbContext(); // 替換為您的 DbContext 類別
 
 		[HttpGet]
 		public ActionResult Login()

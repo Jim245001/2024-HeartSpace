@@ -129,36 +129,31 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\BundleConfig.cs" />
-    <Compile Include="App_Start\BundleConfig2.cs" />
-    <Compile Include="App_Start\BundleConfig3.cs" />
-    <Compile Include="App_Start\BundleConfig4.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AdminControllerController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\PostController.cs" />
     <Compile Include="Controllers\ProfileController.cs" />
+    <Compile Include="Controllers\SearchController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\EFModel\Admin.cs" />
-    <Compile Include="Models\EFModel\Category.cs" />
-    <Compile Include="Models\EFModel\CommentModel.cs" />
-    <Compile Include="Models\EFModel\EFModel1.cs" />
-    <Compile Include="Models\EFModel\Event.cs" />
-    <Compile Include="Models\EFModel\EventComment.cs" />
-    <Compile Include="Models\EFModel\EventMember.cs" />
-    <Compile Include="Models\EFModel\Member.cs" />
-    <Compile Include="Models\EFModel\Post.cs" />
-    <Compile Include="Models\EFModel\PostComment.cs" />
-    <Compile Include="Models\EFModel\PostDetailsModel.cs" />
-    <Compile Include="Models\EFModel\PostModel.cs" />
-    <Compile Include="Models\EFModel\Tag.cs" />
+    <Compile Include="Models\AppDbContext\Admin.cs" />
+    <Compile Include="Models\AppDbContext\Category.cs" />
+    <Compile Include="Models\AppDbContext\AppDbContext.cs" />
+    <Compile Include="Models\AppDbContext\Event.cs" />
+    <Compile Include="Models\AppDbContext\EventComment.cs" />
+    <Compile Include="Models\AppDbContext\EventMember.cs" />
+    <Compile Include="Models\AppDbContext\Member.cs" />
+    <Compile Include="Models\AppDbContext\Post.cs" />
+    <Compile Include="Models\AppDbContext\PostComment.cs" />
+    <Compile Include="Models\AppDbContext\Tag.cs" />
     <Compile Include="Models\EventCard.cs" />
     <Compile Include="Models\EventRepository.cs" />
     <Compile Include="Models\ForgotPasswordViewModel.cs" />
     <Compile Include="Models\LoginViewModel.cs" />
+    <Compile Include="Models\PostViewModel.cs" />
     <Compile Include="Models\RegisterViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -216,13 +211,11 @@
     <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\Account\Register.cshtml" />
     <Content Include="Views\Account\ForgotPassword.cshtml" />
-    <Content Include="Views\AdminController\ManageGroup.cshtml" />
-    <Content Include="Views\Post\CreatePost.cshtml" />
-    <Content Include="Views\Post\PostDetails.cshtml" />
+    <Content Include="Views\Search\SearchEvent.cshtml" />
+    <Content Include="Views\Search\SearchPost.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Data\" />
     <Folder Include="Views\Admin\" />
   </ItemGroup>
   <ItemGroup>

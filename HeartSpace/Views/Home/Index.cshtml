@@ -1,8 +1,10 @@
 ﻿@using HeartSpace.Models
 @using Dapper
- 
+
+
 @{
-    ViewData["Title"] = "Home";
+    ViewData["Title"] = "首頁";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="container-fluid px-0">
@@ -17,7 +19,6 @@
                 <div class="card-body">
                     <!-- 按鈕組 -->
                     <div class="btn-group mb-3 w-100">
-                        <button class="btn btn-secondary btn-sm">熱門</button>
                         <button class="btn btn-secondary btn-sm">最新</button>
                         <button class="btn btn-secondary btn-sm">分類</button>
                     </div>
@@ -25,7 +26,7 @@
                     <!-- 貼文內容（打錯了，這個應該要是揪團內容） -->
                     <div class="row gx-1 gy-2">
                         <!-- 使用 gx-1 和 gy-2 控制間距 -->
-                        @for (int i = 0; i < 6; i++)
+                        @for (int x = 0; x < 6; x++)
                         {
 
                             <div class="col-6">
@@ -33,12 +34,12 @@
                                 <div class="card border-0 shadow-sm d-flex align-items-center justify-content-center" style="height: 150px;">
                                     <!-- 垂直水平置中 -->
                                     @Html.Raw(new EventCard(
-                                        "標題名稱",
-                                        "發起人ID/姓名",
-                                        "國家 / 縣市 / 區域\n鄉鎮街道幾巷幾樓",
-                                        new DateTime(2025, 1, 16, 17, 0, 0),
-                                        "example.jpg"
-                                    ).RenderHtml())
+             "標題名稱",
+             "發起人ID/姓名",
+             "國家 / 縣市 / 區域\n鄉鎮街道幾巷幾樓",
+             new DateTime(2025, 1, 16, 17, 0, 0),
+             "example.jpg"
+         ).RenderHtml())
                                 </div>
                             </div>
                         }
@@ -47,11 +48,21 @@
                     <!-- 分頁導航 -->
                     <nav>
                         <ul class="pagination justify-content-center mt-3">
-                            <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-                            <li class="page-item"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">Previous</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">1</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">2</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">3</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">Next</a>
+                            </li>
                         </ul>
                     </nav>
                 </div>
@@ -66,39 +77,55 @@
                 <div class="card-body">
                     <!-- 按鈕組 -->
                     <div class="btn-group mb-3 w-100">
-                        <button class="btn btn-secondary btn-sm">熱門</button>
                         <button class="btn btn-secondary btn-sm">最新</button>
                         <button class="btn btn-secondary btn-sm">分類</button>
                     </div>
 
                     <div class="row gx-1 gy-2">
                         <!-- 使用 gx-1 和 gy-2 控制間距 -->
-                        @for (int i = 0; i < 6; i++)
+
+                        @{ int i = 0;}
+
+                        @foreach (var item in Model)
                         {
+
                             <div class="col-6">
                                 <!-- 每行顯示2個卡片 -->
                                 <div class="card border-0 shadow-sm d-flex align-items-center justify-content-center" style="height: 150px;">
                                     <!-- 垂直水平置中 -->
                                     @Html.Raw(new EventCard(
-                                        "標題名稱",
-                                        "發起人ID/姓名",
-                                        "國家 / 縣市 / 區域\n鄉鎮街道幾巷幾樓",
-                                        new DateTime(2025, 1, 16, 17, 0, 0),
-                                        "example.jpg"
+                                        item.EventName,
+                                        "XXX",
+                                        item.Location,
+                                        item.DeadLine,
+                                        item.img
                                     ).RenderHtml())
                                 </div>
                             </div>
+
+                            i++;
+                            if (i == 6) { break; }
                         }
                     </div>
 
                     <!-- 分頁導航 -->
                     <nav>
                         <ul class="pagination justify-content-center mt-3">
-                            <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-                            <li class="page-item"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">Previous</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">1</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">2</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">3</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">Next</a>
+                            </li>
                         </ul>
                     </nav>
                 </div>
