@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
-namespace HeartSpace.Controllers.Profile
+namespace HeartSpace.Controllers
 {
 	public class ProfileController : Controller
 	{
