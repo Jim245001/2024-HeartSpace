@@ -5,31 +5,75 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container d-flex align-items-center justify-content-center" style="min-height: 100vh;">
-    <div class="card p-4 shadow" style="max-width: 400px; width: 100%; border-radius: 10px;">
-        <div class="text-center mb-3">
-            <div style="background-color: #d7ceb2; padding: 20px; border-radius: 10px;">
-                <h1 class="mb-0">心聚點</h1>
-                <h2 class="fs-5">HeartSpace</h2>
-            </div>
+<style>
+    .text-danger ul {
+        list-style: none; /* 移除列表符號 */
+        padding-left: 0; /* 去除內縮 */
+        margin: 10px 0; /* 設定上下邊距 */
+        text-align: center; /* 文字置中 */
+    }
+
+        .text-danger ul li {
+            margin-bottom: 5px; /* 控制項目間距 */
+        }
+
+    .login-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .login-card {
+        max-width: 400px;
+        width: 100%;
+        border-radius: 10px;
+    }
+
+    .brand-header {
+        background-color: #d7ceb2;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+        .brand-header h1 {
+            margin-bottom: 0;
+        }
+
+        .brand-header h2 {
+            font-size: 1.25rem;
+        }
+</style>
+
+<div class="container login-container">
+    <div class="card p-4 shadow login-card">
+        <div class="brand-header mb-3">
+            <h1 class="mb-0">心聚點</h1>
+            <h2 class="fs-5">HeartSpace</h2>
         </div>
         @using (Html.BeginForm("Login", "Account", FormMethod.Post))
         {
             <div class="mb-3">
                 <label for="Account" class="form-label">帳號</label>
-                @Html.TextBoxFor(m => m.Account, new { @class = "form-control", placeholder = "請輸入帳號" })
+                @Html.TextBoxFor(m => m.Account, new { @class = "form-control", placeholder = "請輸入帳號", id = "Account" })
+                @Html.ValidationMessageFor(m => m.Account, "", new { @class = "text-danger" })
             </div>
             <div class="mb-3">
                 <label for="Password" class="form-label">密碼</label>
-                @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "請輸入密碼" })
+                @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "請輸入密碼", id = "Password" })
+                @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+            </div>
+            <div class="align-content-center">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" }) @* 顯示所有錯誤訊息 *@
             </div>
             <div class="d-grid">
                 <button type="submit" class="btn btn-primary">登入</button>
             </div>
         }
         <div class="text-center mt-3">
-            <a href="@Url.Action("Register","Account")" class="text-decoration-none">我要註冊</a> |
-            <a href="@Url.Action("ForgotPassword","Account")" class="text-decoration-none">忘記密碼</a>
+            <a href="@Url.Action("Register", "Account")" class="text-decoration-none">我要註冊</a> |
+            <a href="@Url.Action("ForgotPassword", "Account")" class="text-decoration-none">忘記密碼</a>
         </div>
     </div>
 </div>

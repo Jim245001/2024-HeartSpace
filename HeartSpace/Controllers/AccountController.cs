@@ -1,18 +1,13 @@
 ﻿using HeartSpace.Models;
 using HeartSpace.Models.EFModel;
-using System;
-using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 
 namespace HeartSpace.Controllers.Account
 {
 	public class AccountController : Controller
 	{
-		// GET: Account
-		private readonly AppDbContext _db = new AppDbContext(); // 替換為您的 DbContext 類別
+		private readonly AppDbContext _db = new AppDbContext();
 
 		[HttpGet]
 		public ActionResult Login()
@@ -45,12 +40,6 @@ namespace HeartSpace.Controllers.Account
 			return RedirectToAction("Index", "Home");
 		}
 
-
-
-		//=======================================================
-
-
-
 		[HttpGet]
 		public ActionResult Register()
 		{
@@ -65,14 +54,22 @@ namespace HeartSpace.Controllers.Account
 				return View(model);
 			}
 
-			// 處理註冊邏輯，例如將資料存入資料庫
+			// 處理註冊邏輯
+			var newMember = new Member
+			{
+				Account = model.Account,
+				PasswordHash = model.Password, // 請加密密碼
+				NickName = model.NickName,
+				Email = model.Email,
+				IsConfirmed = false
+			};
+
+			_db.Members.Add(newMember);
+			_db.SaveChanges();
+
 			TempData["Message"] = "註冊成功！";
 			return RedirectToAction("Login");
 		}
-
-
-		//======================================================
-
 
 		[HttpGet]
 		public ActionResult ForgotPassword()
@@ -91,6 +88,36 @@ namespace HeartSpace.Controllers.Account
 			// 模擬發送重設密碼的信件
 			TempData["Message"] = "重設密碼的信件已發送到您的信箱。";
 			return RedirectToAction("Login");
+		}
+
+		[HttpGet]
+		public ActionResult Logout()
+		{
+			// 清空 Session
+			Session.Clear();
+
+			// 返回首頁
+			return RedirectToAction("Index", "Home");
+		}
+
+		[HttpGet]
+		public ActionResult Profile()
+		{
+			if (Session["UserId"] == null)
+			{
+				return RedirectToAction("Login", "Account");
+			}
+
+			// 加載用戶的個人資料
+			var userId = (int)Session["UserId"];
+			var member = _db.Members.FirstOrDefault(m => m.Id == userId);
+
+			if (member == null)
+			{
+				return RedirectToAction("Login", "Account");
+			}
+
+			return View(member);
 		}
 	}
 }
