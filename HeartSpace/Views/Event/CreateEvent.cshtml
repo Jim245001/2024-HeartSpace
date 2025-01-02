@@ -140,9 +140,9 @@
 
         <!-- 照片 -->
         <div class="mb-3">
-            @Html.LabelFor(m => m.Img, "照片", new { @class = "form-label" })
-            @Html.TextBoxFor(m => m.Img, new { @class = "form-control", type = "file" })
-            @Html.ValidationMessageFor(m => m.Img, "", new { @class = "text-danger small" })
+            @Html.LabelFor(m => m.UploadedImg, "照片", new { @class = "form-label" })
+            @Html.TextBoxFor(m => m.UploadedImg, new { @class = "form-control", type = "file" })
+            @Html.ValidationMessageFor(m => m.UploadedImg, "", new { @class = "text-danger small" })
         </div>
 
         <!-- 按鈕 -->

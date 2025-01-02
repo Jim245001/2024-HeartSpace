@@ -35,11 +35,11 @@ namespace HeartSpace.Controllers
 				byte[] imageData = null;
 
 				// 照片上傳處理
-				if (model.Img != null && model.Img.ContentLength > 0)
+				if (model.UploadedImg != null && model.UploadedImg.ContentLength > 0)
 				{
-					using (var binaryReader = new System.IO.BinaryReader(model.Img.InputStream))
+					using (var binaryReader = new System.IO.BinaryReader(model.UploadedImg.InputStream))
 					{
-						imageData = binaryReader.ReadBytes(model.Img.ContentLength);
+						imageData = binaryReader.ReadBytes(model.UploadedImg.ContentLength);
 					}
 				}
 
@@ -85,12 +85,23 @@ namespace HeartSpace.Controllers
 				return HttpNotFound();
 			}
 
+			// 根據 CategoryId 從 Categories 表中取得類別名稱
+			var categoryName = db.Categories
+				.Where(c => c.Id == eventItem.CategoryId)
+				.Select(c => c.CategoryName)
+				.FirstOrDefault();
+
+			
+			int participantNow = GetParticipantNow(id);
+
 			var model = new EventViewModel
 			{
 				Id = eventItem.Id,
+				
 				EventName = eventItem.EventName,
 				MemberId = eventItem.MemberId,
 				Description = eventItem.Description,
+				Img = eventItem.img,
 				EventTime = eventItem.EventTime,
 				Location = eventItem.Location,
 				IsOnline = eventItem.IsOnline,
@@ -99,10 +110,18 @@ namespace HeartSpace.Controllers
 				Limit = eventItem.Limit,
 				DeadLine = eventItem.DeadLine,
 				CommentCount = eventItem.CommentCount,
-				ParticipantNow = eventItem.ParticipantNow
+				ParticipantNow = participantNow,
+				CategoryName = categoryName
 			};
 
 			return View(model);
+		}
+
+
+		// 計算參與人數
+		public int GetParticipantNow(int eventId)
+		{
+			return db.EventMembers.Count(em => em.EventId == eventId);
 		}
 	}
 }

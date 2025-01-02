@@ -17,8 +17,13 @@ namespace HeartSpace.Models.ViewModels
 		[Display(Name = "會員 ID")]
 		public int MemberId { get; set; }
 
+		// 用於顯示圖片的二進制數據
 		[Display(Name = "照片")]
-		public HttpPostedFileBase Img { get; set; } // 用於接收上傳的檔案
+		public byte[] Img { get; set; }
+		
+		// 用於接收圖片上傳的 HttpPostedFileBase
+		public HttpPostedFileBase UploadedImg { get; set; }
+
 
 		[Display(Name = "分類 ID")]
 		public int CategoryId { get; set; }
@@ -59,6 +64,8 @@ namespace HeartSpace.Models.ViewModels
 
 		[Display(Name = "當前參加人數")]
 		public int? ParticipantNow { get; set; }
+
+		public string CategoryName { get; set; }
 
 		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{

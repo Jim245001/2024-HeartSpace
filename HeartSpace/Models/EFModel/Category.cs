@@ -15,5 +15,7 @@ namespace HeartSpace.Models.EFModel
         public string CategoryName { get; set; }
 
         public int DisplayOrder { get; set; }
-    }
+
+		//public virtual ICollection<Event> Events { get; set; }
+	}
 }
