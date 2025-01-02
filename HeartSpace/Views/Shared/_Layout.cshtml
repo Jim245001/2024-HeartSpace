@@ -20,16 +20,16 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-            .navbar .brand {
-                background-color: #d6d3cb;
-                padding: 10px 20px;
-                text-align: center;
-                font-weight: bold;
-                font-size: 18px;
-                border-radius: 5px;
-                text-decoration: none;
-                color: black;
-            }
+        .navbar .brand {
+            background-color: #d6d3cb;
+            padding: 10px 20px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+            border-radius: 5px;
+            text-decoration: none;
+            color: black;
+        }
 
         .nav-item {
             background-color: #fdd9a0;
@@ -43,9 +43,21 @@
             display: block;
         }
 
-            .nav-item:hover {
-                background-color: #fcb874;
-            }
+        .nav-item-admin {
+            background-color: #ff0000;
+            padding: 8px 16px;
+            text-align: center;
+            font-size: 14px;
+            border-radius: 5px;
+            text-decoration: none;
+            color: black;
+            transition: background-color 0.3s;
+            display: block;
+        }
+
+        .nav-item:hover {
+            background-color: #fcb874;
+        }
 
         /* 主內容區域寬度 */
         .container {
@@ -63,6 +75,7 @@
 
             <!-- 導覽按鈕 -->
             <div class="d-flex flex-wrap gap-2">
+                <a class="nav-item-admin" href="#">後台</a>
                 <a class="nav-item" href="#">來揪團</a>
                 <a class="nav-item" href="#">來發文</a>
                 <a class="nav-item" href="#">搜尋揪團</a>
