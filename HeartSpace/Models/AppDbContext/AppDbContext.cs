@@ -5,10 +5,10 @@ using System.Linq;
 
 namespace HeartSpace.Models.EFModel
 {
-	public partial class EFModel1 : DbContext
+	public partial class AppDbContext : DbContext
 	{
-		public EFModel1()
-			: base("name=EFModel1")
+		public AppDbContext()
+			: base("name=AppDbContext")
 		{
 		}
 
