@@ -62,5 +62,49 @@ namespace HeartSpace.Controllers
 
             return View(post); // 傳遞貼文到檢視
         }
+
+        [HttpGet]
+        public ActionResult EditPost(int? id)
+        {
+            if (!id.HasValue)
+            {
+                return HttpNotFound("貼文 ID 未提供！");
+            }
+
+            var post = db.Posts.FirstOrDefault(p => p.Id == id.Value);
+
+            if (post == null)
+            {
+                return HttpNotFound("找不到該貼文！");
+            }
+
+            return View(post); // 傳遞貼文數據到檢視
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EditPost(int id, Post model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model); // 若資料無效，返回編輯頁面
+            }
+
+            var post = db.Posts.FirstOrDefault(p => p.Id == id);
+
+            if (post == null)
+            {
+                return HttpNotFound("找不到該貼文！");
+            }
+
+            // 更新貼文數據
+            post.Title = model.Title;
+            post.PostContent = model.PostContent;
+            post.Img = model.Img; // 假設圖片以 byte[] 儲存
+            post.PublishTime = DateTime.Now; // 更新發佈時間（可選）
+
+            db.SaveChanges(); // 保存變更
+
+            return RedirectToAction("PostDetails", new { id = post.Id }); // 返回貼文詳情頁面
+        }
     }
 }

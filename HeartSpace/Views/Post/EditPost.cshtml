@@ -1,0 +1,35 @@
+﻿@model HeartSpace.Models.Post
+
+@{
+    ViewBag.Title = "修改貼文";
+}
+
+<h2>修改貼文</h2>
+
+@using (Html.BeginForm("EditPost", "Post", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Title, "標題：")
+        @Html.TextBoxFor(model => model.Title, new { @class = "form-control", placeholder = "請輸入標題" })
+        @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group">
+        @Html.Label("上傳圖片：")
+        <input type="file" name="Img" class="form-control" />
+        @if (Model.Img != null && Model.Img.Length > 0)
+        {
+            <img src="data:image/png;base64,@(Convert.ToBase64String(Model.Img))" alt="貼文圖片" style="max-width: 100%; height: auto;" />
+        }
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.PostContent, "內文：")
+        @Html.TextAreaFor(model => model.PostContent, new { @class = "form-control", placeholder = "請輸入內文", rows = 5 })
+        @Html.ValidationMessageFor(model => model.PostContent, "", new { @class = "text-danger" })
+    </div>
+
+    <button type="submit" class="btn btn-primary">修改貼文</button>
+}
