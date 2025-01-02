@@ -28,5 +28,9 @@ namespace HeartSpace.Models.EFModel
         public int CategoryId { get; set; }
 
         public int? CommentCount { get; set; }
+
+        public byte[] Img { get; set; }
+
+        public virtual ICollection<PostComment> PostComments { get; set; } = new List<PostComment>();
     }
 }

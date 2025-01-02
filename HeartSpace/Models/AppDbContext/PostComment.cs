@@ -19,5 +19,8 @@ namespace HeartSpace.Models.EFModel
         public string Comment { get; set; }
 
         public DateTime CommentTime { get; set; }
+
+        [ForeignKey("PostId")]
+        public virtual Post Post { get; set; }
     }
 }
