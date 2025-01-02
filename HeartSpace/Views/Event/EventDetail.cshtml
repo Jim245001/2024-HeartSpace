@@ -50,7 +50,9 @@
     <div class="row text-center mb-4">
         <div class="col">
             <button class="btn btn-warning w-100 py-2" style="font-weight: bold; font-size: 1.2rem;">報名活動 / 取消報名</button>
-        </div>
+    </div>
+    <div class="mb-3">
+        <strong>最大參加人數：</strong> @Model.ParticipantMax
     </div>
 
 
@@ -58,9 +60,11 @@
     <div class="row text-center">
         <div class="col-6">
             <button class="btn btn-secondary w-100 py-2" style="font-weight: bold;">關閉</button>
-        </div>
+    </div>
         <div class="col-6">
             <button class="btn btn-primary w-100 py-2" style="font-weight: bold;">修改</button>
-        </div>
+    </div>
+    <div class="mb-3">
+        <strong>參加限制：</strong> @Model.Limit
     </div>
 </div>
