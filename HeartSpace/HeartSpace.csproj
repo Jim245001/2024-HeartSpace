@@ -123,7 +123,7 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
-    <Compile Include="Controllers\DefaultController.cs" />
+    <Compile Include="Controllers\EventController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ProfileController.cs" />
     <Compile Include="Global.asax.cs">
@@ -144,6 +144,7 @@
     <Compile Include="Models\ForgotPasswordViewModel.cs" />
     <Compile Include="Models\LoginViewModel.cs" />
     <Compile Include="Models\RegisterViewModel.cs" />
+    <Compile Include="Models\ViewModel\EventViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -225,12 +226,13 @@
     <Content Include="Views\Account\Register.cshtml" />
     <Content Include="Views\Account\ForgotPassword.cshtml" />
     <Content Include="Views\AdminController\ManageGroup.cshtml" />
+    <Content Include="Views\Event\CreateEvent.cshtml" />
+    <Content Include="Views\Event\EventDetail.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Controllers\Home\" />
     <Folder Include="Controllers\Profile\" />
-    <Folder Include="Models\EFModel\" />
     <Folder Include="Views\Default\" />
   </ItemGroup>
   <ItemGroup>

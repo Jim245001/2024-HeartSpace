@@ -1,0 +1,99 @@
+﻿@model HeartSpace.Models.ViewModels.EventViewModel
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">新增活動</h2>
+    @using (Html.BeginForm("", "", FormMethod.Post, new { enctype = "multipart/form-data", @class = "mx-auto", style = "max-width: 600px;" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <!-- 活動名稱 -->
+        <div class="mb-3">
+            <label for="EventName" class="form-label">活動名稱：</label>
+            @Html.TextBoxFor(m => m.EventName, new { @class = "form-control", placeholder = "請輸入活動名稱" })
+            @Html.ValidationMessageFor(m => m.EventName, "", new { @class = "text-danger small" })
+        </div>
+
+        <!-- 描述 -->
+        <div class="mb-3">
+            <label for="Description" class="form-label">描述：</label>
+            @Html.TextAreaFor(m => m.Description, new { @class = "form-control", rows = "3", placeholder = "請輸入活動描述" })
+            @Html.ValidationMessageFor(m => m.Description, "", new { @class = "text-danger small" })
+        </div>
+
+        <!-- 活動分類 -->
+        <div class="mb-3">
+            <label for="CategoryId" class="form-label">活動分類：</label>
+            @Html.DropDownListFor(m => m.CategoryId, new SelectList(ViewBag.Categories, "Id", "CategoryName"), "請選擇分類", new { @class = "form-select" })
+            @Html.ValidationMessageFor(m => m.CategoryId, "", new { @class = "text-danger small" })
+        </div>
+
+        <!-- 活動時間 -->
+        <div class="mb-3">
+            <label for="EventTime" class="form-label">活動時間：</label>
+            @Html.TextBoxFor(m => m.EventTime, new { @class = "form-control", type = "datetime-local" })
+            @Html.ValidationMessageFor(m => m.EventTime, "", new { @class = "text-danger small" })
+        </div>
+
+        <!-- 報名截止日期 -->
+        <div class="mb-3">
+            <label for="DeadLine" class="form-label">報名截止日期：</label>
+            @Html.TextBoxFor(m => m.DeadLine, new { @class = "form-control", type = "date" })
+            @Html.ValidationMessageFor(m => m.DeadLine, "", new { @class = "text-danger small" })
+        </div>
+
+        <!-- 是否線上 -->
+        <div class="mb-3">
+            <label class="form-label">是否線上：</label>
+            <div class="form-check">
+                @Html.RadioButtonFor(m => m.IsOnline, true, new { @class = "form-check-input", id = "Online" })
+                <label for="Online" class="form-check-label">線上</label>
+            </div>
+            <div class="form-check">
+                @Html.RadioButtonFor(m => m.IsOnline, false, new { @class = "form-check-input", id = "Offline" })
+                <label for="Offline" class="form-check-label">線下</label>
+            </div>
+            @Html.ValidationMessageFor(m => m.IsOnline, "", new { @class = "text-danger small" })
+        </div>
+
+        <!-- 地址 -->
+        <div class="mb-3">
+            <label for="Location" class="form-label">地址：</label>
+            @Html.TextBoxFor(m => m.Location, new { @class = "form-control", placeholder = "請輸入地址" })
+            @Html.ValidationMessageFor(m => m.Location, "", new { @class = "text-danger small" })
+        </div>
+
+        <!-- 人數上限 -->
+        <div class="mb-3">
+            <label for="ParticipantMax" class="form-label">人數上限：</label>
+            @Html.TextBoxFor(m => m.ParticipantMax, new { @class = "form-control", placeholder = "請輸入人數上限" })
+            @Html.ValidationMessageFor(m => m.ParticipantMax, "", new { @class = "text-danger small" })
+        </div>
+
+        <!-- 人數下限 -->
+        <div class="mb-3">
+            <label for="ParticipantMin" class="form-label">人數下限：</label>
+            @Html.TextBoxFor(m => m.ParticipantMin, new { @class = "form-control", placeholder = "請輸入人數下限" })
+            @Html.ValidationMessageFor(m => m.ParticipantMin, "", new { @class = "text-danger small" })
+        </div>
+
+        <!-- 參加限制 -->
+        <div class="mb-3">
+            <label for="Limit" class="form-label">參加限制：</label>
+            @Html.TextBoxFor(m => m.Limit, new { @class = "form-control", placeholder = "請輸入參加限制，例如年齡、身份等" })
+            @Html.ValidationMessageFor(m => m.Limit, "", new { @class = "text-danger small" })
+        </div>
+
+        <!-- 照片 -->
+        <div class="mb-3">
+            <label for="Img" class="form-label">照片：</label>
+            @Html.TextBoxFor(m => m.Img, new { @class = "form-control", type = "file" })
+            @Html.ValidationMessageFor(m => m.Img, "", new { @class = "text-danger small" })
+        </div>
+
+        <!-- 按鈕 -->
+        <div class="d-flex justify-content-center">
+            <button type="submit" class="btn btn-primary me-2">確認</button>
+            <a href="@Url.Action("Index", "Event")" class="btn btn-secondary">取消</a>
+        </div>
+    }
+</div>

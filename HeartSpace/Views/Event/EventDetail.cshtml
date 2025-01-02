@@ -1,0 +1,33 @@
+﻿@model HeartSpace.Models.ViewModels.EventViewModel
+
+<h2 class="text-center my-4">活動詳細資料</h2>
+
+<div class="container mt-4">
+    <div class="mb-3">
+        <strong>活動名稱：</strong> @Model.EventName
+    </div>
+    <div class="mb-3">
+        <strong>描述：</strong> @Model.Description
+    </div>
+    <div class="mb-3">
+        <strong>活動時間：</strong> @Model.EventTime.ToString("yyyy-MM-dd HH:mm")
+    </div>
+    <div class="mb-3">
+        <strong>是否線上：</strong> @(Model.IsOnline ? "線上" : "線下")
+    </div>
+    <div class="mb-3">
+        <strong>地點：</strong> @Model.Location
+    </div>
+    <div class="mb-3">
+        <strong>最大參加人數：</strong> @Model.ParticipantMax
+    </div>
+    <div class="mb-3">
+        <strong>最小參加人數：</strong> @Model.ParticipantMin
+    </div>
+    <div class="mb-3">
+        <strong>報名截止日期：</strong> @Model.DeadLine.ToString("yyyy-MM-dd")
+    </div>
+    <div class="mb-3">
+        <strong>參加限制：</strong> @Model.Limit
+    </div>
+</div>
