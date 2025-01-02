@@ -1,0 +1,69 @@
+﻿@{
+    ViewData["Title"] = "揪團詳細資訊";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <!-- 搜尋區域 -->
+    <div class="row mb-4">
+        <div class="col-md-9 align-items-center d-flex align-items-center justify-content-center">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="請輸入搜尋關鍵字">
+                <button class="btn btn-primary">搜尋</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 揪團資訊卡 -->
+    <div class="card p-4" style="border: 2px solid purple;">
+        <div class="row">
+            <!-- 左側區塊 -->
+            <div class="col-md-4 text-center">
+                <img src="https://via.placeholder.com/150" alt="揪團圖片" class="img-fluid rounded mb-3">
+                <h5 class="fw-bold">揪團名稱</h5>
+                <div class="d-flex align-items-center justify-content-center">
+                    <img src="https://via.placeholder.com/50" alt="主辦頭像" class="rounded-circle me-2">
+                    <span>主辦 ID</span>
+                </div>
+            </div>
+
+            <!-- 右側區塊 -->
+            <div class="col-md-8">
+                <div class="row mb-2">
+                    <div class="col-6">
+                        <strong>時間：</strong>
+                        <span>2025/01/01 18:00</span>
+                    </div>
+                    <div class="col-6">
+                        <strong>已報名人數/人數上限：</strong>
+                        <span>10 / 20</span>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-6">
+                        <strong>地點：</strong>
+                        <span>台北市中山區某某路</span>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <strong>揪團狀態：</strong>
+                        <span class="badge bg-warning text-dark">進行中</span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <strong>聚會描述：</strong>
+                    <p>這是一個關於學習程式設計的聚會，歡迎新手和專業人士參與！</p>
+                </div>
+                <!-- 標籤區域 -->
+                <div>
+                    <strong>標籤：</strong>
+                    <span class="badge bg-secondary me-1">#編程</span>
+                    <span class="badge bg-secondary me-1">#學習</span>
+                    <span class="badge bg-secondary me-1">#聚會</span>
+                    <span class="badge bg-secondary me-1">#台北</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
