@@ -21,7 +21,7 @@ namespace HeartSpace.Models.EFModel
         public string PostContent { get; set; }
 
         [Column(TypeName = "image")]
-        public byte[] img { get; set; }
+        public byte[] Img { get; set; }
 
         public DateTime PublishTime { get; set; }
 
@@ -29,7 +29,6 @@ namespace HeartSpace.Models.EFModel
 
         public int? CommentCount { get; set; }
 
-        public byte[] Img { get; set; }
 
         public virtual ICollection<PostComment> PostComments { get; set; } = new List<PostComment>();
     }

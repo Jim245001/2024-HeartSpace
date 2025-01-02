@@ -157,6 +157,7 @@
     <Compile Include="Models\EventRepository.cs" />
     <Compile Include="Models\ForgotPasswordViewModel.cs" />
     <Compile Include="Models\LoginViewModel.cs" />
+    <Compile Include="Models\PostModel.cs" />
     <Compile Include="Models\PostViewModel.cs" />
     <Compile Include="Models\RegisterViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -216,6 +217,8 @@
     <Content Include="Views\Account\Register.cshtml" />
     <Content Include="Views\Account\ForgotPassword.cshtml" />
     <Content Include="Views\AdminController\ManageGroup.cshtml" />
+    <Content Include="Views\Post\CreatePost.cshtml" />
+    <Content Include="Views\Post\PostDetails.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
