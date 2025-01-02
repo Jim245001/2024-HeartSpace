@@ -45,5 +45,7 @@ namespace HeartSpace.Models.EFModel
         public int? CommentCount { get; set; }
 
         public int? ParticipantNow { get; set; }
-    }
+
+		//public virtual Category Categories { get; set; }
+	}
 }

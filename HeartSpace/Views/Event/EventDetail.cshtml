@@ -1,0 +1,70 @@
+﻿@model HeartSpace.Models.ViewModels.EventViewModel
+
+<div class="container mt-5" style="max-width: 70%; margin: 0 auto;">
+    <!-- 照片 -->
+    <div class="text-center mb-4">
+        @if (Model.Img != null)
+        {
+            <img src="data:image/png;base64,@Convert.ToBase64String(Model.Img)"
+                 style="max-width: 100%; height: 250px; border-radius: 10px; object-fit: cover;" />
+        }
+        else
+        {
+            <div style="background-color: #d6d6d6; width: 100%; height: 250px; border-radius: 10px;">
+                <p class="text-muted pt-5">圖片預覽</p>
+            </div>
+        }
+    </div>
+
+    <!-- 活動名稱 -->
+    <div class="bg-secondary text-white text-center py-3 mb-4" style="border-radius: 10px;">
+        <h3 style="margin: 0; font-size: 1.8rem;">@Model.EventName</h3>
+    </div>
+
+    <!-- 聚會描述 -->
+    <div class="bg-light p-4 rounded mb-4 shadow-sm">
+        <p class="mb-1"><i class="bi bi-calendar"></i> <strong>時間：</strong> @Model.EventTime.ToString("yyyy-MM-dd HH:mm")</p>
+        <p class="mb-1"><i class="bi bi-geo-alt"></i> <strong>地點：</strong> @Model.Location</p>
+        <p class="mb-1"><i class="bi bi-people"></i> <strong>人數限制：</strong> @Model.ParticipantMin ~ @Model.ParticipantMax</p>
+        <p class="mb-1"><i class="bi bi-person"></i> <strong>目前報名人數：</strong> @Model.ParticipantNow</p>
+        <p class="mb-1"><i class="bi bi-tag"></i> <strong>類別：</strong> @Model.CategoryName</p>
+        <p class="mb-1">
+            <i class="bi bi-exclamation-circle"></i> <strong>參加限制：</strong>
+            @if (string.IsNullOrEmpty(Model.Limit))
+            {
+                <span class="text-muted" style="font-style: italic;">無</span>
+            }
+            else
+            {
+                @Model.Limit
+            }
+        </p>
+    </div>
+
+    <!-- 報名截止日期 -->
+    <div class="text-center mb-4">
+        <h6 style="font-weight: bold; color: #ff5733;">報名截止日：@Model.DeadLine.ToString("yyyy-MM-dd HH:mm")</h6>
+    </div>
+
+    <!-- 報名按鈕 -->
+    <div class="row text-center mb-4">
+        <div class="col">
+            <button class="btn btn-warning w-100 py-2" style="font-weight: bold; font-size: 1.2rem;">報名活動 / 取消報名</button>
+    </div>
+    <div class="mb-3">
+        <strong>最大參加人數：</strong> @Model.ParticipantMax
+    </div>
+
+
+    <!-- 底部按鈕 -->
+    <div class="row text-center">
+        <div class="col-6">
+            <button class="btn btn-secondary w-100 py-2" style="font-weight: bold;">關閉</button>
+    </div>
+        <div class="col-6">
+            <button class="btn btn-primary w-100 py-2" style="font-weight: bold;">修改</button>
+    </div>
+    <div class="mb-3">
+        <strong>參加限制：</strong> @Model.Limit
+    </div>
+</div>
