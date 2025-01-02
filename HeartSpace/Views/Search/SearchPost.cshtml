@@ -1,0 +1,60 @@
+﻿@{
+    ViewData["Title"] = "搜尋貼文";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <!-- 搜尋區域 -->
+    <div class="row mb-4">
+        <div class="align-items-center">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="請輸入搜尋關鍵字">
+                <button class="btn btn-primary">搜尋</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 貼文資訊卡 -->
+    <div class="card p-4" style="border: 2px solid purple;">
+        <div class="row">
+            <!-- 左側區塊 -->
+            <div class="col-md-4 text-center">
+                <img src="https://via.placeholder.com/150" alt="貼文圖片" class="img-fluid rounded mb-3">
+                <h5 class="fw-bold">貼文標題</h5>
+                <div class="d-flex align-items-center justify-content-center">
+                    <img src="https://via.placeholder.com/50" alt="原PO頭像" class="rounded-circle me-2">
+                    <span>原PO ID</span>
+                </div>
+            </div>
+
+            <!-- 右側區塊 -->
+            <div class="col-md-8">
+                <div class="row mb-2">
+                    <div>
+                        <strong>發布時間：</strong>
+                        <span>2025/01/01 12:00</span>
+                    </div>
+
+                </div>
+                <div class="row mb-2">
+                    <div class="col-6">
+                        <strong>分類：</strong>
+                        <span>技術</span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <strong>貼文內容：</strong>
+                    <p>這是一篇關於程式設計技巧的分享文章，適合初學者和進階開發者閱讀。這是一篇關於程式設計技巧的分享文章，適合初學者和進階開發者閱讀。這是一篇關於程式設計技巧的分享文章，適合初學者和進階開發者閱讀。這是一篇關於程式設計技巧的分享文章，適合初學者和進階開發者閱讀。這是一篇關於程式設計技巧的分享文章，適合初學者和進階開發者閱讀。</p>
+                </div>
+                <!-- 標籤區域 -->
+                <div>
+                    <strong>標籤：</strong>
+                    <span class="badge bg-secondary me-1">#程式設計</span>
+                    <span class="badge bg-secondary me-1">#技術分享</span>
+                    <span class="badge bg-secondary me-1">#學習</span>
+                    <span class="badge bg-secondary me-1">#生活</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
