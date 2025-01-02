@@ -42,7 +42,7 @@ namespace HeartSpace.Controllers
             return View(model);
         }
 
-        private EFModel1 db = new EFModel1();
+        private AppDbContext db = new AppDbContext();
 
         public ActionResult PostDetails(int? id)
         {
