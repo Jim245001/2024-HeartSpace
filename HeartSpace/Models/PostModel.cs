@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace HeartSpace.Models.EFModel
@@ -14,13 +13,15 @@ namespace HeartSpace.Models.EFModel
         public string Title { get; set; }
 
         [Required(ErrorMessage = "內文是必填項")]
-        public string Content { get; set; }
+        public string PostContent { get; set; }
 
         public string ImagePath { get; set; }
+        public byte[] Img { get; set; }
 
         public DateTime PublishTime { get; set; } = DateTime.Now;
 
         public int MemberId { get; set; }
+        public int CategoryId { get; set; }
 
     }
 }

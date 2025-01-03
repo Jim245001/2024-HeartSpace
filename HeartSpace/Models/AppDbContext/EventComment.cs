@@ -1,4 +1,4 @@
-namespace HeartSpace.Models.EFModels
+namespace HeartSpace.Models.EFModel
 {
     using System;
     using System.Collections.Generic;
@@ -19,9 +19,5 @@ namespace HeartSpace.Models.EFModels
         public string EventCommentContent { get; set; }
 
         public DateTime CommentTime { get; set; }
-
-        public virtual Event Event { get; set; }
-
-        public virtual Member Member { get; set; }
     }
 }

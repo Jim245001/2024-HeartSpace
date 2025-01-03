@@ -1,18 +1,15 @@
 ﻿using HeartSpace.Models.EFModel;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace HeartSpace.Models
 {
-	public class EventCard
-	{
-		public string Title { get; set; }
-		public string Organizer { get; set; }
-		public string Location { get; set; }
-		public DateTime EventDate { get; set; }
-		public string ImageUrl { get; set; }
+    public class EventCard
+    {
+        public string Title { get; set; }
+        public string Organizer { get; set; }
+        public string Location { get; set; }
+        public DateTime EventDate { get; set; }
+        public string ImageUrl { get; set; }
 
 		public string Description { get; set; }
 		public string MemberImageUrl { get; set; } // 發起人 ID
@@ -70,5 +67,5 @@ namespace HeartSpace.Models
 		}
 
 
-	}
+    }
 }

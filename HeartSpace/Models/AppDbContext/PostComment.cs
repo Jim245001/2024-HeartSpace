@@ -1,4 +1,4 @@
-namespace HeartSpace.Models.EFModels
+namespace HeartSpace.Models.EFModel
 {
     using System;
     using System.Collections.Generic;
@@ -20,8 +20,7 @@ namespace HeartSpace.Models.EFModels
 
         public DateTime CommentTime { get; set; }
 
-        public virtual Member Member { get; set; }
-
+        [ForeignKey("PostId")]
         public virtual Post Post { get; set; }
     }
 }

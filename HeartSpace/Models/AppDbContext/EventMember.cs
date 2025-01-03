@@ -1,4 +1,4 @@
-namespace HeartSpace.Models.EFModels
+namespace HeartSpace.Models.EFModel
 {
     using System;
     using System.Collections.Generic;
@@ -6,12 +6,12 @@ namespace HeartSpace.Models.EFModels
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Data.Entity.Spatial;
 
-    public partial class Tag
+    public partial class EventMember
     {
         public int Id { get; set; }
 
-        [Required]
-        [StringLength(15)]
-        public string TagName { get; set; }
+        public int EventId { get; set; }
+
+        public int MemberId { get; set; }
     }
 }
