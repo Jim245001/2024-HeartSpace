@@ -1,56 +1,78 @@
-﻿@model HeartSpace.Models.EFModel.Post
+﻿@model HeartSpace.Models.PostViewModel
 
-@{
-    ViewBag.Title = Model.Title;
-}
+<div class="container" style="margin-top: 20px;">
+    <!-- 貼文內容 -->
+    <div class="post-section" style="border: 1px solid #ddd; padding: 20px; border-radius: 10px; background-color: #f8f9fa;">
+        <!-- 標題與原PO資訊 -->
+        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #007bff; padding-bottom: 10px;">
+            <div>
+                <h2 style="margin: 0; color: #007bff;">@Model.Title</h2>
+                <p style="margin: 0; color: #6c757d;">分類：<strong>@Model.CategoryName</strong></p>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <img src="data:image/png;base64,@Model.MemberImg" alt="原PO頭像" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;">
+                <span style="font-weight: bold; color: #495057;">@Model.MemberName</span>
+            </div>
+        </div>
 
-<div class="container">
-    <h1 class="post-title">@Model.Title</h1>
+        <!-- 貼文圖片 -->
+        @if (!string.IsNullOrEmpty(Model.PostImg))
+        {
+            <div style="margin-top: 20px; text-align: center; background-color: #e9ecef; padding: 15px; border-radius: 10px;">
+                <img src="data:image/png;base64,@Model.PostImg" alt="貼文圖片" style="max-width: 100%; height: auto; border-radius: 10px;">
+            </div>
+        }
 
-    <div class="post-content">
-        <p>@Model.PostContent</p>
+        <!-- 貼文內容 -->
+        <div class="post-content" style="margin-top: 20px; color: #212529;">
+            <p>@Model.PostContent</p>
+        </div>
+
+        <!-- 修改與關閉按鈕 -->
+        <div style="margin-top: 20px; text-align: right;">
+            @if (ViewBag.CurrentUserId == Model.MemberId)
+            {
+                <button class="btn btn-danger" style="margin-right: 10px;">關閉</button>
+                <button class="btn btn-primary">修改</button>
+            }
+        </div>
     </div>
 
-    <div class="post-image">
-        @if (Model.Img != null)
+    <!-- 留言區塊 -->
+    <div class="comments-section" style="margin-top: 30px; border: 1px solid #ddd; padding: 20px; border-radius: 10px; background-color: #ffffff;">
+        <h3 style="border-bottom: 2px solid #28a745; padding-bottom: 5px; color: #28a745;">留言板</h3>
+        @if (Model.Comments != null && Model.Comments.Any())
         {
-            <img src="data:image/png;base64,@(Convert.ToBase64String(Model.Img))" alt="貼文圖片" style="max-width: 100%; height: auto;" />
+            <ul style="list-style: none; padding: 0;">
+                @foreach (var comment in Model.Comments)
+                {
+                    <li style="margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background-color: #f8f9fa;">
+                        <div style="display: flex; align-items: center;">
+                            <img src="data:image/png;base64,@comment.AuthorImg" alt="留言者頭像" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
+                            <strong style="color: #495057;">@comment.AuthorName</strong>
+                            @if (ViewBag.CurrentUserId == comment.AuthorId)
+                            {
+                                <button class="btn btn-danger btn-sm" style="margin-left: auto;">刪除</button>
+                            }
+                        </div>
+                        <p style="margin-left: 40px; margin-top: 10px; color: #212529;">@comment.Content</p>
+                    </li>
+                }
+            </ul>
         }
         else
         {
-            <p>沒有上傳圖片。</p>
+            <p style="color: #6c757d;">目前沒有留言，快來搶沙發！</p>
         }
-    </div>
 
-    <div class="post-meta">
-        <p>發佈時間：@Model.PublishTime.ToString("yyyy-MM-dd HH:mm:ss")</p>
+        <!-- 留言輸入框 -->
+        <div class="add-comment" style="margin-top: 20px; background-color: #f8f9fa; padding: 15px; border-radius: 10px;">
+            <h4 style="color: #17a2b8;">輸入你的留言：</h4>
+            <form method="post" action="/Post/AddComment">
+                <textarea name="Content" class="form-control" rows="3" placeholder="請輸入留言內容" required></textarea>
+                <input type="hidden" name="PostId" value="@Model.Id" />
+                <button type="submit" class="btn btn-success" style="margin-top: 10px;">送出留言</button>
+            </form>
+        </div>
     </div>
 </div>
-
-<!-- 樣式 -->
-<style>
-    .container {
-        width: 80%;
-        margin: auto;
-        font-family: Arial, sans-serif;
-    }
-
-    .post-title {
-        font-size: 2rem;
-        margin-bottom: 20px;
-    }
-
-    .post-content {
-        font-size: 1.2rem;
-        margin-bottom: 20px;
-    }
-
-    .post-image {
-        margin-bottom: 20px;
-    }
-
-    .post-meta {
-        font-size: 0.9rem;
-        color: #555;
-    }
-</style>

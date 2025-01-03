@@ -1,32 +1,29 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace HeartSpace.Models
 {
-	public class EventCard
-	{
-		public string Title { get; set; }
-		public string Organizer { get; set; }
-		public string Location { get; set; }
-		public DateTime EventDate { get; set; }
-		public string ImageUrl { get; set; }
+    public class EventCard
+    {
+        public string Title { get; set; }
+        public string Organizer { get; set; }
+        public string Location { get; set; }
+        public DateTime EventDate { get; set; }
+        public string ImageUrl { get; set; }
 
-		// Constructor 初始化
-		public EventCard(string title, string organizer, string location, DateTime eventDate, string imageUrl)
-		{
-			Title = title;
-			Organizer = organizer;
-			Location = location;
-			EventDate = eventDate;
-			ImageUrl = imageUrl;
-		}
+        // Constructor 初始化
+        public EventCard(string title, string organizer, string location, DateTime eventDate, string imageUrl)
+        {
+            Title = title;
+            Organizer = organizer;
+            Location = location;
+            EventDate = eventDate;
+            ImageUrl = imageUrl;
+        }
 
-		// Render HTML 方法
-		public string RenderHtml()
-		{
-			return $@"
+        // Render HTML 方法
+        public string RenderHtml()
+        {
+            return $@"
 		<div style='width: 200px; height: 133px; background-color: #d9d9d9; border-radius: 7px; padding: 7px; font-family: Arial, sans-serif; position: relative; font-size: 0.6rem;'>
 			<!-- 左上角的圖片 -->
 			<div style='width: 40px; height: 40px; background-color: #e7f3e8; border: 1px solid #c0c0c0; display: flex; justify-content: center; align-items: center;'>
@@ -44,7 +41,7 @@ namespace HeartSpace.Models
 				<p style='margin: 0;'>{EventDate:tt h:mm}</p>
 			</div>
 		</div>";
-		}
+        }
 
 
 
@@ -52,5 +49,5 @@ namespace HeartSpace.Models
 
 
 
-	}
+    }
 }

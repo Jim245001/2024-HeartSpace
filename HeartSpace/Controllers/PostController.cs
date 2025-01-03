@@ -1,9 +1,11 @@
-﻿using HeartSpace.Models.EFModel;
+﻿using HeartSpace.Models;
+using HeartSpace.Models.EFModel;
+using HeartSpace.Models.EFModels;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Data.Entity;
 
 namespace HeartSpace.Controllers
 {
@@ -46,21 +48,39 @@ namespace HeartSpace.Controllers
 
         public ActionResult PostDetails(int? id)
         {
-
-            if (!id.HasValue)
-            {
-                return HttpNotFound("貼文 ID 未提供！");
-            }
-
-            // 不使用 Include，直接查詢貼文
-            var post = db.Posts.FirstOrDefault(p => p.Id == id.Value);
+            var post = db.Posts
+               .Include(p => p.Member)
+               .Include(p => p.PostComments.Select(c => c.Member))
+               .FirstOrDefault(p => p.Id == id);
 
             if (post == null)
             {
                 return HttpNotFound("找不到該貼文！");
             }
 
-            return View(post); // 傳遞貼文到檢視
+            // 轉換為 ViewModel
+            var viewModel = new PostViewModel
+            {
+                Id = post.Id,
+                Title = post.Title,
+                PostContent = post.PostContent,
+                PostImg = post.PostImg != null ? Convert.ToBase64String(post.PostImg) : null,
+                PublishTime = post.PublishTime,
+                MemberId = post.MemberId,
+                MemberName = post.Member?.Name, // 如果 Member 存在
+                MemberImg = post.Member?.MemberImg != null ? Convert.ToBase64String(post.Member.MemberImg) : null,
+                Comments = post.PostComments.Select(c => new CommentViewModel
+                {
+                    CommentId = c.Id,
+                    Content = c.Comment,
+                    CreatedAt = c.CommentTime,
+                    // 如果沒有 Member 關聯，移除以下兩行
+                    AuthorName = c.Member?.Name,
+                    AuthorImg = c.Member?.MemberImg != null ? Convert.ToBase64String(c.Member.MemberImg) : null,
+                }).ToList()
+            };
+
+            return View(viewModel);
         }
 
         [HttpGet]
@@ -99,7 +119,7 @@ namespace HeartSpace.Controllers
             // 更新貼文數據
             post.Title = model.Title;
             post.PostContent = model.PostContent;
-            post.Img = model.Img; // 假設圖片以 byte[] 儲存
+            post.PostImg = model.PostImg; // 假設圖片以 byte[] 儲存
             post.PublishTime = DateTime.Now; // 更新發佈時間（可選）
 
             db.SaveChanges(); // 保存變更
