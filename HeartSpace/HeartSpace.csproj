@@ -139,16 +139,15 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\AppDbContext\Admin.cs" />
-    <Compile Include="Models\AppDbContext\Category.cs" />
-    <Compile Include="Models\AppDbContext\AppDbContext.cs" />
-    <Compile Include="Models\AppDbContext\Event.cs" />
-    <Compile Include="Models\AppDbContext\EventComment.cs" />
-    <Compile Include="Models\AppDbContext\EventMember.cs" />
-    <Compile Include="Models\AppDbContext\Member.cs" />
-    <Compile Include="Models\AppDbContext\Post.cs" />
-    <Compile Include="Models\AppDbContext\PostComment.cs" />
-    <Compile Include="Models\AppDbContext\Tag.cs" />
+    <Compile Include="Models\EFModel\AppDbContext.cs" />
+    <Compile Include="Models\EFModel\Category.cs" />
+    <Compile Include="Models\EFModel\Event.cs" />
+    <Compile Include="Models\EFModel\EventComment.cs" />
+    <Compile Include="Models\EFModel\EventMember.cs" />
+    <Compile Include="Models\EFModel\Member.cs" />
+    <Compile Include="Models\EFModel\Post.cs" />
+    <Compile Include="Models\EFModel\PostComment.cs" />
+    <Compile Include="Models\EFModel\Tag.cs" />
     <Compile Include="Models\EventCard.cs" />
     <Compile Include="Models\EventRepository.cs" />
     <Compile Include="Models\ForgotPasswordViewModel.cs" />
@@ -240,6 +239,7 @@
     <Content Include="Views\AdminController\ManageGroup.cshtml" />
     <Content Include="Views\Event\CreateEvent.cshtml" />
     <Content Include="Views\Event\EventDetail.cshtml" />
+    <Content Include="Views\Event\EditEvent.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

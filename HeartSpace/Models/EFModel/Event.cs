@@ -8,6 +8,13 @@ namespace HeartSpace.Models.EFModel
 
     public partial class Event
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public Event()
+        {
+            EventComments = new HashSet<EventComment>();
+            EventMembers = new HashSet<EventMember>();
+        }
+
         public int Id { get; set; }
 
         [Required]
@@ -17,7 +24,7 @@ namespace HeartSpace.Models.EFModel
         public int MemberId { get; set; }
 
         [Column(TypeName = "image")]
-        public byte[] img { get; set; }
+        public byte[] EventImg { get; set; }
 
         public int CategoryId { get; set; }
 
@@ -46,6 +53,14 @@ namespace HeartSpace.Models.EFModel
 
         public int? ParticipantNow { get; set; }
 
-		//public virtual Category Categories { get; set; }
-	}
+        public bool Disabled { get; set; }
+
+        public virtual Category Category { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<EventComment> EventComments { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<EventMember> EventMembers { get; set; }
+    }
 }

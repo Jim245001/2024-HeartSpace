@@ -1,70 +1,301 @@
 ﻿@model HeartSpace.Models.ViewModels.EventViewModel
-
 <div class="container mt-5" style="max-width: 70%; margin: 0 auto;">
+
     <!-- 照片 -->
     <div class="text-center mb-4">
         @if (Model.Img != null)
         {
             <img src="data:image/png;base64,@Convert.ToBase64String(Model.Img)"
-                 style="max-width: 100%; height: 250px; border-radius: 10px; object-fit: cover;" />
+                 style="max-width: 100%; height: 200px; border-radius: 10px; border: 2px solid #9b59b6; object-fit: cover;" />
         }
         else
         {
-            <div style="background-color: #d6d6d6; width: 100%; height: 250px; border-radius: 10px;">
+            <div style="background-color: #d6d6d6; width: 100%; height: 200px; border-radius: 10px; border: 2px solid black;">
                 <p class="text-muted pt-5">圖片預覽</p>
             </div>
         }
     </div>
 
-    <!-- 活動名稱 -->
-    <div class="bg-secondary text-white text-center py-3 mb-4" style="border-radius: 10px;">
-        <h3 style="margin: 0; font-size: 1.8rem;">@Model.EventName</h3>
+    <!-- 標題與發起人資訊 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <!-- 標題 -->
+        <div>
+            <h1 style="margin: 0; font-size: 2rem; font-weight: bold; color: #333;">@Model.EventName</h1>
+        </div>
+        <!-- 發起人資訊 -->
+        <div class="d-flex align-items-center">
+            <div class="me-3">
+                @if (Model.MemberProfileImg != null)
+                {
+                    <img src="data:image/png;base64,@Convert.ToBase64String(Model.MemberProfileImg)"
+                         style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #ccc;" />
+                }
+                else
+                {
+                    <div style="width: 60px; height: 60px; border-radius: 50%; background-color: #d6d6d6; border: 2px solid #ccc;">
+                        <p class="text-muted text-center" style="line-height: 60px;">無</p>
+                    </div>
+                }
+            </div>
+            <div>
+                <p class="mb-0" style="font-size: 1.2rem; font-weight: bold; color: #555;">@Model.MemberName</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 類別、線上線下、時間 -->
+    <div class="d-flex justify-content-start align-items-center text-muted mb-4" style="font-size: 1.1rem;">
+        <div class="d-flex align-items-center me-4">
+            <i class="bi bi-tag" style="font-size: 1.5rem; margin-right: 5px;" title="類別"></i>
+            <span>@Model.CategoryName</span>
+        </div>
+        <div class="d-flex align-items-center me-4">
+            <i class="bi bi-calendar" style="font-size: 1.5rem; margin-right: 5px;" title="時間"></i>
+            <span>@Model.EventTime.ToString("yyyy-MM-dd HH:mm")</span>
+        </div>
+        <div class="d-flex align-items-center me-4">
+            <i class="bi @(Model.IsOnline ? "bi-globe" : "bi-geo-alt")"
+               style="font-size: 1.5rem; margin-right: 5px;" title="線上/線下"></i>
+            <span>@(Model.IsOnline ? "線上" : "線下") | @Model.Location</span>
+        </div>
+        <div class="d-flex align-items-center">
+            <i class="bi bi-people-fill" style="font-size: 1.5rem; margin-right: 5px;" title="人數限制"></i>
+            <span>@Model.ParticipantMin ~ @Model.ParticipantMax</span>
+        </div>
     </div>
 
     <!-- 聚會描述 -->
-    <div class="bg-light p-4 rounded mb-4 shadow-sm">
-        <p class="mb-1"><i class="bi bi-calendar"></i> <strong>時間：</strong> @Model.EventTime.ToString("yyyy-MM-dd HH:mm")</p>
-        <p class="mb-1"><i class="bi bi-geo-alt"></i> <strong>地點：</strong> @Model.Location</p>
-        <p class="mb-1"><i class="bi bi-people"></i> <strong>人數限制：</strong> @Model.ParticipantMin ~ @Model.ParticipantMax</p>
-        <p class="mb-1"><i class="bi bi-person"></i> <strong>目前報名人數：</strong> @Model.ParticipantNow</p>
-        <p class="mb-1"><i class="bi bi-tag"></i> <strong>類別：</strong> @Model.CategoryName</p>
-        <p class="mb-1">
-            <i class="bi bi-exclamation-circle"></i> <strong>參加限制：</strong>
-            @if (string.IsNullOrEmpty(Model.Limit))
-            {
-                <span class="text-muted" style="font-style: italic;">無</span>
-            }
-            else
-            {
-                @Model.Limit
-            }
-        </p>
+    <div class="bg-light p-4 rounded mb-4 shadow-sm" style="font-size: 1.1rem; color: #444;">
+        <p class="mb-0">@Model.Description</p>
     </div>
 
-    <!-- 報名截止日期 -->
-    <div class="text-center mb-4">
-        <h6 style="font-weight: bold; color: #ff5733;">報名截止日：@Model.DeadLine.ToString("yyyy-MM-dd HH:mm")</h6>
+    <!-- 報名截止日期與報名人數 -->
+    <div class="d-flex justify-content-between mb-4" style="font-size: 1.1rem; color: #555;">
+        <p><strong>報名截止日：</strong>@Model.DeadLine.ToString("yyyy-MM-dd HH:mm")</p>
+        <p><strong>目前報名人數：</strong>@Model.ParticipantNow</p>
     </div>
 
     <!-- 報名按鈕 -->
-    <div class="row text-center mb-4">
-        <div class="col">
-            <button class="btn btn-warning w-100 py-2" style="font-weight: bold; font-size: 1.2rem;">報名活動 / 取消報名</button>
+    <div class="text-center mb-4">
+        @if (Model.IsEventOwner || Model.Role == "admin")
+        {
+            <!-- 查看報名狀況按鈕 -->
+            <a href="@Url.Action("EventStatus", "Event", new { id = Model.Id })"
+               class="btn w-100 py-2"
+               style="font-size: 1.2rem; color: black; background-color: #FDD9A0; border: none; border-radius: 8px;">
+                查看報名狀況
+            </a>
+        }
+        else if (Model.IsRegistered)
+        {
+            <!-- 取消報名按鈕 -->
+            <button class="btn w-100 py-2"
+                    style="font-size: 1.2rem; color: black; background-color: #FDD9A0; border: none; border-radius: 8px;"
+                    data-bs-toggle="modal" data-bs-target="#confirmCancelModal">
+                取消報名
+            </button>
+        }
+        else
+        {
+            <!-- 報名活動按鈕 -->
+            <button class="btn w-100 py-2"
+                    style="font-size: 1.2rem; color: black; background-color: #FDD9A0; border: none; border-radius: 8px;"
+                    data-bs-toggle="modal" data-bs-target="#confirmRegisterModal">
+                報名活動
+            </button>
+        }
     </div>
-    <div class="mb-3">
-        <strong>最大參加人數：</strong> @Model.ParticipantMax
+
+    <!-- 取消報名確認視窗 -->
+    <div class="modal fade" id="confirmCancelModal" tabindex="-1" aria-labelledby="confirmCancelModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmCancelModalLabel">確認取消報名</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    您確定要取消報名此活動嗎？
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <form action="@Url.Action("ToggleRegistration", "Event")" method="post">
+                        <input type="hidden" name="eventId" value="@Model.Id" />
+                        <input type="hidden" name="actionType" value="cancel" />
+                        <button type="submit" class="btn btn-danger">確定取消</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 報名活動確認視窗 -->
+    <div class="modal fade" id="confirmRegisterModal" tabindex="-1" aria-labelledby="confirmRegisterModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmRegisterModalLabel">確認報名活動</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    您確定要報名此活動嗎？
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <form action="@Url.Action("ToggleRegistration", "Event")" method="post">
+                        <input type="hidden" name="eventId" value="@Model.Id" />
+                        <input type="hidden" name="actionType" value="register" />
+                        <button type="submit" class="btn btn-success">確定報名</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 關閉修改 -->
+    <div class="text-center mb-4">
+        @if (Model.IsEventOwner || Model.Role == "admin")
+        {
+            <div class="d-flex justify-content-between" style="gap: 10px; margin: 0 auto;">
+                @if (Model.IsEventOwner || Model.Role == "admin")
+                {
+                    <!-- 關閉按鈕 -->
+                    <button class="btn btn-warning w-100 py-2"
+                            style="font-size: 1.2rem; background-color: #fcb874; border: none; border-radius: 8px;"
+                            data-bs-toggle="modal" data-bs-target="#confirmCloseModal">
+                        關閉
+                    </button>
+                }
+
+                @if (Model.IsEventOwner)
+                {
+                    <!-- 修改按鈕 -->
+                    <a href="@Url.Action("EditEvent", "Event", new { id = Model.Id })"
+                       class="btn btn-primary w-100 py-2"
+                       style="font-size: 1.2rem; border-radius: 8px;">
+                        修改
+                    </a>
+                }
+            </div>
+        }
     </div>
 
 
-    <!-- 底部按鈕 -->
-    <div class="row text-center">
-        <div class="col-6">
-            <button class="btn btn-secondary w-100 py-2" style="font-weight: bold;">關閉</button>
+    <!-- 關閉活動確認彈窗 -->
+    <div class="modal fade" id="confirmCloseModal" tabindex="-1" aria-labelledby="confirmCloseModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmCloseModalLabel">確認關閉活動</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    您確定要關閉這個活動嗎？關閉後將無法恢復。
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <form action="@Url.Action("CloseEvent", "Event")" method="post">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button type="submit" class="btn btn-danger">確認關閉</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-        <div class="col-6">
-            <button class="btn btn-primary w-100 py-2" style="font-weight: bold;">修改</button>
-    </div>
-    <div class="mb-3">
-        <strong>參加限制：</strong> @Model.Limit
+
+
+    <!-- 留言 -->
+    <div class="container mt-5">
+        <h4>留言</h4>
+
+        <!-- 留言輸入區 -->
+        <div class="mb-3">
+            @using (Html.BeginForm("AddComment", "Event", FormMethod.Post, new { @class = "d-flex flex-column" }))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="eventId" value="@Model.Id" />
+
+                <!-- 留言框 -->
+                <textarea id="commentContent" name="commentContent" class="form-control mb-2" rows="3" placeholder="留下你的意見" style="resize: none;"></textarea>
+
+                <!-- 按鈕區 -->
+                <div class="d-flex justify-content-end align-items-center">
+                    <!-- 取消按鈕 -->
+                    <button type="button" class="btn btn-secondary me-2" id="cancelComment">
+                        取消
+                    </button>
+                    <!-- 留言按鈕 -->
+                    <button type="submit" id="submitComment" class="btn btn-warning" style="background-color: #FDD9A0; border: none;" disabled>
+                        留言
+                    </button>
+                </div>
+            }
+        </div>
+
+        <!-- 留言顯示區 -->
+        <div class="comments">
+            @foreach (var comment in Model.Comments)
+            {
+                <div class="d-flex align-items-start mb-3">
+                    <!-- 留言者大頭照 -->
+                    <img src="@(comment.MemberProfileImg != null ? $"data:image/png;base64,{Convert.ToBase64String(comment.MemberProfileImg)}" : "/path/to/default-avatar.png")"
+                         class="rounded-circle me-3" alt="Avatar" style="width: 50px; height: 50px; object-fit: cover;" />
+
+                    <div>
+                        <!-- 留言者姓名 -->
+                        <p class="mb-1"><strong>@comment.MemberName</strong></p>
+                        <!-- 留言內容 -->
+                        <p class="mb-1">@comment.EventCommentContent</p>
+                        <!-- 留言時間與刪除按鈕 -->
+                        <div class="d-flex align-items-center">
+                            <small class="text-muted">@comment.CommentTime.ToString("MM/dd HH:mm")</small>
+                            @if (comment.MemberId == Model.CurrentMemberId)
+                            {
+                                <form action="@Url.Action("DeleteComment", "Event")" method="post" class="ms-2">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="commentId" value="@comment.Id" />
+                                    <button type="submit" class="btn btn-link text-danger p-0"
+                                            style="text-decoration: none; font-size: 0.9rem;"
+                                            onclick="return confirm('是否確認刪除此留言？');">
+                                        刪除留言
+                                    </button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+
+                </div>
+            }
+        </div>
     </div>
 </div>
+
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const commentBox = document.getElementById("commentContent");
+            const submitButton = document.getElementById("submitComment");
+            const cancelButton = document.getElementById("cancelComment");
+
+            if (commentBox && submitButton) {
+                // 當留言框有內容時啟用留言按鈕
+                commentBox.addEventListener("input", function () {
+                    if (this.value.trim().length > 0) {
+                        submitButton.disabled = false;
+                    } else {
+                        submitButton.disabled = true;
+                    }
+                });
+
+                // 取消按鈕清空內容並禁用留言按鈕
+                cancelButton.addEventListener("click", function () {
+                    commentBox.value = ""; // 清空留言框
+                    submitButton.disabled = true; // 禁用留言按鈕
+                });
+            }
+        });
+    </script>
+}
+
+
