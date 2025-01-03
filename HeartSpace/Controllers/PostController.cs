@@ -6,42 +6,91 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Data.Entity;
+using HeartSpace.Models.Services;
 
 namespace HeartSpace.Controllers
 {
     public class PostController : Controller
     {
-        // GET: Post
+        private readonly PostService _postService;
+
+        public PostController(PostService postService)
+        {
+            _postService = postService;
+        }
+
         public ActionResult CreatePost()
         {
-            var model = new PostModel();
+
+            //// 調用 Service 取得需要的分類清單
+            //var categories = _postService.GetCategories();
+
+            //// 建立 ViewModel 並將分類清單存入 ViewBag 或直接加入 ViewModel
+            //var model = new PostViewModel();
+            //ViewBag.Categories = new SelectList(categories, "Id", "CategoryName");
+
+            //return View(model); // 返回 View 與初始化資料
+
+            var model = new PostViewModel();
+            ViewBag.Categories = _postService.GetCategories();
             return View(model);
         }
         [HttpPost]
         public ActionResult CreatePost(PostModel model, HttpPostedFileBase Image)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                // 處理圖片上傳
-                if (Image != null)
-                {
-                    string path = Server.MapPath("~/Uploads/");
-                    if (!System.IO.Directory.Exists(path))
-                        System.IO.Directory.CreateDirectory(path);
-
-                    string fileName = System.IO.Path.GetFileName(Image.FileName);
-                    string fullPath = System.IO.Path.Combine(path, fileName);
-                    Image.SaveAs(fullPath);
-
-                    model.ImagePath = "/Uploads/" + fileName; // 存儲圖片路徑
-                }
-
-                // TODO: 儲存到資料庫
-
-                return RedirectToAction("Index");
+                ViewBag.Categories = new SelectList(db.Categories, "Id", "CategoryName");
+                return View(model);
             }
 
-            return View(model);
+            // 處理圖片上傳
+            byte[] postImage = null;
+            if (Image != null && Image.ContentLength > 0)
+            {
+                using (var binaryReader = new System.IO.BinaryReader(Image.InputStream))
+                {
+                    postImage = binaryReader.ReadBytes(Image.ContentLength);
+                }
+            }
+
+            // 新增貼文資料
+            var post = new Post
+            {
+                Title = model.Title,
+                PostContent = model.PostContent,
+                PublishTime = DateTime.Now,
+                CategoryId = model.CategoryId,
+                MemberId = 1, // 替換為目前登入的會員 ID
+                PostImg = postImage
+            };
+
+            try
+            {
+                db.Posts.Add(post);
+                db.SaveChanges();
+
+                // 儲存成功訊息
+                TempData["SuccessMessage"] = "貼文已成功儲存！";
+
+                // 跳轉到 PostDetails 頁面
+                return RedirectToAction("PostDetails", "Post", new { id = post.Id });
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "儲存失敗：" + ex.Message);
+                ViewBag.Categories = new SelectList(db.Categories, "Id", "CategoryName");
+                return View(model);
+            }
+        }
+
+        private int GetCurrentUserId()
+        {
+
+            var userName = User.Identity.Name; // 假設你儲存了用戶名
+            var member = db.Members.FirstOrDefault(m => m.Name == userName);
+            return member?.Id ?? throw new Exception("用戶尚未登入");
+
         }
 
         private AppDbContext db = new AppDbContext();
@@ -98,15 +147,40 @@ namespace HeartSpace.Controllers
                 return HttpNotFound("找不到該貼文！");
             }
 
-            return View(post); // 傳遞貼文數據到檢視
+            // 將 Post 轉換為 PostViewModel
+            var model = new PostViewModel
+            {
+                Id = post.Id,
+                Title = post.Title,
+                PostContent = post.PostContent,
+                PostImg = post.PostImg != null ? Convert.ToBase64String(post.PostImg) : null,
+                PublishTime = post.PublishTime,
+                MemberId = post.MemberId,
+                CategoryId = post.CategoryId,
+                CategoryList = db.Categories.Select(c => new SelectListItem
+                {
+                    Value = c.Id.ToString(),
+                    Text = c.CategoryName
+                }).ToList()
+
+            };
+
+            return View(model); // 傳遞 ViewModel 到檢視
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EditPost(int id, Post model)
+        public ActionResult EditPost(int id, PostViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                return View(model); // 若資料無效，返回編輯頁面
+                // 如果驗證失敗，需要重新填充類別清單，否則下拉清單會是空的
+                model.CategoryList = db.Categories.Select(c => new SelectListItem
+                {
+                    Value = c.Id.ToString(),
+                    Text = c.CategoryName
+                }).ToList();
+
+                return View(model);
             }
 
             var post = db.Posts.FirstOrDefault(p => p.Id == id);
@@ -119,12 +193,15 @@ namespace HeartSpace.Controllers
             // 更新貼文數據
             post.Title = model.Title;
             post.PostContent = model.PostContent;
-            post.PostImg = model.PostImg; // 假設圖片以 byte[] 儲存
-            post.PublishTime = DateTime.Now; // 更新發佈時間（可選）
+            post.CategoryId = model.CategoryId; // 保存選擇的類別 ID
 
-            db.SaveChanges(); // 保存變更
+            if (!string.IsNullOrEmpty(model.PostImg))
+            {
+                post.PostImg = Convert.FromBase64String(model.PostImg); // 將圖片更新
+            }
 
-            return RedirectToAction("PostDetails", new { id = post.Id }); // 返回貼文詳情頁面
+            db.SaveChanges(); // 保存更改
+            return RedirectToAction("PostDetails", new { id = post.Id });
         }
     }
 }

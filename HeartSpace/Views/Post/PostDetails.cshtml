@@ -4,15 +4,27 @@
     <!-- 貼文內容 -->
     <div class="post-section" style="border: 1px solid #ddd; padding: 20px; border-radius: 10px; background-color: #f8f9fa;">
         <!-- 標題與原PO資訊 -->
-        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #007bff; padding-bottom: 10px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 10px;">
             <div>
-                <h2 style="margin: 0; color: #007bff;">@Model.Title</h2>
-                <p style="margin: 0; color: #6c757d;">分類：<strong>@Model.CategoryName</strong></p>
+                <h2 style="margin: 0; color: #fd7e14; font-weight: bold; padding: 5px; border-radius: 5px;
+                text-shadow:
+                    -1px -1px 0 #ffc078,
+                    1px -1px 0 #ffc078,
+                    -1px 1px 0 #ffc078,
+                    1px 1px 0 #ffc078;">
+                    @Model.Title
+                </h2>
             </div>
             <div style="display: flex; align-items: center;">
                 <img src="data:image/png;base64,@Model.MemberImg" alt="原PO頭像" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;">
                 <span style="font-weight: bold; color: #495057;">@Model.MemberName</span>
             </div>
+        </div>
+
+        <!-- 分類與發佈時間 -->
+        <div style="border-top: 2px solid #fd7e14; margin-top: 10px; padding-top: 10px; width: 100%;">
+            <p style="margin: 0; color: #6c757d;">分類：<strong>@Model.CategoryName</strong></p>
+            <p style="margin: 0; margin-top: 2px; color: #6c757d;">發佈時間：<strong>@Model.PublishTime.ToString("yyyy-MM-dd HH:mm:ss")</strong></p>
         </div>
 
         <!-- 貼文圖片 -->

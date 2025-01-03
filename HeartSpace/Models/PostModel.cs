@@ -21,6 +21,7 @@ namespace HeartSpace.Models.EFModel
         public DateTime PublishTime { get; set; } = DateTime.Now;
 
         public int MemberId { get; set; }
+        public int CategoryId { get; set; }
 
     }
 }

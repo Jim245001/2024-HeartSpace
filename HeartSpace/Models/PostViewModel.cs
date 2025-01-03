@@ -3,6 +3,7 @@ using HeartSpace.Models.EFModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Web.Mvc;
 
 namespace HeartSpace.Models
 {
@@ -24,9 +25,13 @@ namespace HeartSpace.Models
 
         public string MemberImg { get; set; } // 原PO頭像 Base64 格式
 
+        public int CategoryId { get; set; }
         public string CategoryName { get; set; } // 類別名稱
+        public IEnumerable<SelectListItem> CategoryList { get; set; }
 
         public List<CommentViewModel> Comments { get; set; } = new List<CommentViewModel>(); // 留言集合
+
+
 
     }
     public class CommentViewModel
