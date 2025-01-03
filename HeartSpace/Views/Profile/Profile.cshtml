@@ -1,5 +1,14 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿@using HeartSpace.Models
+@using Dapper
+
+
+@{
+    ViewData["Title"] = Session["UserName"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!DOCTYPE html>
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -50,9 +59,10 @@
 
         .grid-title {
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 2px;
             font-size: 16px;
             font-weight: bold;
+            margin-top: 20px;
         }
 
         .grid-placeholder {
@@ -65,10 +75,14 @@
             border-radius: 10px;
             color: #aaa;
             font-size: 14px;
-            margin-bottom: 10px;
+            margin: 5px;
         }
 
-
+        .grid-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
     </style>
 </head>
 <body>
@@ -76,8 +90,23 @@
         <!-- 個人資料區 -->
         <div class="profile-section">
             <img src="https://via.placeholder.com/120" alt="Profile Picture">
-            <div class="username">會員名稱</div>
+
+            @if (Session["UserRole"] == "admin")
+            {
+
+                <div class="username mb-4">管理員<br /> @Session["UserName"] </div>
+
+            }
+            else
+            {
+
+                <div class="username mb-4">會員<br /> @Session["UserName"] </div>
+
+            }
+
+
             <a class="manage-btn" href="#">個人資料管理</a>
+
         </div>
 
         <!-- 圖片區域 -->
@@ -86,15 +115,24 @@
                 <!-- 已報名的活動 -->
                 <div class="col-md-6">
                     <div class="grid-title">已報名的活動</div>
-                    <div class="grid-placeholder">尚無活動</div>
-                    <div class="grid-placeholder">尚無活動</div>
+                    <div class="d-flex justify-content-between">
+                        @for (int i = 0; i < 2; i++)
+                        {
+                            <div class="grid-placeholder flex-grow-1 mx-2">尚無活動</div>
+                        }
+                    </div>
                 </div>
+
 
                 <!-- 已發布的文章 -->
                 <div class="col-md-6">
                     <div class="grid-title">已發布的文章</div>
-                    <div class="grid-placeholder">尚無文章</div>
-                    <div class="grid-placeholder">尚無文章</div>
+                    <div class="d-flex justify-content-between">
+                        @for (int i = 0; i < 2; i++)
+                        {
+                            <div class="grid-placeholder flex-grow-1 mx-2">尚無活動</div>
+                        }
+                    </div>
                 </div>
             </div>
 
@@ -102,33 +140,27 @@
                 <!-- 發起的活動 -->
                 <div class="col-md-6">
                     <div class="grid-title">發起的活動</div>
-                    <div class="grid-placeholder">尚無活動</div>
-                    <div class="grid-placeholder">尚無活動</div>
+                    <div class="d-flex justify-content-between">
+                        @for (int i = 0; i < 2; i++)
+                        {
+                            <div class="grid-placeholder flex-grow-1 mx-2">尚無活動</div>
+                        }
+                    </div>
                 </div>
 
-                <!-- 珍藏的貼文 -->
-                <div class="col-md-6">
-                    <div class="grid-title">珍藏的貼文</div>
-                    <div class="grid-placeholder">尚無貼文</div>
-                    <div class="grid-placeholder">尚無貼文</div>
-                </div>
-            </div>
-
-            <div class="row">
                 <!-- 已參加過的活動 -->
                 <div class="col-md-6">
                     <div class="grid-title">已參加過的活動</div>
-                    <div class="grid-placeholder">尚無活動</div>
-                    <div class="grid-placeholder">尚無活動</div>
+                    <div class="d-flex justify-content-between">
+                        @for (int i = 0; i < 2; i++)
+                        {
+                            <div class="grid-placeholder flex-grow-1 mx-2">尚無活動</div>
+                        }
+                    </div>
                 </div>
 
-                <!-- 珍藏的活動 -->
-                <div class="col-md-6">
-                    <div class="grid-title">珍藏的活動</div>
-                    <div class="grid-placeholder">尚無活動</div>
-                    <div class="grid-placeholder">尚無活動</div>
-                </div>
             </div>
+
         </div>
     </div>
 </body>

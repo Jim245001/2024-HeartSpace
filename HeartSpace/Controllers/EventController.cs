@@ -51,7 +51,7 @@ namespace HeartSpace.Controllers
 				{
 					EventName = model.EventName,
 					MemberId = model.MemberId,
-					img = imageData,
+					EventImg = imageData,
 					CategoryId = model.CategoryId,
 					Description = model.Description,
 					EventTime = model.EventTime,
@@ -101,7 +101,7 @@ namespace HeartSpace.Controllers
 				EventName = eventItem.EventName,
 				MemberId = eventItem.MemberId,
 				Description = eventItem.Description,
-				Img = eventItem.img,
+				Img = eventItem.EventImg,
 				EventTime = eventItem.EventTime,
 				Location = eventItem.Location,
 				IsOnline = eventItem.IsOnline,

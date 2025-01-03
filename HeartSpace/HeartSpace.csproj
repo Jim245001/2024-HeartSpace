@@ -127,6 +127,7 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="BLL\EventService.cs" />
+    <Compile Include="BLL\ProfileService.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AdminControllerController.cs" />
     <Compile Include="Controllers\EventController.cs" />
@@ -136,25 +137,27 @@
     <Compile Include="Controllers\SearchController.cs" />
     <Compile Include="DAL\EventRepository.cs" />
     <Compile Include="DAL\MemberRepository.cs" />
+    <Compile Include="DAL\ActivityRepository.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\AppDbContext\Admin.cs" />
-    <Compile Include="Models\AppDbContext\Category.cs" />
-    <Compile Include="Models\AppDbContext\AppDbContext.cs" />
-    <Compile Include="Models\AppDbContext\Event.cs" />
-    <Compile Include="Models\AppDbContext\EventComment.cs" />
-    <Compile Include="Models\AppDbContext\EventMember.cs" />
-    <Compile Include="Models\AppDbContext\Member.cs" />
-    <Compile Include="Models\AppDbContext\Post.cs" />
-    <Compile Include="Models\AppDbContext\PostComment.cs" />
-    <Compile Include="Models\AppDbContext\Tag.cs" />
+    <Compile Include="Models\EFModel\AppDbContext.cs" />
+    <Compile Include="Models\EFModel\Category.cs" />
+    <Compile Include="Models\EFModel\Event.cs" />
+    <Compile Include="Models\EFModel\EventComment.cs" />
+    <Compile Include="Models\EFModel\EventMember.cs" />
+    <Compile Include="Models\EFModel\Member.cs" />
+    <Compile Include="Models\EFModel\Post.cs" />
+    <Compile Include="Models\EFModel\PostComment.cs" />
+    <Compile Include="Models\EFModel\Tag.cs" />
     <Compile Include="Models\EventCard.cs" />
     <Compile Include="Models\EventRepository.cs" />
     <Compile Include="Models\ForgotPasswordViewModel.cs" />
     <Compile Include="Models\LoginViewModel.cs" />
+    <Compile Include="Models\PostCard.cs" />
     <Compile Include="Models\PostModel.cs" />
     <Compile Include="Models\PostViewModel.cs" />
+    <Compile Include="Models\ProfileViewModel.cs" />
     <Compile Include="Models\RegisterViewModel.cs" />
     <Compile Include="Models\ViewModels\EventViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -243,8 +246,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Controllers\Home\" />
-    <Folder Include="Controllers\Profile\" />
     <Folder Include="Views\Default\" />
   </ItemGroup>
   <ItemGroup>

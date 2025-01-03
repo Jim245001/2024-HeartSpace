@@ -8,6 +8,12 @@ namespace HeartSpace.Models.EFModel
 
     public partial class Post
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public Post()
+        {
+            PostComments = new HashSet<PostComment>();
+        }
+
         public int Id { get; set; }
 
         public int MemberId { get; set; }
@@ -21,7 +27,7 @@ namespace HeartSpace.Models.EFModel
         public string PostContent { get; set; }
 
         [Column(TypeName = "image")]
-        public byte[] Img { get; set; }
+        public byte[] PostImg { get; set; }
 
         public DateTime PublishTime { get; set; }
 
@@ -29,7 +35,11 @@ namespace HeartSpace.Models.EFModel
 
         public int? CommentCount { get; set; }
 
+        public bool Disabled { get; set; }
 
-        public virtual ICollection<PostComment> PostComments { get; set; } = new List<PostComment>();
+        public virtual Member Member { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<PostComment> PostComments { get; set; }
     }
 }

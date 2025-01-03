@@ -8,6 +8,12 @@ namespace HeartSpace.Models.EFModel
 
     public partial class Category
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public Category()
+        {
+            Events = new HashSet<Event>();
+        }
+
         public int Id { get; set; }
 
         [Required]
@@ -16,6 +22,7 @@ namespace HeartSpace.Models.EFModel
 
         public int DisplayOrder { get; set; }
 
-		//public virtual ICollection<Event> Events { get; set; }
-	}
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Event> Events { get; set; }
+    }
 }

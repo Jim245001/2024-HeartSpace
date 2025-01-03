@@ -36,6 +36,7 @@ namespace HeartSpace.Controllers.Account
 			// 登入成功邏輯，例如建立會話或票證
 			Session["UserId"] = member.Id;
 			Session["UserName"] = member.NickName;
+			Session["UserRole"] = member.Role;
 
 			return RedirectToAction("Index", "Home");
 		}
