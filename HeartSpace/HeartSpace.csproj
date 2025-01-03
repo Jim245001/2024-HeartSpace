@@ -143,16 +143,15 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\AppDbContext\Admin.cs" />
-    <Compile Include="Models\AppDbContext\Category.cs" />
-    <Compile Include="Models\AppDbContext\AppDbContext.cs" />
-    <Compile Include="Models\AppDbContext\Event.cs" />
-    <Compile Include="Models\AppDbContext\EventComment.cs" />
-    <Compile Include="Models\AppDbContext\EventMember.cs" />
-    <Compile Include="Models\AppDbContext\Member.cs" />
-    <Compile Include="Models\AppDbContext\Post.cs" />
-    <Compile Include="Models\AppDbContext\PostComment.cs" />
-    <Compile Include="Models\AppDbContext\Tag.cs" />
+    <Compile Include="Models\EFModels\AppDbContext.cs" />
+    <Compile Include="Models\EFModels\Category.cs" />
+    <Compile Include="Models\EFModels\Event.cs" />
+    <Compile Include="Models\EFModels\EventComment.cs" />
+    <Compile Include="Models\EFModels\EventMember.cs" />
+    <Compile Include="Models\EFModels\Member.cs" />
+    <Compile Include="Models\EFModels\Post.cs" />
+    <Compile Include="Models\EFModels\PostComment.cs" />
+    <Compile Include="Models\EFModels\Tag.cs" />
     <Compile Include="Models\EventCard.cs" />
     <Compile Include="Models\EventRepository.cs" />
     <Compile Include="Models\ForgotPasswordViewModel.cs" />
