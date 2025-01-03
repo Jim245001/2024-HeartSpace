@@ -83,7 +83,7 @@
                 <a class="nav-item" href="@Url.Action("SearchPost","Search")">搜尋貼文</a>
                 @if (Session["UserId"] != null)
                 {
-                    <a class="nav-item" href="@Url.Action("Profile", "Account")">會員</a>
+                    <a class="nav-item" href="@Url.Action("Profile", "Profile")">會員</a>
                     <a class="nav-item" href="@Url.Action("Logout", "Account")">登出</a>
                 }
                 else

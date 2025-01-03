@@ -9,7 +9,7 @@ namespace HeartSpace.Controllers
 {
 	public class EventController : Controller
 	{
-		private readonly EFModel1 db = new EFModel1();
+		private readonly AppDbContext db = new AppDbContext();
 
 		[HttpGet]
 		public ActionResult CreateEvent()
