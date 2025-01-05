@@ -79,6 +79,8 @@ namespace HeartSpace.Models.ViewModels
 
 		public string MemberName { get; set; } // 顯示發起人名稱
 
+		public string MemberNickName { get; set; } // 顯示發起人暱稱
+
 		public byte[] MemberProfileImg { get; set; } // 顯示發起人大頭照
 
 		public string Role { get; set; }   // 當前用戶的角色（例如：member 或 admin）
@@ -107,6 +109,7 @@ namespace HeartSpace.Models.ViewModels
 		public int Id { get; set; }
 		public int MemberId { get; set; }
 		public string MemberName { get; set; }
+		public string MemberNickName { get; set; }
 		public byte[] MemberProfileImg { get; set; }
 		public string EventCommentContent { get; set; }
 		public DateTime CommentTime { get; set; }
