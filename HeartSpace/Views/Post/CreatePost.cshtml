@@ -1,4 +1,4 @@
-﻿@model HeartSpace.Models.PostViewModel
+﻿@model HeartSpace.Models.DTOs.CreatePostDto
 
 @{
     ViewBag.Title = "發貼文";
@@ -75,6 +75,8 @@
         <!-- 表單 -->
         @using (Html.BeginForm("CreatePost", "Post", FormMethod.Post, new { enctype = "multipart/form-data" }))
         {
+            @Html.AntiForgeryToken() <!-- 確保這行位於表單內部 -->
+
             <!-- 標題區 -->
             <div class="form-section">
                 <label for="Title" class="form-label">標題：</label>
@@ -88,17 +90,17 @@
                 <input type="file" name="Image" id="Image" class="form-control" />
             </div>
 
+
             <!-- 分類選擇 -->
-    <div class="form-section">
-        <label for="CategoryId" class="form-label">分類：</label>
-        @Html.DropDownListFor(m => m.CategoryId,
-              ViewBag.Categories as IEnumerable<SelectListItem>,
-              "請選擇分類",
-              new { @class = "form-control" })
-        @Html.ValidationMessageFor(m => m.CategoryId, "", new { @class = "text-danger" })
-    </div>
-
-
+            <div class="form-section">
+                <label for="CategoryId" class="form-label">分類：</label>
+                @Html.DropDownListFor(
+                    m => m.CategoryId,
+                    ViewBag.Categories as IEnumerable<SelectListItem>,
+                    "請選擇分類",
+                    new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.CategoryId, "", new { @class = "text-danger" })
+            </div>
 
             <!-- 內文區 -->
             <div class="form-section">

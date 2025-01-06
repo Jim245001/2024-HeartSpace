@@ -17,7 +17,7 @@ namespace HeartSpace.Models.Repositories
 
         public List<Category> GetCategories()
         {
-            return _dbContext.Categories.ToList(); // 假設 Categories 是你的分類表名稱
+            return _dbContext.Categories.ToList();
         }
 
         public IEnumerable<Post> GetAllPosts()
@@ -30,10 +30,11 @@ namespace HeartSpace.Models.Repositories
             return _dbContext.Posts.FirstOrDefault(p => p.Id == id);
         }
 
-        public void AddPost(Post post)
+        public int AddPost(Post post)
         {
             _dbContext.Posts.Add(post);
             _dbContext.SaveChanges();
+            return post.Id; // 返回新增的貼文 ID
         }
 
         public void UpdatePost(Post post)
