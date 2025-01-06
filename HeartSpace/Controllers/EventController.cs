@@ -95,8 +95,8 @@ namespace HeartSpace.Controllers
 				{
 					Id = c.Id,
 					MemberId = c.MemberId,
-					MemberName = c.Member?.Name ?? "未知用戶", // 預設名稱
-					MemberNickName = c.Member?.NickName ?? "未知用戶", // 預設名稱
+					MemberName = c.Member?.Name ?? "未知用戶", 
+					MemberNickName = c.Member?.NickName ?? "未知用戶", 
 					MemberProfileImg = c.Member?.MemberImg,
 					EventCommentContent = c.EventCommentContent,
 					CommentTime = c.CommentTime,
@@ -106,6 +106,12 @@ namespace HeartSpace.Controllers
 
 			// 加載當前參與人數
 			model.ParticipantNow = _eventService.GetParticipantCount(id);
+
+			// 加載活動報名人數上限
+			model.ParticipantMax = model.ParticipantMax; // 確保 ParticipantMax 已從服務層載入
+
+			// 檢查是否已達報名上限
+			model.IsFull = model.ParticipantNow >= model.ParticipantMax;
 
 			return View(model);
 		}

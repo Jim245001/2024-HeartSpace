@@ -101,6 +101,15 @@
                 取消報名
             </button>
         }
+        else if (Model.IsFull)
+        {
+            <!-- 報名已滿 -->
+            <button class="btn w-100 py-2"
+                    style="font-size: 1.2rem; color: gray; background-color: #e6e6e6; border: none; border-radius: 8px;"
+                    disabled>
+                報名人數已滿
+            </button>
+        }
         else
         {
             <!-- 報名活動按鈕 -->

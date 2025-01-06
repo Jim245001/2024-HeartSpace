@@ -69,6 +69,8 @@ namespace HeartSpace.Models.ViewModels
 
 		public bool IsRegistered { get; set; } // 是否已報名
 
+		public bool IsFull { get; set; } //報名是否已滿
+
 		// 活動是否已關閉
 		[Display(Name = "是否已關閉")]
 		public bool Disabled { get; set; }
