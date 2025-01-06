@@ -113,5 +113,6 @@ namespace HeartSpace.Models.ViewModels
 		public byte[] MemberProfileImg { get; set; }
 		public string EventCommentContent { get; set; }
 		public DateTime CommentTime { get; set; }
+		public bool IsCommentOwner { get; set; }
 	}
 }
