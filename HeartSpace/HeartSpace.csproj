@@ -126,8 +126,8 @@
     <Compile Include="App_Start\BundleConfig4.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
-    <Compile Include="BLL\EventService.cs" />
-    <Compile Include="BLL\ProfileService.cs" />
+    <Compile Include="DTOs\EventService.cs" />
+    <Compile Include="DTOs\ProfileService.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AdminControllerController.cs" />
     <Compile Include="Controllers\EventController.cs" />
@@ -135,9 +135,9 @@
     <Compile Include="Controllers\PostController.cs" />
     <Compile Include="Controllers\ProfileController.cs" />
     <Compile Include="Controllers\SearchController.cs" />
-    <Compile Include="DAL\EventRepository.cs" />
-    <Compile Include="DAL\MemberRepository.cs" />
-    <Compile Include="DAL\ActivityRepository.cs" />
+    <Compile Include="Repositories\EventRepository.cs" />
+    <Compile Include="Repositories\MemberRepository.cs" />
+    <Compile Include="Repositories\ActivityRepository.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

@@ -8,7 +8,7 @@ namespace HeartSpace.Models.EFModel
 	public partial class AppDbContext : DbContext
 	{
 		public AppDbContext()
-			: base("name=AppDbContext2")
+			: base("name=AppDbContext")
 		{
 		}
 

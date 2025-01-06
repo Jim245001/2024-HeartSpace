@@ -91,7 +91,7 @@
         <div class="profile-section">
             <img src="https://via.placeholder.com/120" alt="Profile Picture">
 
-            @if (Session["UserRole"] == "admin")
+            @if ((string)Session["UserRole"] == "admin")
             {
 
                 <div class="username mb-4">管理員<br /> @Session["UserName"] </div>
