@@ -7,6 +7,19 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+
+@*@foreach (var eventItem in Model)
+{
+    <tr>
+        <td>@eventItem.EventName</td>
+        <td>@eventItem.Description</td>
+        <td>@eventItem.EventTime.ToString("yyyy-MM-dd HH:mm")</td>
+        <td>@eventItem.Location</td>
+    </tr>
+
+    <br/>
+}*@
+
 <div class="container-fluid px-0">
     <!-- 使用 container-fluid 並移除 padding -->
     <div class="row mx-0">
@@ -23,23 +36,26 @@
                         <button class="btn btn-secondary btn-sm">分類</button>
                     </div>
 
-                    <!-- 貼文內容（打錯了，這個應該要是揪團內容） -->
+                    <!-- 貼文內容-->
                     <div class="row gx-1 gy-2">
-                        <!-- 使用 gx-1 和 gy-2 控制間距 -->
+
+                        <!-- 貼文卡片 -->
                         @for (int x = 0; x < 6; x++)
                         {
 
                             <div class="col-6">
                                 <!-- 每行顯示2個卡片 -->
-                                <div class="card border-0 shadow-sm d-flex align-items-center justify-content-center" style="height: 150px;">
+                                <div class="card border-0 shadow-sm d-flex align-items-center justify-content-center" style="height: 300px;">
                                     <!-- 垂直水平置中 -->
-                                    @Html.Raw(new EventCard(
-             "標題名稱",
-             "發起人ID/姓名",
-             "國家 / 縣市 / 區域\n鄉鎮街道幾巷幾樓",
-             new DateTime(2025, 1, 16, 17, 0, 0),
-             "example.jpg"
-         ).RenderHtml())
+                                    @Html.Raw(new PostCard(
+                                        "新聞：又在大安森林公園一邊哭一邊跨年",
+                                        "記者",
+                                        "網友李思翰2023年發起「在大安森林公園一邊哭一邊跨年」，以致敬電影「愛情萬歲」。2024年李思翰於臉書（Facebook）再度發起「又在大安森林（公園）一邊哭一邊跨年」活動，登上捷克媒體Novinky版面。",
+                                        new DateTime(2025, 1, 1, 0, 0, 0),
+                                        "example.jpg",
+                                        "example.jpg"
+                                    ).RenderHtml())
+
                                 </div>
                             </div>
                         }
@@ -82,32 +98,29 @@
                     </div>
 
                     <div class="row gx-1 gy-2">
-                        <!-- 使用 gx-1 和 gy-2 控制間距 -->
+                        
+                        <!-- 揪團卡片 -->
 
-                        @{ int i = 0;}
-
-                        @foreach (var item in Model)
+                        @for (int x = 0; x < 6; x++)
                         {
 
                             <div class="col-6">
                                 <!-- 每行顯示2個卡片 -->
-                                <div class="card border-0 shadow-sm d-flex align-items-center justify-content-center" style="height: 150px;">
+                                <div class="card border-0 shadow-sm d-flex align-items-center justify-content-center" style="height: 300px;">
                                     <!-- 垂直水平置中 -->
                                     @Html.Raw(new EventCard(
-                                        item.EventName,
-                                        "XXX",
-                                        item.Location,
-                                        item.DeadLine,
-                                        item.EventImg
-                                    ).RenderHtml())
+                                                 "又在大安森林公園一邊哭一邊跨年",
+                                                 "李思翰",
+                                                 "大安森林公園",
+                                                 "又哭。",
+                                                 new DateTime(2025, 1, 1, 0, 0, 0),
+                                                 "example.jpg",
+                                                 "example.jpg"
+                                             ).RenderHtml())
                                 </div>
                             </div>
-
-                            i++;
-                            if (i == 6) { break; }
                         }
                     </div>
-
                     <!-- 分頁導航 -->
                     <nav>
                         <ul class="pagination justify-content-center mt-3">

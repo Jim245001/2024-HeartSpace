@@ -47,4 +47,5 @@ namespace HeartSpace.Models
         public int FloorNumber { get; set; } // 新增：樓層編號
     }
 
+
 }
