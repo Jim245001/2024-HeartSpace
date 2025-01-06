@@ -6,15 +6,19 @@
         @if (Model.Img != null)
         {
             <img src="data:image/png;base64,@Convert.ToBase64String(Model.Img)"
-                 style="max-width: 100%; height: 200px; border-radius: 10px; border: 2px solid #9b59b6; object-fit: cover;" />
+                 style=" aspect-ratio: 3 / 1; border-radius: 10px; object-fit: cover; display: block; margin: 0 auto;" />
         }
         else
         {
-            <div style="background-color: #d6d6d6; width: 100%; height: 200px; border-radius: 10px; border: 2px solid black;">
-                <p class="text-muted pt-5">圖片預覽</p>
+            <div class="d-flex justify-content-center align-items-center"
+                 style="background-color: #f2f2f2;  aspect-ratio: 3 / 1; border-radius: 10px; display: block; margin: 0 auto;">
+                <i class="fa-regular fa-image"
+                   style="font-size: 80px; color: #aaa;"></i>
             </div>
         }
     </div>
+
+
 
     <!-- 標題與發起人資訊 -->
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -32,13 +36,14 @@
                 }
                 else
                 {
-                    <div style="width: 60px; height: 60px; border-radius: 50%; background-color: #d6d6d6; border: 2px solid #ccc;">
-                        <p class="text-muted text-center" style="line-height: 60px;">無</p>
-                    </div>
+                    <i class="fa-regular fa-circle-user" style="font-size: 40px; color: #ccc;"></i>
+
                 }
+
+
             </div>
             <div>
-                <p class="mb-0" style="font-size: 1.2rem; font-weight: bold; color: #555;">@Model.MemberName</p>
+                <p class="mb-0" style="font-size: 1.2rem; font-weight: bold; color: #555;">@Model.MemberNickName</p>
             </div>
         </div>
     </div>
@@ -163,7 +168,7 @@
                     <button class="btn btn-warning w-100 py-2"
                             style="font-size: 1.2rem; background-color: #fcb874; border: none; border-radius: 8px;"
                             data-bs-toggle="modal" data-bs-target="#confirmCloseModal">
-                        關閉
+                        關閉揪團
                     </button>
                 }
 
@@ -173,7 +178,7 @@
                     <a href="@Url.Action("EditEvent", "Event", new { id = Model.Id })"
                        class="btn btn-primary w-100 py-2"
                        style="font-size: 1.2rem; border-radius: 8px;">
-                        修改
+                        修改揪團
                     </a>
                 }
             </div>
@@ -238,12 +243,23 @@
             {
                 <div class="d-flex align-items-start mb-3">
                     <!-- 留言者大頭照 -->
-                    <img src="@(comment.MemberProfileImg != null ? $"data:image/png;base64,{Convert.ToBase64String(comment.MemberProfileImg)}" : "/path/to/default-avatar.png")"
-                         class="rounded-circle me-3" alt="Avatar" style="width: 50px; height: 50px; object-fit: cover;" />
+                    @if (comment.MemberProfileImg != null)
+                    {
+                        <img src="data:image/png;base64,@Convert.ToBase64String(comment.MemberProfileImg)"
+                             class="rounded-circle me-3" alt="Avatar"
+                             style="width: 50px; height: 50px; object-fit: cover;" />
+                    }
+                    else
+                    {
+                        <i class="fa-regular fa-circle-user me-3"
+                           style="font-size: 40px; color: #ccc;"></i>
+                    }
+
+
 
                     <div>
                         <!-- 留言者姓名 -->
-                        <p class="mb-1"><strong>@comment.MemberName</strong></p>
+                        <p class="mb-1"><strong>@comment.MemberNickName</strong></p>
                         <!-- 留言內容 -->
                         <p class="mb-1">@comment.EventCommentContent</p>
                         <!-- 留言時間與刪除按鈕 -->
