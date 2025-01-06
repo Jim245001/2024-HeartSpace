@@ -1,5 +1,6 @@
 ﻿@model HeartSpace.Models.PostViewModel
 
+
 @{
     ViewBag.Title = "修改貼文";
 }
@@ -19,9 +20,9 @@
     <div class="form-section">
         <label for="CategoryId" class="form-label">分類：</label>
         @Html.DropDownListFor(m => m.CategoryId,
-                              Model.CategoryList,
-                              "請選擇分類",
-                              new { @class = "form-control" })
+                                   Model.CategoryList,
+                                   "請選擇分類",
+                                   new { @class = "form-control" })
         @Html.ValidationMessageFor(m => m.CategoryId, "", new { @class = "text-danger" })
     </div>
 
@@ -32,16 +33,6 @@
         }
         @*<p>@Model.PostContent</p>*@
     </div>
-    <div class="form-section">
-        <label for="PostImg" class="form-label">目前圖片：</label>
-        @if (!string.IsNullOrEmpty(Model.PostImg))
-        {
-            <div>
-                <img src="data:image/png;base64,@Model.PostImg" alt="目前圖片" style="max-width: 100%; height: auto; border-radius: 5px;" />
-            </div>
-        }
-    </div>
-
 
     <div class="form-section">
         <label for="Image" class="form-label">更新圖片：</label>

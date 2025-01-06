@@ -36,19 +36,15 @@ namespace HeartSpace.Models
     }
     public class CommentViewModel
     {
-        public int CommentId { get; set; } // 留言 ID
 
-
-
-        public string Content { get; set; } // 留言內容
-
-        public string AuthorName { get; set; } // 留言者名稱
-
-        public int AuthorId { get; set; } // 留言 ID
-
-        public string AuthorImg { get; set; } // 留言者頭像 Base64 格式
-
-        public DateTime CreatedAt { get; set; } // 留言時間
+        public int PostId { get; set; }
+        public int CommentId { get; set; }
+        public int UserId { get; set; }
+        public string UserName { get; set; }
+        public string UserImg { get; set; }
+        public string Comment { get; set; }
+        public DateTime CommentTime { get; set; }
+        public int FloorNumber { get; set; } // 新增：樓層編號
     }
 
 
