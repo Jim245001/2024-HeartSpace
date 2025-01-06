@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Web.Mvc;
-using HeartSpace.Models;
-using HeartSpace.Models.EFModel;
-using HeartSpace.Models.ViewModels;
 using HeartSpace.BLL;
+using HeartSpace.Models.EFModels;
+using HeartSpace.Models.ViewModels;
 
 namespace HeartSpace.Controllers
 {

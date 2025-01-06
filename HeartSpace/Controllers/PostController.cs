@@ -28,7 +28,7 @@ namespace HeartSpace.Controllers
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public ActionResult CreatePost(CreatePostDto model, HttpPostedFileBase Image)
+		public ActionResult CreatePost(CreatePostDto model, HttpPostedFileBase Image)
     {
             model.MemberId = 1;
             if (!ModelState.IsValid)
