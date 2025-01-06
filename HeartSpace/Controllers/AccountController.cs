@@ -1,5 +1,6 @@
 ﻿using HeartSpace.Models;
 using HeartSpace.Models.EFModel;
+using HeartSpace.Models.EFModels;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -7,7 +8,8 @@ namespace HeartSpace.Controllers.Account
 {
 	public class AccountController : Controller
 	{
-		private readonly AppDbContext _db = new AppDbContext();
+		// GET: Account
+		private readonly AppDbContext _db = new AppDbContext(); // 替換為您的 DbContext 類別
 
 		[HttpGet]
 		public ActionResult Login()
@@ -36,6 +38,7 @@ namespace HeartSpace.Controllers.Account
 			// 登入成功邏輯，例如建立會話或票證
 			Session["UserId"] = member.Id;
 			Session["UserName"] = member.NickName;
+			Session["UserRole"] = member.Role;
 
 			return RedirectToAction("Index", "Home");
 		}

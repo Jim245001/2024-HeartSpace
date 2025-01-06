@@ -1,30 +1,36 @@
-﻿using System.Web.Mvc;
+﻿using HeartSpace.Models;
+using HeartSpace.Models.EFModels;
+using System.Linq;
+using System.Web.Mvc;
 using HeartSpace.BLL;
 
 namespace HeartSpace.Controllers
 {
-	public class HomeController : Controller
-	{
-		private readonly EventService _eventService;
+    public class HomeController : Controller
+    {
+        private readonly AppDbContext _context;
 
-		public HomeController()
-		{
-			_eventService = new EventService();
-		}
+        public HomeController()
+        {
+            _context = new AppDbContext();
+        }
 
-		public ActionResult Index()
-		{
-			var events = _eventService.GetAllEvents();
-			return View(events);
-		}
+        public ActionResult Index()
+        {
+            // 從資料庫中讀取所有活動
+            var events = _context.Events.ToList();
 
-		public ActionResult Details(int id)
-		{
-			var eventDetails = _eventService.GetEventById(id);
-			if (eventDetails == null)
-				return HttpNotFound();
+            // 傳遞資料給視圖
+            return View(events);
+        }
 
-			return View(eventDetails);
-		}
-	}
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _context.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+    }
 }

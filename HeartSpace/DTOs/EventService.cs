@@ -5,6 +5,7 @@ using HeartSpace.DAL;
 using HeartSpace.Models.ViewModels;
 using System.Linq;
 using System.Data.Entity;
+using HeartSpace.Models.EFModels;
 
 namespace HeartSpace.BLL
 {

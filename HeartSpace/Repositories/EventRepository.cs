@@ -8,6 +8,7 @@ using Dapper;
 using HeartSpace.Models;
 using HeartSpace.Models.EFModel;
 using System.Data.Entity;
+using HeartSpace.Models.EFModels;
 
 namespace HeartSpace.DAL
 {
@@ -51,8 +52,8 @@ namespace HeartSpace.DAL
 			using (var connection = CreateConnection())
 			{
 				const string sql = @"
-                    INSERT INTO Events (EventName, MemberId, img, CategoryId, Description, EventTime, Location, IsOnline, ParticipantMax, ParticipantMin, Limit, DeadLine, CommentCount, ParticipantNow)
-                    VALUES (@EventName, @MemberId, @img, @CategoryId, @Description, @EventTime, @Location, @IsOnline, @ParticipantMax, @ParticipantMin, @Limit, @DeadLine, @CommentCount, @ParticipantNow)";
+					INSERT INTO Events (EventName, MemberId, img, CategoryId, Description, EventTime, Location, IsOnline, ParticipantMax, ParticipantMin, Limit, DeadLine, CommentCount, ParticipantNow)
+					VALUES (@EventName, @MemberId, @img, @CategoryId, @Description, @EventTime, @Location, @IsOnline, @ParticipantMax, @ParticipantMin, @Limit, @DeadLine, @CommentCount, @ParticipantNow)";
 				connection.Execute(sql, newEvent);
 			}
 		}
@@ -63,11 +64,11 @@ namespace HeartSpace.DAL
 			using (var connection = CreateConnection())
 			{
 				const string sql = @"
-                    UPDATE Events
-                    SET EventName = @EventName, MemberId = @MemberId, img = @img, CategoryId = @CategoryId, Description = @Description, EventTime = @EventTime,
-                        Location = @Location, IsOnline = @IsOnline, ParticipantMax = @ParticipantMax, ParticipantMin = @ParticipantMin,
-                        Limit = @Limit, DeadLine = @DeadLine, CommentCount = @CommentCount, ParticipantNow = @ParticipantNow
-                    WHERE Id = @Id";
+					UPDATE Events
+					SET EventName = @EventName, MemberId = @MemberId, img = @img, CategoryId = @CategoryId, Description = @Description, EventTime = @EventTime,
+						Location = @Location, IsOnline = @IsOnline, ParticipantMax = @ParticipantMax, ParticipantMin = @ParticipantMin,
+						Limit = @Limit, DeadLine = @DeadLine, CommentCount = @CommentCount, ParticipantNow = @ParticipantNow
+					WHERE Id = @Id";
 				connection.Execute(sql, updatedEvent);
 			}
 		}
@@ -111,7 +112,7 @@ namespace HeartSpace.DAL
 			using (var connection = CreateConnection())
 			{
 				const string query = @"INSERT INTO EventComments (EventId, MemberId, EventCommentContent, CommentTime)
-                                        VALUES (@EventId, @MemberId, @EventCommentContent, @CommentTime)";
+										VALUES (@EventId, @MemberId, @EventCommentContent, @CommentTime)";
 				connection.Execute(query, comment);
 			}
 		}
@@ -152,7 +153,7 @@ namespace HeartSpace.DAL
 			using (var connection = CreateConnection())
 			{
 				const string query = @"INSERT INTO EventMembers (EventId, MemberId)
-                                        VALUES (@EventId, @MemberId)";
+										VALUES (@EventId, @MemberId)";
 				connection.Execute(query, new { EventId = eventId, MemberId = memberId });
 			}
 		}

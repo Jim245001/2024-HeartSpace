@@ -1,0 +1,61 @@
+﻿@model HeartSpace.Models.PostViewModel
+
+@{
+    ViewBag.Title = "修改貼文";
+}
+
+<h2>修改貼文</h2>
+
+@using (Html.BeginForm("EditPost", "Post", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Title, "標題：")
+        @Html.TextBoxFor(model => model.Title, new { @class = "form-control", placeholder = "請輸入標題" })
+        @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-section">
+        <label for="CategoryId" class="form-label">分類：</label>
+        @Html.DropDownListFor(m => m.CategoryId,
+                              Model.CategoryList,
+                              "請選擇分類",
+                              new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.CategoryId, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="post-content">
+        @if (!string.IsNullOrEmpty(Model.PostImg))
+        {
+            <img src="data:image/png;base64,@Model.PostImg" alt="貼文圖片" style="max-width: 100%; height: auto;" />
+        }
+        @*<p>@Model.PostContent</p>*@
+    </div>
+    <div class="form-section">
+        <label for="PostImg" class="form-label">目前圖片：</label>
+        @if (!string.IsNullOrEmpty(Model.PostImg))
+        {
+            <div>
+                <img src="data:image/png;base64,@Model.PostImg" alt="目前圖片" style="max-width: 100%; height: auto; border-radius: 5px;" />
+            </div>
+        }
+    </div>
+
+
+    <div class="form-section">
+        <label for="Image" class="form-label">更新圖片：</label>
+        <input type="file" name="Image" id="Image" class="form-control" />
+    </div>
+
+
+
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.PostContent, "內文：")
+        @Html.TextAreaFor(model => model.PostContent, new { @class = "form-control", placeholder = "請輸入內文", rows = 5 })
+        @Html.ValidationMessageFor(model => model.PostContent, "", new { @class = "text-danger" })
+    </div>
+
+    <button type="submit" class="btn btn-primary">修改貼文</button>
+}
