@@ -24,7 +24,7 @@
                 <span style="font-weight: bold; color: #495057;">@Model.MemberName</span>
             </div>
 
-            
+
 
 
 
@@ -58,6 +58,22 @@
             }
         </div>
     </div>
+
+    <!-- 訊息通知 -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success" role="alert">
+            @TempData["SuccessMessage"]
+        </div>
+
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @TempData["ErrorMessage"]
+        </div>
+    }
 
     <!-- 留言區塊 -->
     <div class="comments-section" style="margin-top: 30px;">
@@ -148,20 +164,7 @@
     </script>
 
 
-    <!-- 訊息通知 -->
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success" role="alert">
-            @TempData["SuccessMessage"]
-        </div>
-    }
 
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger" role="alert">
-            @TempData["ErrorMessage"]
-        </div>
-    }
 </div>
 
 <!-- 留言表單 -->

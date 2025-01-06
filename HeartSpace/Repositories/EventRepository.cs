@@ -6,7 +6,6 @@ using System.Data.SqlClient;
 using System.Linq;
 using Dapper;
 using HeartSpace.Models;
-using HeartSpace.Models.EFModel;
 using System.Data.Entity;
 using HeartSpace.Models.EFModels;
 

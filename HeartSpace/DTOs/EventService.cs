@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using HeartSpace.Models.EFModel;
 using HeartSpace.DAL;
 using HeartSpace.Models.ViewModels;
 using System.Linq;

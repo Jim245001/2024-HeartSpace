@@ -13,12 +13,12 @@ namespace HeartSpace.Controllers
 {
     public class PostController : Controller
     {
-      private readonly PostService _postService;
+        private readonly PostService _postService;
 
-    public PostController(PostService postService)
-    {
-        _postService = postService;
-    }
+        public PostController(PostService postService)
+        {
+            _postService = postService;
+        }
 
         public static List<int> DeletedCommentIds { get; set; } = new List<int>();
 
@@ -52,8 +52,16 @@ namespace HeartSpace.Controllers
             var postId = _postService.AddPost(model);
 
         TempData["SuccessMessage"] = "貼文已成功儲存！";
-        return RedirectToAction("PostDetails", new { id = postId });
-    }
+            if (TempData["SuccessMessage"] != null)
+            {
+                // 如果 TempData 有值，重定向自己，讓 TempData 消失
+                TempData.Keep(); // 確保 TempData 不會丟失
+                return RedirectToAction("PostDetails", new { id = postId });
+            }
+            return RedirectToAction("PostDetails", new { id = postId });
+
+            
+        }
 
     [HttpGet]
     public ActionResult PostDetails(int id)
