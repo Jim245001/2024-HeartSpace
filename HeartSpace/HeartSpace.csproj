@@ -148,12 +148,10 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\UnityConfig.cs" />
-<<<<<<< HEAD
-    <Compile Include="Controllers\ImageController.cs" />
-=======
+
     <Compile Include="App_Start\UnityMvcActivator.cs" />
->>>>>>> origin/K
-    <Compile Include="DTOs\CreatePostDto.cs" />
+
+	  <Compile Include="DTOs\CreatePostDto.cs" />
     <Compile Include="DTOs\EventService.cs" />
     <Compile Include="DTOs\PostService.cs" />
     <Compile Include="DTOs\ProfileService.cs" />
