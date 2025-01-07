@@ -1,6 +1,6 @@
 ﻿@using HeartSpace.Models
 @using Dapper
-
+@model HomePageViewModel
 
 @{
     ViewData["Title"] = "首頁";
@@ -8,17 +8,7 @@
 }
 
 
-@*@foreach (var eventItem in Model)
-{
-    <tr>
-        <td>@eventItem.EventName</td>
-        <td>@eventItem.Description</td>
-        <td>@eventItem.EventTime.ToString("yyyy-MM-dd HH:mm")</td>
-        <td>@eventItem.Location</td>
-    </tr>
 
-    <br/>
-}*@
 
 <div class="container-fluid px-0">
     <!-- 使用 container-fluid 並移除 padding -->
@@ -40,45 +30,51 @@
                     <div class="row gx-1 gy-2">
 
                         <!-- 貼文卡片 -->
-                        @for (int x = 0; x < 6; x++)
-                        {
-
-                            <div class="col-6">
-                                <!-- 每行顯示2個卡片 -->
-                                <div class="card border-0 shadow-sm d-flex align-items-center justify-content-center" style="height: 300px;">
-                                    <!-- 垂直水平置中 -->
-                                    @Html.Raw(new PostCard(
-                                        "新聞：又在大安森林公園一邊哭一邊跨年",
-                                        "記者",
-                                        "網友李思翰2023年發起「在大安森林公園一邊哭一邊跨年」，以致敬電影「愛情萬歲」。2024年李思翰於臉書（Facebook）再度發起「又在大安森林（公園）一邊哭一邊跨年」活動，登上捷克媒體Novinky版面。",
-                                        new DateTime(2025, 1, 1, 0, 0, 0),
-                                        "example.jpg",
-                                        "example.jpg"
-                                    ).RenderHtml())
-
+                        <div class="row gx-1 gy-2">
+                            @foreach (var post in Model.Posts)
+                            {
+                                <div class="col-6">
+                                    <a href="@Url.Action("PostDetails", "Post", new { id = post.Id })" class="text-decoration-none">
+                                        <!-- 使整個卡片成為鏈接 -->
+                                        <div class="card border-0 shadow-sm d-flex align-items-center justify-content-center" style="height: 300px;">
+                                            @Html.Raw(new PostCard(
+                                                post.Title,
+                                                post.MemberName,
+                                                post.PostContent,
+                                                post.PublishTime,
+                                                post.PostImg,
+                                                post.MemberImg
+                                            ).RenderHtml())
+                                        </div>
+                                    </a>
                                 </div>
-                            </div>
-                        }
+                            }
+                        </div>
                     </div>
 
                     <!-- 分頁導航 -->
                     <nav>
                         <ul class="pagination justify-content-center mt-3">
-                            <li class="page-item">
-                                <a class="page-link" href="#">Previous</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">1</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">2</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">3</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">Next</a>
-                            </li>
+                            @if (Model.Posts.HasPreviousPage)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex - 1 })">Previous</a>
+                                </li>
+                            }
+
+                            @for (int i = 1; i <= Model.Posts.TotalPages; i++)
+                            {
+                                <li class="page-item @(i == Model.Posts.PageIndex ? "active" : "")">
+                                    <a class="page-link" href="@Url.Action("Index", new { postPage = i })">@i</a>
+                                </li>
+                            }
+
+                            @if (Model.Posts.HasNextPage)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex + 1 })">Next</a>
+                                </li>
+                            }
                         </ul>
                     </nav>
                 </div>
@@ -97,50 +93,62 @@
                         <button class="btn btn-secondary btn-sm">分類</button>
                     </div>
 
+
+                    <!-- 揪團卡片 -->
                     <div class="row gx-1 gy-2">
-                        
-                        <!-- 揪團卡片 -->
-
-                        @for (int x = 0; x < 6; x++)
+                        @foreach (var events in Model.Events)
                         {
-
                             <div class="col-6">
-                                <!-- 每行顯示2個卡片 -->
-                                <div class="card border-0 shadow-sm d-flex align-items-center justify-content-center" style="height: 300px;">
-                                    <!-- 垂直水平置中 -->
-                                    @Html.Raw(new EventCard(
-                                                 "又在大安森林公園一邊哭一邊跨年",
-                                                 "李思翰",
-                                                 "大安森林公園",
-                                                 "又哭。",
-                                                 new DateTime(2025, 1, 1, 0, 0, 0),
-                                                 "example.jpg",
-                                                 "example.jpg"
-                                             ).RenderHtml())
-                                </div>
+                                <a href="@Url.Action("EventDetail", "Event", new { id = events.Id })" class="text-decoration-none">
+                                    <!-- 使整個卡片成為鏈接 -->
+                                    <div class="card border-0 shadow-sm d-flex align-items-center justify-content-center" style="height: 300px;">
+                                        @Html.Raw(new EventCard(
+                                            events.EventName,
+                                            events.MemberName,
+                                            events.Location,
+                                            events.Description,
+                                            events.EventTime,
+                                            events.MemberProfileImgUrl,
+                                            events.ImgUrl
+                                        ).RenderHtml())
+                                    </div>
+                                </a>
                             </div>
                         }
                     </div>
+
+
+
+
                     <!-- 分頁導航 -->
                     <nav>
                         <ul class="pagination justify-content-center mt-3">
-                            <li class="page-item">
-                                <a class="page-link" href="#">Previous</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">1</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">2</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">3</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">Next</a>
-                            </li>
+                            <!-- Previous Page -->
+                            @if (Model.Posts.HasPreviousPage)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex - 1, eventPage = 1 })">Previous</a>
+                                </li>
+                            }
+
+                            <!-- Page Numbers -->
+                            @for (int i = 1; i <= Model.Posts.TotalPages; i++)
+                            {
+                                <li class="page-item @(Model.Posts.PageIndex == i ? "active" : "")">
+                                    <a class="page-link" href="@Url.Action("Index", new { postPage = i, eventPage = 1 })">@i</a>
+                                </li>
+                            }
+
+                            <!-- Next Page -->
+                            @if (Model.Posts.HasNextPage)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex + 1, eventPage = 1 })">Next</a>
+                                </li>
+                            }
                         </ul>
                     </nav>
+
                 </div>
             </div>
         </div>

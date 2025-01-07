@@ -130,6 +130,7 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\UnityConfig.cs" />
+    <Compile Include="Controllers\ImageController.cs" />
     <Compile Include="DTOs\CreatePostDto.cs" />
     <Compile Include="DTOs\EventService.cs" />
     <Compile Include="DTOs\PostService.cs" />
@@ -142,6 +143,7 @@
     <Compile Include="Controllers\ProfileController.cs" />
     <Compile Include="Controllers\SearchController.cs" />
     <Compile Include="Helpers\ImageHelper.cs" />
+    <Compile Include="Helpers\PaginatedLis.cs" />
     <Compile Include="Models\EFModels\AppDbContext.cs" />
     <Compile Include="Models\EFModels\Category.cs" />
     <Compile Include="Models\EFModels\Event.cs" />
@@ -151,6 +153,7 @@
     <Compile Include="Models\EFModels\Post.cs" />
     <Compile Include="Models\EFModels\PostComment.cs" />
     <Compile Include="Models\EFModels\Tag.cs" />
+    <Compile Include="Models\HomePageViewModel.cs" />
     <Compile Include="Repositories\EventRepository.cs" />
     <Compile Include="Repositories\MemberRepository.cs" />
     <Compile Include="Repositories\ActivityRepository.cs" />
@@ -256,6 +259,7 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Views\Default\" />
+    <Folder Include="Views\Image\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
