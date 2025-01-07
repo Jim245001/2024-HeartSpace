@@ -14,6 +14,8 @@ namespace HeartSpace.Models.EFModels
 
         public int MemberId { get; set; }
 
+        public bool? IsAttend { get; set; }
+
         public virtual Event Event { get; set; }
 
         public virtual Member Member { get; set; }

@@ -28,6 +28,10 @@ namespace HeartSpace.Models.EFModels
                 .WithRequired(e => e.Category)
                 .WillCascadeOnDelete(false);
 
+            modelBuilder.Entity<EventComment>()
+                .Property(e => e.Disabled)
+                .IsFixedLength();
+
             modelBuilder.Entity<Event>()
                 .Property(e => e.Limit)
                 .IsUnicode(false);

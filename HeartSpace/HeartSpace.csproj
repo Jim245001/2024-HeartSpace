@@ -273,6 +273,7 @@
     <Content Include="Views\Post\CreatePost.cshtml" />
     <Content Include="Views\Post\EditPost.cshtml" />
     <Content Include="Views\Post\PostDetails.cshtml" />
+    <Content Include="Views\Profile\EditProfile.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

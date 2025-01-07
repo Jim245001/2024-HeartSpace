@@ -103,6 +103,7 @@ namespace HeartSpace.Controllers
                     PublishTime = post.PublishTime,
                     MemberId = post.MemberId, // 發文者的 ID
 
+
                     // 留言集合
                     Comments = comments.Select((c, index) => new CommentViewModel
                     {
@@ -115,6 +116,7 @@ namespace HeartSpace.Controllers
                   : "data:image/png;base64,預設Base64字串",
                         Comment = c.Comment,
                         CommentTime = c.CommentTime,
+                        Disabled = c.Disabled ?? false,
                         FloorNumber = index + 1 // 樓層編號
                     }).ToList()
                 };
@@ -274,22 +276,47 @@ namespace HeartSpace.Controllers
         [HttpPost]
         public ActionResult DeleteComment(int commentId)
         {
-            try
+            var db = new AppDbContext();
+            //try
+            //{
+            //    if (!DeletedCommentIds.Contains(commentId))
+            //    {
+            //        DeletedCommentIds.Add(commentId); // 將刪除的留言 ID 加入暫存列表
+            //    }
+
+            //    TempData["SuccessMessage"] = "留言已成功刪除！";
+            //}
+            //catch (Exception ex)
+            //{
+            //    TempData["ErrorMessage"] = "刪除失敗：" + ex.Message;
+            //}
+
+            //// 返回貼文詳細頁
+            //return RedirectToAction("PostDetails", new { id = GetPostIdByCommentId(commentId) });
+
+            var comment = db.PostComments.Find(commentId);
+            if (comment != null)
             {
-                if (!DeletedCommentIds.Contains(commentId))
+                // 標記為已刪除
+                comment.Disabled = true;
+
+
+                try
                 {
-                    DeletedCommentIds.Add(commentId); // 將刪除的留言 ID 加入暫存列表
+                    db.SaveChanges();
+                    TempData["SuccessMessage"] = "留言已刪除！";
                 }
-
-                TempData["SuccessMessage"] = "留言已成功刪除！";
+                catch (Exception ex)
+                {
+                    TempData["ErrorMessage"] = "刪除失敗：" + ex.Message;
+                }
             }
-            catch (Exception ex)
+            else
             {
-                TempData["ErrorMessage"] = "刪除失敗：" + ex.Message;
+                TempData["ErrorMessage"] = "找不到該留言！";
             }
 
-            // 返回貼文詳細頁
-            return RedirectToAction("PostDetails", new { id = GetPostIdByCommentId(commentId) });
+            return RedirectToAction("PostDetails", new { id = comment.PostId });
         }
 
         // 根據留言 ID 獲取貼文 ID 的方法

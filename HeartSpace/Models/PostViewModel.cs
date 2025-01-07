@@ -52,6 +52,9 @@ namespace HeartSpace.Models
         public string Comment { get; set; }
         public DateTime CommentTime { get; set; }
         public int FloorNumber { get; set; } // 樓層編號
+
+        public bool Disabled { get; set; } // 是否被刪除
+
     }
 
 
