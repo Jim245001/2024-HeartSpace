@@ -8,7 +8,7 @@ namespace HeartSpace.Models.EFModels
 	public partial class AppDbContext : DbContext
 	{
 		public AppDbContext()
-			: base("name=AppDbContext")
+			: base("name=AppDbContext1")
 		{
 		}
 
@@ -21,14 +21,16 @@ namespace HeartSpace.Models.EFModels
 		public virtual DbSet<Post> Posts { get; set; }
 		public virtual DbSet<Tag> Tags { get; set; }
 
-		public virtual Member EventMember { get; set; }
-
 		protected override void OnModelCreating(DbModelBuilder modelBuilder)
 		{
 			modelBuilder.Entity<Category>()
 				.HasMany(e => e.Events)
 				.WithRequired(e => e.Category)
 				.WillCascadeOnDelete(false);
+
+			modelBuilder.Entity<EventComment>()
+				.Property(e => e.Disabled)
+				.IsFixedLength();
 
 			modelBuilder.Entity<Event>()
 				.Property(e => e.Limit)
@@ -77,13 +79,6 @@ namespace HeartSpace.Models.EFModels
 				.HasMany(e => e.PostComments)
 				.WithRequired(e => e.Post)
 				.WillCascadeOnDelete(false);
-
-			modelBuilder.Entity<Post>()
-				.HasRequired(p => p.Member)
-				.WithMany(m => m.Posts)
-				.HasForeignKey(p => p.MemberId);
-
-			base.OnModelCreating(modelBuilder);
 		}
 	}
 }

@@ -53,6 +53,8 @@ namespace HeartSpace.Models.EFModels
         [StringLength(50)]
         public string Role { get; set; }
 
+        public int? AbsenceCount { get; set; }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<EventComment> EventComments { get; set; }
 
