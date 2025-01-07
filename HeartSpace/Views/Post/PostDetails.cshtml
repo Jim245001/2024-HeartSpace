@@ -1,7 +1,18 @@
 ﻿@model HeartSpace.Models.PostViewModel
 @using System.Text.RegularExpressions;
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <div class="container" style="margin-top: 20px;">
+    @if (Model.Disabled)
+    {
+        <div class="alert alert-warning">
+            此貼文已被發文者關閉。
+        </div>
+    }
+    else
+    {
+        <!-- 顯示貼文內容 -->
+    }
     <!-- 貼文內容 -->
     <div class="post-section" style="border: 1px solid #ddd; padding: 20px; border-radius: 10px; background-color: #f8f9fa;">
         <!-- 標題與原PO資訊 -->
@@ -17,7 +28,7 @@
                 </h2>
             </div>
             <div style="display: flex; align-items: center;">
-                <img src="data:image/png;base64,@(Model.MemberImg ?? "data:image/jpeg;base64,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ICAgICAgICAgICC3sbFQyyxTyjqOJnYGfsv0tQkY+loLVp95BsyAgICAgICAgICAgICAgICD4MGfmdBj7FB25252+1kFogICAgICAgICAgICD7ihd+pv8mQZGtSYefrdBdICAgICAgICAgICAgICAgICAgIKE9Ri/T60FlLQJurn/wC6C2dsv8kHiAgICAgICCpHA79Tf5ILuHDfW/7PMgvBHLqQfaAgICAgICAgICAgICAgICAgICAgICD4ONn62z/YgoFh4/o/Q6CkWGep/wCLIPj5sf1sgfNj+tviQethj+v7EFQcMbzu7/YgrR1Bbzf4oK6AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICDAbb7XxUKti7OxvDVhksStGIkbxgOp2FiMA8RmID2iIREiQRFtHv/AJq9qpK9K+VOTZ/G8Ss04gwWWxE9W9SDlskwYidUoooJZzEKl6XijMGmOUtAiG4f+u9Qhc4orM2eLBg0QxjVF5rp4c1+IonmuQgMUsRiAnMcRcQukID00GgbDfKct2fmQp8KsQxYlhGIYnbm14O0UUNfkLldi/38c41IRulJIEsRWtJVtMJEMoiF7s98svCbcUslYbFgo5sJhCGueD2JpvnC1yWiYDWxaYINcvQKvfOrPFqEjhASzQZPab5RmitjMlfD7jz4Rh1m1OMxYPoC7HTCyVWUQxnlP9nGUTkmAOBKENnk81kmDWF5L8omGJh5RQxCJ469GxixaMMOPDI7UpR1ivnDi02ppeGVnTh/LCigcJJeFmgwW8D5RghWG3CNinSixvCas2J2Qw8KU9Fsaio4nwSkszWY49PHDlFmvX1AJSQkXQJBJBb0K4YeWKzR2IKwwSWmGWLKwVb8iY1gOSTVbHQcdc9M3loROOKTUAhrmKb+xhYRkwvFWsPXt3JqjR4SdiDDK5RtLdlePFzpFGRTCIQ17EtmQhmEYSKExELB/lP1CkaOvSxG2J2woVJa8WH8K1iJ4cGJx1axWMTrGxHSkK7xrIQwCMMwlIJMAmG4U97dEqVTEikOKtdLD467nFNr5TcmCCtXlijCUwk40gwF6AFq1FpbUgxm+jbq9QCpLUggkjkxXBKd6Wc5GaKrcxenh+UEEek5Zz5cRgRGEUXBMi19GKQMXtptHjEGIUa8FnDZYrtwyaoWFYg1mPB6wNJiNiTEm2k5MxBqhpxy/N+nj3qQlHp1kg1bFd72N12vxSw0prMFHB7Tcgo4xcGhau32rlSuVoLZ3MSKtARYnrp8jlOKEy4EQzREQfONfKV5PVps1mG7ctWbYzTQYJtBFDRw+nKLYlaxDBRsX8ZgKoMkdXhWJotU88JFwIwlIAzlbfHNJirVms1oKByUY6DyYNjUrYlx8PC4x0doRxCHAAc+Lojr8KeUuTz9HuhrmzHyl5I6lu5iUgPNFXqTQYRFgePYdiIz2Z3hpVRLEb03zkViUo6XKKNSKIZOIWrT2Qq4p8qMYqlHI45cQsyzDfeLDMfOHDYahAWLWLuGcH58jGmM0NUeUhX4stitIXAi4rxB9/7SJlicdWOWgUMuK0sPr0mGwWJWaNnDwuDj1acbfJuRgMkh5ckMCirzFykT8kIdDoCAgICAgICAgICAgIMbjeGvNFJEM0sDmBCM0LwtLG7+nHxYZoNQeqWIx9YkgjnBfk60oAcBmtG54fj2HSmRUxIwxa4Fu/Y4cVGGrHLxYh4Y14ooAEj8iSCnh3yc6sU8UwWr7Rw3KWIhU4tPkr4lXoBQG0bcha0RTQRAEkXKOFqzMY4yLUg+sF+TvWgDD4xt3jDDor9OsMhYaTHg9oYBlwmx/uwddbTSrMJjoteT6Vg9Z6gusL3FxBDFWkv4jYgr2sGs0o7EtEmrDhtkLFSvGUeHQzSRuUcYSS2znnMBDy3NqQVNodxda5PantWLczWcNxPCWhIqYR16N4AC4FaSKkF0tfCFxG3YnCItZAIakGPu/J1glfyt7EZBkgo18TB5MNEMThqymdUcRGPDA06OIUJFh3I+LFojk4gjkgqx/J7rM3Ce3eKoN+DEa9EjolVgsR4kGIkELfN/KihmnDQUVixLoiOSOLgCaDJQ7la7Uiwx57R0Hq26YViOvlFXlmaSuMFgagXY/mwR5NUysPwotGrilHEYBi8T3BjMwlJiuKvY4FunNbaXCgsT4dY4XFozNHhAUhiHgAYS168U8ZFMQzCU0pEF/gu4ejXKEoXmAa+MNjMEbHDwxsjgZYGFf/h9fJwqlrENXE4ogXE0tw0G07C7HRYfVgpQlIUVePhxlK8ZSO2py6ZAEYZ9L0QFBh96W7P50iigK9cphHap3H5G2FOUlirbhuUyke9hd/Jq1itDOIwsGrS4nxBLSgvKOwABYluPPYltSUK2HDNI9XOKvCRmRwRhUCADszS8pmd4iAyjrDpEIAjENS2Q3DnShmgixvGHaYzneSRtmXmG4c7SyXCnDZsJrM0rjwS5cViMon06OgGkPkvk612YXivYjXsl84DbuxTUeU3QuyhLbC3xcOmqjrKCHSdSvXOAY2GIoh1MgyMW5CAZKz8quvUpPUPD8O4lPkdeatW5NVkjdqLYkXJwFjGKa3JFxfKcPU2aCyl+T5BJxDsXsRtWnakNW5NLh7WaQ1bXKqzU+Bh0FLoTCMhlbrzlPpAZSlFtKCj/ALOVds5I7+Jw25Hu8uvxy4e1q6FpoBnjt6sMOkLaaVWOMqVaucAwjwyi1nqDa8G3YVa81eYOJpp4fFhmHQEYvBTqizCZVo9HE4tgI4IZLExylw4AEeExy8UNzQEBAQEBAQf/2Q==")"
+                <img src="data:image/png;base64,@(Model.MemberImg ?? "")"
                      alt="原PO頭像"
                      style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;">
 
@@ -53,7 +64,13 @@
         <div style="margin-top: 20px; text-align: right;">
             @if (ViewBag.CurrentUserId == Model.MemberId)
             {
-                <button class="btn btn-danger" style="margin-right: 10px;">關閉</button>
+                <form action="@Url.Action("TogglePostStatus", "Post")" method="post" style="display:inline;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="postId" value="@Model.Id" />
+                    <button type="submit" class="btn btn-danger" style="margin-right: 10px;">
+                        @(Model.Disabled ? "重新開啟" : "關閉")
+                    </button>
+                </form>
                 <a class="btn btn-primary" href="@Url.Action("EditPost", "Post", new { id = Model.Id })">修改</a>
             }
         </div>
@@ -181,27 +198,4 @@
     </form>
 </div>
 
-<script>
-    function mentionUser(mentionText) {
-        // 獲取留言輸入框
-        const textarea = document.getElementById('commentContent');
-        // 將文字插入到留言框中
-        textarea.value += mentionText;
-        // 聚焦到輸入框
-        textarea.focus();
-    }
 
-    document.addEventListener("DOMContentLoaded", function () {
-        // 平滑滾動功能
-        document.querySelectorAll("a[href^='#floor']").forEach(function (anchor) {
-            anchor.addEventListener("click", function (e) {
-                e.preventDefault();
-                const targetId = this.getAttribute("href").substring(1);
-                const targetElement = document.getElementById(targetId);
-                if (targetElement) {
-                    targetElement.scrollIntoView({ behavior: "smooth" });
-                }
-            });
-        });
-    });
-</script>

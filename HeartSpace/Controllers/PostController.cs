@@ -5,6 +5,7 @@ using HeartSpace.Models.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using static HeartSpace.Helpers.ImageHelper;
@@ -49,18 +50,19 @@ namespace HeartSpace.Controllers
             }
 
             model.PublishTime = DateTime.Now;
-            var postId = _postService.AddPost(model);
 
-        TempData["SuccessMessage"] = "貼文已成功儲存！";
-            if (TempData["SuccessMessage"] != null)
+            try
             {
-                // 如果 TempData 有值，重定向自己，讓 TempData 消失
-                TempData.Keep(); // 確保 TempData 不會丟失
+                var postId = _postService.AddPost(model);
+                TempData["SuccessMessage"] = "貼文已成功儲存！";
                 return RedirectToAction("PostDetails", new { id = postId });
             }
-            return RedirectToAction("PostDetails", new { id = postId });
-
-            
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "儲存貼文時發生錯誤，請稍後再試");
+                ViewBag.Categories = _postService.GetCategories();
+                return View(model);
+            }
         }
 
     [HttpGet]
@@ -206,7 +208,37 @@ namespace HeartSpace.Controllers
             }
         }
 
-        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult TogglePostStatus(int postId)
+        {
+            var post = _postService.GetPostById(postId);
+            if (post == null)
+            {
+                return HttpNotFound("找不到該貼文！");
+            }
+
+            if (post.MemberId != GetCurrentUserId())
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.Forbidden, "您無權限執行此操作");
+            }
+
+            try
+            {
+                post.Disabled = !post.Disabled;
+                _postService.UpdatePost(post);
+                TempData["SuccessMessage"] = post.Disabled ? "貼文已關閉！" : "貼文已重新開啟！";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "操作失敗：" + ex.Message;
+            }
+
+            return RedirectToAction("PostDetails", new { id = postId });
+        }
+
+
+
         [HttpPost]
         public ActionResult AddCommentAndRefresh(int postId, string content)
         {
@@ -288,5 +320,6 @@ namespace HeartSpace.Controllers
 
             return 1;
         }
+
     }
 }
