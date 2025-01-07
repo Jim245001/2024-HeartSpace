@@ -1,7 +1,6 @@
 ﻿using System.Data;
 using System.Data.SqlClient;
 using Dapper;
-using HeartSpace.Models.EFModel;
 using HeartSpace.Models.EFModels;
 
 public class MemberRepository

@@ -37,10 +37,10 @@ namespace HeartSpace.Models.ViewModels
 		public bool IsOnline { get; set; }
 
 		// 圖片相關
-		[Display(Name = "照片")]
+		[Display(Name = "顯示用照片")]
 		public byte[] Img { get; set; } // 用於顯示圖片的二進制數據
 
-		[Display(Name = "上傳照片")]
+		[Display(Name = "上傳用照片")]
 		public HttpPostedFileBase UploadedImg { get; set; } // 用於接收圖片上傳
 
 		// 參與者相關
@@ -91,6 +91,14 @@ namespace HeartSpace.Models.ViewModels
 
 		public bool IsAdmin => Role?.ToLower() == "admin";  // 是否為管理員
 
+
+		//圖片相關
+		public string ImgUrl => $"/Image/GetEventImage?eventId={Id}";
+		public string MemberProfileImgUrl => $"/Image/GetMemberProfileImage?memberId={MemberId}";
+
+
+
+
 		// 自定驗證
 		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
@@ -117,4 +125,9 @@ namespace HeartSpace.Models.ViewModels
 		public DateTime CommentTime { get; set; }
 		public bool IsCommentOwner { get; set; }
 	}
+
+
+
+
+
 }

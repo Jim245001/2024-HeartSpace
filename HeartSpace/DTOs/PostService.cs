@@ -71,19 +71,6 @@ namespace HeartSpace.Models.Services
 
         public void UpdatePost(CreatePostDto dto)
         {
-            //var post = _repository.GetPostById(dto.Id);
-            //if (post != null)
-            //{
-            //    post.Title = dto.Title;
-            //    post.PostContent = dto.PostContent;
-            //    post.CategoryId = dto.CategoryId;
-            //    post.PostImg = !string.IsNullOrEmpty(dto.PostImg)
-            //                   ? Convert.FromBase64String(dto.PostImg)
-            //                   : post.PostImg;
-
-            //    _repository.UpdatePost(post);
-            //}
-
             var post = _repository.GetPostById(dto.Id);
             if (post == null)
             {
@@ -93,6 +80,7 @@ namespace HeartSpace.Models.Services
             post.Title = dto.Title;
             post.PostContent = dto.PostContent;
             post.CategoryId = dto.CategoryId;
+            post.Disabled = dto.Disabled;
 
             // 如果有新圖片，更新圖片
             if (!string.IsNullOrEmpty(dto.PostImg))
