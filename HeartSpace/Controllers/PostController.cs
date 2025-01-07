@@ -113,17 +113,17 @@ namespace HeartSpace.Controllers
 					model.PostImg = Image.ToBase64String();
 				}
 
-            // 將 PostViewModel 轉換為 CreatePostDto
-            var dto = new CreatePostDto
-            {
-                Id = model.Id,
-                Title = model.Title,
-                PostContent = model.PostContent,
-                PostImg = model.PostImg,
-                CategoryId = model.CategoryId,
-                PublishTime = model.PublishTime,
-                MemberId = model.MemberId,
-            };
+			// 將 PostViewModel 轉換為 CreatePostDto
+			var dto = new CreatePostDto
+			{
+				Id = model.Id,
+				Title = model.Title,
+				PostContent = model.PostContent,
+				PostImg = model.PostImg,
+				CategoryId = model.CategoryId,
+				PublishTime = model.PublishTime,
+				MemberId = model.MemberId,
+			};
 
 				// 呼叫 Service 更新貼文
 				_postService.UpdatePost(model);
