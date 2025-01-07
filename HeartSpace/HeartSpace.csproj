@@ -148,9 +148,12 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\UnityConfig.cs" />
+
     <Compile Include="App_Start\UnityMvcActivator.cs" />
-    <Compile Include="DTOs\CreatePostDto.cs" />
+
+	  <Compile Include="DTOs\CreatePostDto.cs" />
     <Compile Include="DTOs\EventService.cs" />
+    <Compile Include="DTOs\EventWithParticipantsDto.cs" />
     <Compile Include="DTOs\PostService.cs" />
     <Compile Include="DTOs\ProfileService.cs" />
     <Compile Include="Controllers\AccountController.cs" />
@@ -161,6 +164,7 @@
     <Compile Include="Controllers\ProfileController.cs" />
     <Compile Include="Controllers\SearchController.cs" />
     <Compile Include="Helpers\ImageHelper.cs" />
+    <Compile Include="Helpers\PaginatedLis.cs" />
     <Compile Include="Models\EFModels\AppDbContext.cs" />
     <Compile Include="Models\EFModels\Category.cs" />
     <Compile Include="Models\EFModels\Event.cs" />
@@ -170,6 +174,8 @@
     <Compile Include="Models\EFModels\Post.cs" />
     <Compile Include="Models\EFModels\PostComment.cs" />
     <Compile Include="Models\EFModels\Tag.cs" />
+	<Compile Include="Models\HomePageViewModel.cs" />
+    <Compile Include="Models\ViewModels\EventStatusViewModel.cs" />
     <Compile Include="Repositories\EventRepository.cs" />
     <Compile Include="Repositories\MemberRepository.cs" />
     <Compile Include="Repositories\ActivityRepository.cs" />
@@ -177,7 +183,6 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\EventCard.cs" />
-    <Compile Include="Models\EventRepository.cs" />
     <Compile Include="Models\ForgotPasswordViewModel.cs" />
     <Compile Include="Models\LoginViewModel.cs" />
     <Compile Include="Models\PostCard.cs" />
@@ -274,10 +279,15 @@
     <Content Include="Views\Post\EditPost.cshtml" />
     <Content Include="Views\Post\PostDetails.cshtml" />
     <Content Include="Views\Profile\EditProfile.cshtml" />
+	  <Content Include="Views\Post\CreatePost.cshtml" />
+	  <Content Include="Views\Post\EditPost.cshtml" />
+	  <Content Include="Views\Post\PostDetails.cshtml" />
+	  <Content Include="Views\Event\EventStatus.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Views\Default\" />
+    <Folder Include="Views\Image\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

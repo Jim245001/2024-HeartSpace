@@ -5,16 +5,22 @@ using HeartSpace.Models.ViewModels;
 using System.Linq;
 using System.Data.Entity;
 using HeartSpace.Models.EFModels;
+using HeartSpace.Models;
 
 namespace HeartSpace.BLL
 {
-	public class EventService
+	public interface IEventService
 	{
-		private readonly EventRepository _eventRepository;
+		EventStatusViewModel GetEventStatus(int eventId); // 獲取活動報名狀況
+	}
+
+	public class EventService : IEventService
+	{
+		private readonly DAL.EventRepository _eventRepository;
 
 		public EventService()
 		{
-			_eventRepository = new EventRepository();
+			_eventRepository = new DAL.EventRepository();
 		}
 
 		public List<Event> GetAllEvents()
@@ -144,5 +150,90 @@ namespace HeartSpace.BLL
 			}
 		}
 
+		// 檢查是否為留言者本人
+		public bool IsCommentOwner(int commentId, int memberId)
+		{
+			using (var context = new AppDbContext())
+			{
+				// 從資料庫中查詢指定的留言
+				var comment = context.EventComments.FirstOrDefault(c => c.Id == commentId);
+
+				// 如果留言不存在，返回 false
+				if (comment == null)
+				{
+					return false;
+				}
+
+				// 判斷該留言的 MemberId 是否等於當前用戶的 MemberId
+				return comment.MemberId == memberId;
+			}
+		}
+
+		public void UpdateComment(EventComment updatedComment)
+		{
+			using (var context = new AppDbContext())
+			{
+				// 查找需要更新的留言
+				var existingComment = context.EventComments.FirstOrDefault(c => c.Id == updatedComment.Id);
+				if (existingComment != null)
+				{
+					// 更新內容
+					existingComment.EventCommentContent = updatedComment.EventCommentContent;
+
+					// 保存更改
+					context.SaveChanges();
+				}
+				else
+				{
+					throw new Exception("找不到該留言，無法更新。");
+				}
+			}
+		}
+
+		public EventStatusViewModel GetEventStatus(int eventId)
+		{
+			var eventDetails = _eventRepository.GetEventWithParticipants(eventId);
+
+			if (eventDetails == null)
+			{
+				return null; // 如果活動不存在
+			}
+
+			return new EventStatusViewModel
+			{
+				Id = eventDetails.EventId,
+				EventName = eventDetails.EventName,
+				EventOwner = new ParticipantViewModel
+				{
+					MemberId = eventDetails.MemberId,
+					NickName = eventDetails.NickName,
+					FullName = eventDetails.MemberName,
+					Email = eventDetails.Email,
+					ProfileImage = eventDetails.MemberImg
+				},
+				Participants = eventDetails.Participants.Select(p => new ParticipantViewModel
+				{
+					MemberId = p.MemberId,
+					NickName = p.NickName,
+					FullName = p.MemberName,
+					Email = p.Email,
+					ProfileImage = p.MemberImg
+				}).ToList(),
+
+				CategoryName = eventDetails.CategoryName,
+				EventTime = eventDetails.EventTime,
+				IsOnline = eventDetails.IsOnline,
+				Location = eventDetails.Location,
+				ParticipantMin = eventDetails.ParticipantMin,
+				ParticipantMax = eventDetails.ParticipantMax,
+				Description = eventDetails.Description,
+				DeadLine = eventDetails.DeadLine,
+				ParticipantNow = eventDetails.ParticipantNow
+			};
+		}
+
+
 	}
+
+
 }

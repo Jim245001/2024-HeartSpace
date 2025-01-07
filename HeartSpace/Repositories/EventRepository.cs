@@ -8,9 +8,14 @@ using Dapper;
 using HeartSpace.Models;
 using System.Data.Entity;
 using HeartSpace.Models.EFModels;
+using HeartSpace.DTOs;
 
 namespace HeartSpace.DAL
 {
+	public interface IEventRepository
+	{
+		EventWithParticipantsDto GetEventWithParticipants(int eventId);
+	}
 	public class EventRepository
 	{
 		private readonly string _connectionString;
@@ -176,6 +181,76 @@ namespace HeartSpace.DAL
 				return connection.ExecuteScalar<int>(query, new { EventId = eventId }) + 1; // +1 是加上發起人
 			}
 		}
+
+		public EventWithParticipantsDto GetEventWithParticipants(int eventId)
+		{
+			using (var connection = new SqlConnection(_connectionString))
+			{
+				connection.Open();
+
+				// 查詢活動的基本資訊和發起人資訊（包括類別名稱）
+				var eventQuery = @"
+        SELECT 
+            e.Id AS EventId,
+            e.EventName,
+            c.CategoryName AS CategoryName, -- 從 Category 表中取得類別名稱
+            e.EventTime,
+            e.IsOnline,
+            e.Location,
+            e.ParticipantMin,
+            e.ParticipantMax,
+            e.Description,
+            e.DeadLine,
+            m.Id AS MemberId,
+            m.Name AS MemberName, -- 發起人姓名
+            m.NickName,
+            m.Email,
+            m.MemberImg,
+            (SELECT COUNT(*) FROM EventMembers em WHERE em.EventId = e.Id) AS ParticipantNow
+        FROM Events e
+        INNER JOIN Members m ON e.MemberId = m.Id
+        LEFT JOIN Categories c ON e.CategoryId = c.Id -- 連接 Categories 表
+        WHERE e.Id = @EventId";
+
+				// 查詢活動參與者清單
+				var participantsQuery = @"
+        SELECT 
+            em.Id AS EventMemberId,
+            em.EventId,
+            em.MemberId,
+            m.Name AS MemberName,
+            m.NickName,
+            m.Email,
+            m.MemberImg
+        FROM EventMembers em
+        INNER JOIN Members m ON em.MemberId = m.Id
+        WHERE em.EventId = @EventId";
+
+				// 查詢活動和發起人資訊
+				var eventResult = connection.QueryFirstOrDefault<EventWithParticipantsDto>(
+					eventQuery,
+					new { EventId = eventId }
+				);
+
+				if (eventResult == null)
+				{
+					return null; // 如果活動不存在，返回 null
+				}
+
+				// 查詢參與者清單
+				var participants = connection.Query<ParticipantDto>(
+					participantsQuery,
+					new { EventId = eventId }
+				).ToList();
+
+				// 將參與者清單加入到活動 DTO 中
+				eventResult.Participants = participants;
+
+				return eventResult;
+			}
+		}
+
+
 	}
 }
 
