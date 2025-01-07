@@ -20,6 +20,9 @@ namespace HeartSpace.Models.EFModels
 
         public DateTime CommentTime { get; set; }
 
+        [StringLength(10)]
+        public string Disabled { get; set; }
+
         public virtual Event Event { get; set; }
 
         public virtual Member Member { get; set; }

@@ -20,6 +20,8 @@ namespace HeartSpace.Models.EFModels
 
         public DateTime CommentTime { get; set; }
 
+        public bool? Disabled { get; set; }
+
         public virtual Member Member { get; set; }
 
         public virtual Post Post { get; set; }
