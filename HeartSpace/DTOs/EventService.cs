@@ -145,5 +145,45 @@ namespace HeartSpace.BLL
 			}
 		}
 
+		// 檢查是否為留言者本人
+		public bool IsCommentOwner(int commentId, int memberId)
+		{
+			using (var context = new AppDbContext())
+			{
+				// 從資料庫中查詢指定的留言
+				var comment = context.EventComments.FirstOrDefault(c => c.Id == commentId);
+
+				// 如果留言不存在，返回 false
+				if (comment == null)
+				{
+					return false;
+				}
+
+				// 判斷該留言的 MemberId 是否等於當前用戶的 MemberId
+				return comment.MemberId == memberId;
+			}
+		}
+
+		public void UpdateComment(EventComment updatedComment)
+		{
+			using (var context = new AppDbContext())
+			{
+				// 查找需要更新的留言
+				var existingComment = context.EventComments.FirstOrDefault(c => c.Id == updatedComment.Id);
+				if (existingComment != null)
+				{
+					// 更新內容
+					existingComment.EventCommentContent = updatedComment.EventCommentContent;
+
+					// 保存更改
+					context.SaveChanges();
+				}
+				else
+				{
+					throw new Exception("找不到該留言，無法更新。");
+				}
+			}
+		}
+
 	}
 }

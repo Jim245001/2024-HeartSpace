@@ -1,0 +1,1125 @@
+From 69a9482d0040092c6342c2b18a024cedfb9b7d7d Mon Sep 17 00:00:00 2001
+From: Jim245 <jim245.001@gmail.com>
+Date: Tue, 7 Jan 2025 14:32:10 +0800
+Subject: [PATCH] =?UTF-8?q?=E9=A6=96=E9=A0=81=E9=99=A4=E4=BA=86=E8=B2=BC?=
+ =?UTF-8?q?=E6=96=87=E8=B6=85=E9=80=A3=E7=B5=90=E4=B9=8B=E5=A4=96=E9=83=BD?=
+ =?UTF-8?q?=E6=90=9E=E5=AE=9A=E4=BA=86?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ HeartSpace/Controllers/HomeController.cs      |  88 +++--
+ HeartSpace/Controllers/ImageController.cs     |  50 +++
+ HeartSpace/Controllers/PostController.cs      | 300 +++++++++---------
+ HeartSpace/HeartSpace.csproj                  |   4 +
+ HeartSpace/Helpers/PaginatedLis.cs            |  30 ++
+ HeartSpace/Models/EFModels/AppDbContext.cs    | 153 ++++-----
+ HeartSpace/Models/EFModels/Event.cs           |  89 +++---
+ HeartSpace/Models/HomePageViewModel.cs        |  18 ++
+ .../Models/ViewModels/EventViewModel.cs       |  17 +-
+ HeartSpace/Views/Home/Index.cshtml            | 162 +++++-----
+ 10 files changed, 538 insertions(+), 373 deletions(-)
+ create mode 100644 HeartSpace/Controllers/ImageController.cs
+ create mode 100644 HeartSpace/Helpers/PaginatedLis.cs
+ create mode 100644 HeartSpace/Models/HomePageViewModel.cs
+
+diff --git a/HeartSpace/Controllers/HomeController.cs b/HeartSpace/Controllers/HomeController.cs
+index bccf1b9..94ae312 100644
+--- a/HeartSpace/Controllers/HomeController.cs
++++ b/HeartSpace/Controllers/HomeController.cs
+@@ -1,36 +1,66 @@
+ ﻿using HeartSpace.Models;
+ using HeartSpace.Models.EFModels;
++using HeartSpace.Models.ViewModels;
++using HeartSpace.Helpers;
++using System;
++using System.Data.Entity;
+ using System.Linq;
+ using System.Web.Mvc;
+-using HeartSpace.BLL;
+ 
+-namespace HeartSpace.Controllers
++public class HomeController : Controller
+ {
+-    public class HomeController : Controller
+-    {
+-        private readonly AppDbContext _context;
+-
+-        public HomeController()
+-        {
+-            _context = new AppDbContext();
+-        }
+-
+-        public ActionResult Index()
+-        {
+-            // 從資料庫中讀取所有活動
+-            var events = _context.Events.ToList();
+-
+-            // 傳遞資料給視圖
+-            return View(events);
+-        }
+-
+-        protected override void Dispose(bool disposing)
+-        {
+-            if (disposing)
+-            {
+-                _context.Dispose();
+-            }
+-            base.Dispose(disposing);
+-        }
+-    }
++	private readonly AppDbContext _context;
++
++	public HomeController() : this(new AppDbContext()) { }
++
++	public HomeController(AppDbContext context)
++	{
++		_context = context;
++	}
++
++	public ActionResult Index(int postPage = 1, int eventPage = 1)
++	{
++		int pageSize = 6; // 每頁顯示 6 筆資料
++
++		// 分頁處理貼文資料
++		var postsQuery = _context.Posts
++			.Include(p => p.Member)
++			.OrderByDescending(p => p.PublishTime)
++			.Select(p => new PostViewModel
++			{
++				Id = p.Id, // 確保選取了 Id
++				Title = p.Title,
++				PostContent = p.PostContent,
++				PublishTime = p.PublishTime,
++				MemberName = p.Member != null ? p.Member.Name : "未知作者"
++			});
++
++		var paginatedPosts = PaginatedList<PostViewModel>.Create(postsQuery, postPage, pageSize);
++
++		// 揪團活動資料分頁
++		var eventsQuery = _context.Events
++			.Include(e => e.Member)
++			.OrderByDescending(e => e.EventTime)
++			.Select(e => new EventViewModel
++			{
++				Id = e.Id, // 確保選取了 Id
++				EventName = e.EventName,
++				Description = e.Description,
++				Location = e.Location,
++				EventTime = e.EventTime,
++				MemberName = e.Member != null ? e.Member.Name : "未知主辦者",
++				Img = e.EventImg
++			});
++
++		var paginatedEvents = PaginatedList<EventViewModel>.Create(eventsQuery, eventPage, pageSize);
++
++		// 建立 ViewModel
++		var viewModel = new HomePageViewModel
++		{
++			Posts = paginatedPosts,
++			Events = paginatedEvents
++		};
++
++		return View(viewModel);
++	}
+ }
+diff --git a/HeartSpace/Controllers/ImageController.cs b/HeartSpace/Controllers/ImageController.cs
+new file mode 100644
+index 0000000..77d31c8
+--- /dev/null
++++ b/HeartSpace/Controllers/ImageController.cs
+@@ -0,0 +1,50 @@
++﻿using HeartSpace.Models.EFModels;
++using System;
++using System.Collections.Generic;
++using System.Linq;
++using System.Web;
++using System.Web.Mvc;
++
++namespace HeartSpace.Controllers
++{
++	public class ImageController : Controller
++	{
++		private readonly AppDbContext _context;
++
++		public ImageController()
++		{
++			_context = new AppDbContext();
++		}
++
++		public ActionResult GetEventImage(int eventId)
++		{
++			var eventImg = _context.Events
++				.Where(e => e.Id == eventId)
++				.Select(e => e.EventImg)
++				.FirstOrDefault();
++
++			if (eventImg == null)
++			{
++				return HttpNotFound();
++			}
++
++			return File(eventImg, "image/jpeg"); // 假設圖片為 JPEG 格式
++		}
++
++		public ActionResult GetMemberProfileImage(int memberId)
++		{
++			var profileImg = _context.Members
++				.Where(m => m.Id == memberId)
++				.Select(m => m.MemberImg)
++				.FirstOrDefault();
++
++			if (profileImg == null)
++			{
++				return HttpNotFound();
++			}
++
++			return File(profileImg, "image/jpeg"); // 假設圖片為 JPEG 格式
++		}
++	}
++
++}
+\ No newline at end of file
+diff --git a/HeartSpace/Controllers/PostController.cs b/HeartSpace/Controllers/PostController.cs
+index 26907ec..caa671d 100644
+--- a/HeartSpace/Controllers/PostController.cs
++++ b/HeartSpace/Controllers/PostController.cs
+@@ -9,155 +9,155 @@ using static HeartSpace.Helpers.ImageHelper;
+ 
+ namespace HeartSpace.Controllers
+ {
+-    public class PostController : Controller
+-    {
+-      private readonly PostService _postService;
+-
+-    public PostController(PostService postService)
+-    {
+-        _postService = postService;
+-    }
+-
+-    [HttpGet]
+-    public ActionResult CreatePost()
+-    {
+-        var model = new CreatePostDto();
+-        ViewBag.Categories = _postService.GetCategories();
+-        return View(model);
+-    }
+-
+-    [HttpPost]
+-    [ValidateAntiForgeryToken]
++	public class PostController : Controller
++	{
++	  private readonly PostService _postService;
++
++	public PostController(PostService postService)
++	{
++		_postService = postService;
++	}
++
++	[HttpGet]
++	public ActionResult CreatePost()
++	{
++		var model = new CreatePostDto();
++		ViewBag.Categories = _postService.GetCategories();
++		return View(model);
++	}
++
++	[HttpPost]
++	[ValidateAntiForgeryToken]
+ 		public ActionResult CreatePost(CreatePostDto model, HttpPostedFileBase Image)
+-    {
+-            model.MemberId = 1;
+-            if (!ModelState.IsValid)
+-        {
+-            ViewBag.Categories = _postService.GetCategories();
+-            return View(model);
+-        }
+-
+-            // 處理圖片上傳
+-            if (Image != null && Image.ContentLength > 0)
+-            {
+-                model.PostImg = Image.ToBase64String();
+-            }
+-
+-            model.PublishTime = DateTime.Now;
+-            var postId = _postService.AddPost(model);
+-
+-        TempData["SuccessMessage"] = "貼文已成功儲存！";
+-        return RedirectToAction("PostDetails", new { id = postId });
+-    }
+-
+-    [HttpGet]
+-    public ActionResult PostDetails(int id)
+-    {
+-            var post = _postService.GetPostById(id);
+-
+-            if (post == null)
+-            {
+-                return HttpNotFound("找不到該貼文！");
+-            }
+-
+-            var viewModel = new Models.PostViewModel
+-            {
+-                Id = post.Id,
+-                Title = post.Title,
+-                PostContent = post.PostContent,
+-                // 確保圖片為 Base64 格式，並處理 null 情況
+-                PostImg = !string.IsNullOrEmpty(post.PostImg) ? post.PostImg : null,
+-                CategoryName = _postService.GetCategoryNameById(post.CategoryId), // 獲取分類名稱
+-                MemberName = _postService.GetMemberNameById(post.MemberId),       // 獲取會員名稱
+-                PublishTime = post.PublishTime
+-            };
+-
+-            return View(viewModel);
+-        }
+-
+-        // 編輯貼文頁面
+-        [HttpGet]
+-        public ActionResult EditPost(int id)
+-        {
+-            var post = _postService.GetPostById(id);
+-
+-            if (post == null)
+-            {
+-                return HttpNotFound("找不到該貼文！");
+-            }
+-
+-            // 初始化分類選單
+-            post.CategoryList = _postService.GetCategories();
+-            return View(post);
+-        }
+-
+-        // 編輯貼文動作
+-        [HttpPost]
+-        [ValidateAntiForgeryToken]
+-        public ActionResult EditPost(CreatePostDto model, HttpPostedFileBase Image)
+-        {
+-            if (!ModelState.IsValid)
+-            {
+-                // 如果驗證失敗，重新填充分類選單
+-                model.CategoryList = _postService.GetCategories();
+-                return View(model);
+-            }
+-
+-            try
+-            {
+-                // 處理圖片更新
+-                if (Image != null && Image.ContentLength > 0)
+-                {
+-                    model.PostImg = Image.ToBase64String();
+-                }
+-
+-
+-                // 呼叫 Service 更新貼文
+-                _postService.UpdatePost(model);
+-
+-                TempData["SuccessMessage"] = "貼文已成功更新！";
+-                return RedirectToAction("PostDetails", "Post", new { id = model.Id });
+-            }
+-            catch (Exception ex)
+-            {
+-                ModelState.AddModelError("", "更新失敗：" + ex.Message);
+-                model.CategoryList = _postService.GetCategories();
+-                return View(model);
+-            }
+-        }
+-
+-        // 刪除貼文
+-        [HttpPost]
+-        public ActionResult DeletePost(int id)
+-        {
+-            try
+-            {
+-                _postService.DeletePost(id); // 呼叫 Service 刪除貼文
+-                TempData["SuccessMessage"] = "貼文已成功刪除！";
+-                return RedirectToAction("Index", "Home");
+-            }
+-            catch (Exception ex)
+-            {
+-                TempData["ErrorMessage"] = "刪除失敗：" + ex.Message;
+-                return RedirectToAction("PostDetails", "Post", new { id = id });
+-            }
+-        }
+-
+-        // 獲取當前用戶 ID（需根據你的系統調整）
+-        private int GetCurrentUserId()
+-        {
+-            var userName = User.Identity.Name; // 假設登入後的用戶名
+-            using (var db = new AppDbContext())
+-            {
+-                var member = db.Members.FirstOrDefault(m => m.Name == userName);
+-
+-                if (member == null)
+-                {
+-                    throw new Exception("找不到對應的會員，請檢查是否正確登入！");
+-                }
+-
+-                return member.Id;
+-            }
+-        }
+-    }
++	{
++			model.MemberId = 1;
++			if (!ModelState.IsValid)
++		{
++			ViewBag.Categories = _postService.GetCategories();
++			return View(model);
++		}
++
++			// 處理圖片上傳
++			if (Image != null && Image.ContentLength > 0)
++			{
++				model.PostImg = Image.ToBase64String();
++			}
++
++			model.PublishTime = DateTime.Now;
++			var postId = _postService.AddPost(model);
++
++		TempData["SuccessMessage"] = "貼文已成功儲存！";
++		return RedirectToAction("PostDetails", new { id = postId });
++	}
++
++	[HttpGet]
++	public ActionResult PostDetails(int id)
++	{
++			var post = _postService.GetPostById(id);
++
++			if (post == null)
++			{
++				return HttpNotFound("找不到該貼文！");
++			}
++
++			var viewModel = new Models.PostViewModel
++			{
++				Id = post.Id,
++				Title = post.Title,
++				PostContent = post.PostContent,
++				// 確保圖片為 Base64 格式，並處理 null 情況
++				PostImg = !string.IsNullOrEmpty(post.PostImg) ? post.PostImg : null,
++				CategoryName = _postService.GetCategoryNameById(post.CategoryId), // 獲取分類名稱
++				MemberName = _postService.GetMemberNameById(post.MemberId),       // 獲取會員名稱
++				PublishTime = post.PublishTime
++			};
++
++			return View(viewModel);
++		}
++
++		// 編輯貼文頁面
++		[HttpGet]
++		public ActionResult EditPost(int id)
++		{
++			var post = _postService.GetPostById(id);
++
++			if (post == null)
++			{
++				return HttpNotFound("找不到該貼文！");
++			}
++
++			// 初始化分類選單
++			post.CategoryList = _postService.GetCategories();
++			return View(post);
++		}
++
++		// 編輯貼文動作
++		[HttpPost]
++		[ValidateAntiForgeryToken]
++		public ActionResult EditPost(CreatePostDto model, HttpPostedFileBase Image)
++		{
++			if (!ModelState.IsValid)
++			{
++				// 如果驗證失敗，重新填充分類選單
++				model.CategoryList = _postService.GetCategories();
++				return View(model);
++			}
++
++			try
++			{
++				// 處理圖片更新
++				if (Image != null && Image.ContentLength > 0)
++				{
++					model.PostImg = Image.ToBase64String();
++				}
++
++
++				// 呼叫 Service 更新貼文
++				_postService.UpdatePost(model);
++
++				TempData["SuccessMessage"] = "貼文已成功更新！";
++				return RedirectToAction("PostDetails", "Post", new { id = model.Id });
++			}
++			catch (Exception ex)
++			{
++				ModelState.AddModelError("", "更新失敗：" + ex.Message);
++				model.CategoryList = _postService.GetCategories();
++				return View(model);
++			}
++		}
++
++		// 刪除貼文
++		[HttpPost]
++		public ActionResult DeletePost(int id)
++		{
++			try
++			{
++				_postService.DeletePost(id); // 呼叫 Service 刪除貼文
++				TempData["SuccessMessage"] = "貼文已成功刪除！";
++				return RedirectToAction("Index", "Home");
++			}
++			catch (Exception ex)
++			{
++				TempData["ErrorMessage"] = "刪除失敗：" + ex.Message;
++				return RedirectToAction("PostDetails", "Post", new { id = id });
++			}
++		}
++
++		// 獲取當前用戶 ID（需根據你的系統調整）
++		private int GetCurrentUserId()
++		{
++			var userName = User.Identity.Name; // 假設登入後的用戶名
++			using (var db = new AppDbContext())
++			{
++				var member = db.Members.FirstOrDefault(m => m.Name == userName);
++
++				if (member == null)
++				{
++					throw new Exception("找不到對應的會員，請檢查是否正確登入！");
++				}
++
++				return member.Id;
++			}
++		}
++	}
+ }
+diff --git a/HeartSpace/HeartSpace.csproj b/HeartSpace/HeartSpace.csproj
+index f771b6c..374e49c 100644
+--- a/HeartSpace/HeartSpace.csproj
++++ b/HeartSpace/HeartSpace.csproj
+@@ -130,6 +130,7 @@
+     <Compile Include="App_Start\FilterConfig.cs" />
+     <Compile Include="App_Start\RouteConfig.cs" />
+     <Compile Include="App_Start\UnityConfig.cs" />
++    <Compile Include="Controllers\ImageController.cs" />
+     <Compile Include="DTOs\CreatePostDto.cs" />
+     <Compile Include="DTOs\EventService.cs" />
+     <Compile Include="DTOs\PostService.cs" />
+@@ -142,6 +143,7 @@
+     <Compile Include="Controllers\ProfileController.cs" />
+     <Compile Include="Controllers\SearchController.cs" />
+     <Compile Include="Helpers\ImageHelper.cs" />
++    <Compile Include="Helpers\PaginatedLis.cs" />
+     <Compile Include="Models\EFModels\AppDbContext.cs" />
+     <Compile Include="Models\EFModels\Category.cs" />
+     <Compile Include="Models\EFModels\Event.cs" />
+@@ -151,6 +153,7 @@
+     <Compile Include="Models\EFModels\Post.cs" />
+     <Compile Include="Models\EFModels\PostComment.cs" />
+     <Compile Include="Models\EFModels\Tag.cs" />
++    <Compile Include="Models\HomePageViewModel.cs" />
+     <Compile Include="Repositories\EventRepository.cs" />
+     <Compile Include="Repositories\MemberRepository.cs" />
+     <Compile Include="Repositories\ActivityRepository.cs" />
+@@ -256,6 +259,7 @@
+   <ItemGroup>
+     <Folder Include="App_Data\" />
+     <Folder Include="Views\Default\" />
++    <Folder Include="Views\Image\" />
+   </ItemGroup>
+   <ItemGroup>
+     <None Include="packages.config" />
+diff --git a/HeartSpace/Helpers/PaginatedLis.cs b/HeartSpace/Helpers/PaginatedLis.cs
+new file mode 100644
+index 0000000..ccbe5ef
+--- /dev/null
++++ b/HeartSpace/Helpers/PaginatedLis.cs
+@@ -0,0 +1,30 @@
++﻿using System;
++using System.Collections.Generic;
++using System.Linq;
++using HeartSpace.Models;
++
++
++namespace HeartSpace.Helpers
++{
++	public class PaginatedList<T> : List<T>
++	{
++		public int PageIndex { get; private set; }
++		public int TotalPages { get; private set; }
++
++		public PaginatedList(IQueryable<T> source, int pageIndex, int pageSize)
++		{
++			PageIndex = pageIndex;
++			TotalPages = (int)Math.Ceiling(source.Count() / (double)pageSize);
++
++			this.AddRange(source.Skip((PageIndex - 1) * pageSize).Take(pageSize));
++		}
++
++		public bool HasPreviousPage => PageIndex > 1;
++		public bool HasNextPage => PageIndex < TotalPages;
++
++		public static PaginatedList<T> Create(IQueryable<T> source, int pageIndex, int pageSize)
++		{
++			return new PaginatedList<T>(source, pageIndex, pageSize);
++		}
++	}
++}
+diff --git a/HeartSpace/Models/EFModels/AppDbContext.cs b/HeartSpace/Models/EFModels/AppDbContext.cs
+index f5787d8..6cb9244 100644
+--- a/HeartSpace/Models/EFModels/AppDbContext.cs
++++ b/HeartSpace/Models/EFModels/AppDbContext.cs
+@@ -5,76 +5,85 @@ using System.Linq;
+ 
+ namespace HeartSpace.Models.EFModels
+ {
+-    public partial class AppDbContext : DbContext
+-    {
+-        public AppDbContext()
+-            : base("name=AppDbContext")
+-        {
+-        }
+-
+-        public virtual DbSet<Category> Categories { get; set; }
+-        public virtual DbSet<EventComment> EventComments { get; set; }
+-        public virtual DbSet<EventMember> EventMembers { get; set; }
+-        public virtual DbSet<Event> Events { get; set; }
+-        public virtual DbSet<Member> Members { get; set; }
+-        public virtual DbSet<PostComment> PostComments { get; set; }
+-        public virtual DbSet<Post> Posts { get; set; }
+-        public virtual DbSet<Tag> Tags { get; set; }
+-
+-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+-        {
+-            modelBuilder.Entity<Category>()
+-                .HasMany(e => e.Events)
+-                .WithRequired(e => e.Category)
+-                .WillCascadeOnDelete(false);
+-
+-            modelBuilder.Entity<Event>()
+-                .Property(e => e.Limit)
+-                .IsUnicode(false);
+-
+-            modelBuilder.Entity<Event>()
+-                .HasMany(e => e.EventComments)
+-                .WithRequired(e => e.Event)
+-                .WillCascadeOnDelete(false);
+-
+-            modelBuilder.Entity<Event>()
+-                .HasMany(e => e.EventMembers)
+-                .WithRequired(e => e.Event)
+-                .WillCascadeOnDelete(false);
+-
+-            modelBuilder.Entity<Member>()
+-                .Property(e => e.Email)
+-                .IsUnicode(false);
+-
+-            modelBuilder.Entity<Member>()
+-                .Property(e => e.ConfirmCode)
+-                .IsUnicode(false);
+-
+-            modelBuilder.Entity<Member>()
+-                .HasMany(e => e.EventComments)
+-                .WithRequired(e => e.Member)
+-                .WillCascadeOnDelete(false);
+-
+-            modelBuilder.Entity<Member>()
+-                .HasMany(e => e.EventMembers)
+-                .WithRequired(e => e.Member)
+-                .WillCascadeOnDelete(false);
+-
+-            modelBuilder.Entity<Member>()
+-                .HasMany(e => e.PostComments)
+-                .WithRequired(e => e.Member)
+-                .HasForeignKey(e => e.UserId)
+-                .WillCascadeOnDelete(false);
+-
+-            modelBuilder.Entity<Member>()
+-                .HasMany(e => e.Posts)
+-                .WithRequired(e => e.Member)
+-                .WillCascadeOnDelete(false);
+-
+-            modelBuilder.Entity<Post>()
+-                .HasMany(e => e.PostComments)
+-                .WithRequired(e => e.Post)
+-                .WillCascadeOnDelete(false);
+-        }
+-    }
++	public partial class AppDbContext : DbContext
++	{
++		public AppDbContext()
++			: base("name=AppDbContext")
++		{
++		}
++
++		public virtual DbSet<Category> Categories { get; set; }
++		public virtual DbSet<EventComment> EventComments { get; set; }
++		public virtual DbSet<EventMember> EventMembers { get; set; }
++		public virtual DbSet<Event> Events { get; set; }
++		public virtual DbSet<Member> Members { get; set; }
++		public virtual DbSet<PostComment> PostComments { get; set; }
++		public virtual DbSet<Post> Posts { get; set; }
++		public virtual DbSet<Tag> Tags { get; set; }
++
++		public virtual Member EventMember { get; set; }
++
++		protected override void OnModelCreating(DbModelBuilder modelBuilder)
++		{
++			modelBuilder.Entity<Category>()
++				.HasMany(e => e.Events)
++				.WithRequired(e => e.Category)
++				.WillCascadeOnDelete(false);
++
++			modelBuilder.Entity<Event>()
++				.Property(e => e.Limit)
++				.IsUnicode(false);
++
++			modelBuilder.Entity<Event>()
++				.HasMany(e => e.EventComments)
++				.WithRequired(e => e.Event)
++				.WillCascadeOnDelete(false);
++
++			modelBuilder.Entity<Event>()
++				.HasMany(e => e.EventMembers)
++				.WithRequired(e => e.Event)
++				.WillCascadeOnDelete(false);
++
++			modelBuilder.Entity<Member>()
++				.Property(e => e.Email)
++				.IsUnicode(false);
++
++			modelBuilder.Entity<Member>()
++				.Property(e => e.ConfirmCode)
++				.IsUnicode(false);
++
++			modelBuilder.Entity<Member>()
++				.HasMany(e => e.EventComments)
++				.WithRequired(e => e.Member)
++				.WillCascadeOnDelete(false);
++
++			modelBuilder.Entity<Member>()
++				.HasMany(e => e.EventMembers)
++				.WithRequired(e => e.Member)
++				.WillCascadeOnDelete(false);
++
++			modelBuilder.Entity<Member>()
++				.HasMany(e => e.PostComments)
++				.WithRequired(e => e.Member)
++				.HasForeignKey(e => e.UserId)
++				.WillCascadeOnDelete(false);
++
++			modelBuilder.Entity<Member>()
++				.HasMany(e => e.Posts)
++				.WithRequired(e => e.Member)
++				.WillCascadeOnDelete(false);
++
++			modelBuilder.Entity<Post>()
++				.HasMany(e => e.PostComments)
++				.WithRequired(e => e.Post)
++				.WillCascadeOnDelete(false);
++
++			modelBuilder.Entity<Post>()
++				.HasRequired(p => p.Member)
++				.WithMany(m => m.Posts)
++				.HasForeignKey(p => p.MemberId);
++
++			base.OnModelCreating(modelBuilder);
++		}
++	}
+ }
+diff --git a/HeartSpace/Models/EFModels/Event.cs b/HeartSpace/Models/EFModels/Event.cs
+index 486dcb9..cd019bb 100644
+--- a/HeartSpace/Models/EFModels/Event.cs
++++ b/HeartSpace/Models/EFModels/Event.cs
+@@ -1,66 +1,69 @@
+ namespace HeartSpace.Models.EFModels
+ {
+-    using System;
+-    using System.Collections.Generic;
+-    using System.ComponentModel.DataAnnotations;
+-    using System.ComponentModel.DataAnnotations.Schema;
+-    using System.Data.Entity.Spatial;
++	using System;
++	using System.Collections.Generic;
++	using System.ComponentModel.DataAnnotations;
++	using System.ComponentModel.DataAnnotations.Schema;
++	using System.Data.Entity.Spatial;
+ 
+-    public partial class Event
+-    {
+-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+-        public Event()
+-        {
+-            EventComments = new HashSet<EventComment>();
+-            EventMembers = new HashSet<EventMember>();
+-        }
++	public partial class Event
++	{
++		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
++		public Event()
++		{
++			EventComments = new HashSet<EventComment>();
++			EventMembers = new HashSet<EventMember>();
++		}
+ 
+-        public int Id { get; set; }
++		public int Id { get; set; }
+ 
+-        [Required]
+-        [StringLength(25)]
+-        public string EventName { get; set; }
++		[Required]
++		[StringLength(25)]
++		public string EventName { get; set; }
+ 
+-        public int MemberId { get; set; }
++		public int MemberId { get; set; }
+ 
+-        [Column(TypeName = "image")]
+-        public byte[] EventImg { get; set; }
++		[Column(TypeName = "image")]
++		public byte[] EventImg { get; set; }
+ 
+-        public int CategoryId { get; set; }
++		public int CategoryId { get; set; }
+ 
+-        [Required]
+-        [StringLength(500)]
+-        public string Description { get; set; }
++		[Required]
++		[StringLength(500)]
++		public string Description { get; set; }
+ 
+-        public DateTime EventTime { get; set; }
++		public DateTime EventTime { get; set; }
+ 
+-        [StringLength(500)]
+-        public string Location { get; set; }
++		[StringLength(500)]
++		public string Location { get; set; }
+ 
+-        public bool IsOnline { get; set; }
++		public bool IsOnline { get; set; }
+ 
+-        public int? ParticipantMax { get; set; }
++		public int? ParticipantMax { get; set; }
+ 
+-        public int ParticipantMin { get; set; }
++		public int ParticipantMin { get; set; }
+ 
+-        [StringLength(50)]
+-        public string Limit { get; set; }
++		[StringLength(50)]
++		public string Limit { get; set; }
+ 
+-        [Column(TypeName = "date")]
+-        public DateTime DeadLine { get; set; }
++		[Column(TypeName = "date")]
++		public DateTime DeadLine { get; set; }
+ 
+-        public int? CommentCount { get; set; }
++		public int? CommentCount { get; set; }
+ 
+-        public int? ParticipantNow { get; set; }
++		public int? ParticipantNow { get; set; }
+ 
+-        public bool Disabled { get; set; }
++		public bool Disabled { get; set; }
+ 
+-        public virtual Category Category { get; set; }
+ 
+-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+-        public virtual ICollection<EventComment> EventComments { get; set; }
++		public virtual Member Member { get; set; }
+ 
+-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+-        public virtual ICollection<EventMember> EventMembers { get; set; }
+-    }
++		public virtual Category Category { get; set; }
++
++		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
++		public virtual ICollection<EventComment> EventComments { get; set; }
++
++		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
++		public virtual ICollection<EventMember> EventMembers { get; set; }
++	}
+ }
+diff --git a/HeartSpace/Models/HomePageViewModel.cs b/HeartSpace/Models/HomePageViewModel.cs
+new file mode 100644
+index 0000000..30eee54
+--- /dev/null
++++ b/HeartSpace/Models/HomePageViewModel.cs
+@@ -0,0 +1,18 @@
++﻿using HeartSpace.Models.EFModels;
++using System;
++using System.Collections.Generic;
++using System.Linq;
++using System.Web;
++using HeartSpace.Helpers; // 替換為 PaginatedList 所在的命名空間
++using HeartSpace.Models.ViewModels; // 替換為 PostViewModel 所在的命名空間
++
++namespace HeartSpace.Models
++{
++	public class HomePageViewModel
++	{
++		public PaginatedList<PostViewModel> Posts { get; set; }
++
++		public PaginatedList<EventViewModel> Events { get; set; } // 活動分頁資料
++	}
++
++}
+\ No newline at end of file
+diff --git a/HeartSpace/Models/ViewModels/EventViewModel.cs b/HeartSpace/Models/ViewModels/EventViewModel.cs
+index 15fd7f1..95d3bff 100644
+--- a/HeartSpace/Models/ViewModels/EventViewModel.cs
++++ b/HeartSpace/Models/ViewModels/EventViewModel.cs
+@@ -37,10 +37,10 @@ namespace HeartSpace.Models.ViewModels
+ 		public bool IsOnline { get; set; }
+ 
+ 		// 圖片相關
+-		[Display(Name = "照片")]
++		[Display(Name = "顯示用照片")]
+ 		public byte[] Img { get; set; } // 用於顯示圖片的二進制數據
+ 
+-		[Display(Name = "上傳照片")]
++		[Display(Name = "上傳用照片")]
+ 		public HttpPostedFileBase UploadedImg { get; set; } // 用於接收圖片上傳
+ 
+ 		// 參與者相關
+@@ -89,6 +89,14 @@ namespace HeartSpace.Models.ViewModels
+ 
+ 		public bool IsAdmin => Role?.ToLower() == "admin";  // 是否為管理員
+ 
++
++		//圖片相關
++		public string ImgUrl => $"/Image/GetEventImage?eventId={Id}";
++		public string MemberProfileImgUrl => $"/Image/GetMemberProfileImage?memberId={MemberId}";
++
++
++
++
+ 		// 自定驗證
+ 		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+ 		{
+@@ -114,4 +122,9 @@ namespace HeartSpace.Models.ViewModels
+ 		public string EventCommentContent { get; set; }
+ 		public DateTime CommentTime { get; set; }
+ 	}
++
++
++
++
++
+ }
+diff --git a/HeartSpace/Views/Home/Index.cshtml b/HeartSpace/Views/Home/Index.cshtml
+index e43a016..17c4b0f 100644
+--- a/HeartSpace/Views/Home/Index.cshtml
++++ b/HeartSpace/Views/Home/Index.cshtml
+@@ -1,6 +1,6 @@
+ ﻿@using HeartSpace.Models
+ @using Dapper
+-
++@model HomePageViewModel
+ 
+ @{
+     ViewData["Title"] = "首頁";
+@@ -8,17 +8,7 @@
+ }
+ 
+ 
+-@*@foreach (var eventItem in Model)
+-{
+-    <tr>
+-        <td>@eventItem.EventName</td>
+-        <td>@eventItem.Description</td>
+-        <td>@eventItem.EventTime.ToString("yyyy-MM-dd HH:mm")</td>
+-        <td>@eventItem.Location</td>
+-    </tr>
+ 
+-    <br/>
+-}*@
+ 
+ <div class="container-fluid px-0">
+     <!-- 使用 container-fluid 並移除 padding -->
+@@ -40,45 +30,51 @@
+                     <div class="row gx-1 gy-2">
+ 
+                         <!-- 貼文卡片 -->
+-                        @for (int x = 0; x < 6; x++)
+-                        {
+-
+-                            <div class="col-6">
+-                                <!-- 每行顯示2個卡片 -->
+-                                <div class="card border-0 shadow-sm d-flex align-items-center justify-content-center" style="height: 300px;">
+-                                    <!-- 垂直水平置中 -->
+-                                    @Html.Raw(new PostCard(
+-                                        "新聞：又在大安森林公園一邊哭一邊跨年",
+-                                        "記者",
+-                                        "網友李思翰2023年發起「在大安森林公園一邊哭一邊跨年」，以致敬電影「愛情萬歲」。2024年李思翰於臉書（Facebook）再度發起「又在大安森林（公園）一邊哭一邊跨年」活動，登上捷克媒體Novinky版面。",
+-                                        new DateTime(2025, 1, 1, 0, 0, 0),
+-                                        "example.jpg",
+-                                        "example.jpg"
+-                                    ).RenderHtml())
+-
++                        <div class="row gx-1 gy-2">
++                            @foreach (var post in Model.Posts)
++                            {
++                                <div class="col-6">
++                                    <a href="@Url.Action("PostDetails", "Post", new { id = post.Id })" class="text-decoration-none">
++                                        <!-- 使整個卡片成為鏈接 -->
++                                        <div class="card border-0 shadow-sm d-flex align-items-center justify-content-center" style="height: 300px;">
++                                            @Html.Raw(new PostCard(
++                                                post.Title,
++                                                post.MemberName,
++                                                post.PostContent,
++                                                post.PublishTime,
++                                                post.PostImg,
++                                                post.MemberImg
++                                            ).RenderHtml())
++                                        </div>
++                                    </a>
+                                 </div>
+-                            </div>
+-                        }
++                            }
++                        </div>
+                     </div>
+ 
+                     <!-- 分頁導航 -->
+                     <nav>
+                         <ul class="pagination justify-content-center mt-3">
+-                            <li class="page-item">
+-                                <a class="page-link" href="#">Previous</a>
+-                            </li>
+-                            <li class="page-item">
+-                                <a class="page-link" href="#">1</a>
+-                            </li>
+-                            <li class="page-item">
+-                                <a class="page-link" href="#">2</a>
+-                            </li>
+-                            <li class="page-item">
+-                                <a class="page-link" href="#">3</a>
+-                            </li>
+-                            <li class="page-item">
+-                                <a class="page-link" href="#">Next</a>
+-                            </li>
++                            @if (Model.Posts.HasPreviousPage)
++                            {
++                                <li class="page-item">
++                                    <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex - 1 })">Previous</a>
++                                </li>
++                            }
++
++                            @for (int i = 1; i <= Model.Posts.TotalPages; i++)
++                            {
++                                <li class="page-item @(i == Model.Posts.PageIndex ? "active" : "")">
++                                    <a class="page-link" href="@Url.Action("Index", new { postPage = i })">@i</a>
++                                </li>
++                            }
++
++                            @if (Model.Posts.HasNextPage)
++                            {
++                                <li class="page-item">
++                                    <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex + 1 })">Next</a>
++                                </li>
++                            }
+                         </ul>
+                     </nav>
+                 </div>
+@@ -97,50 +93,62 @@
+                         <button class="btn btn-secondary btn-sm">分類</button>
+                     </div>
+ 
+-                    <div class="row gx-1 gy-2">
+-                        
+-                        <!-- 揪團卡片 -->
+ 
+-                        @for (int x = 0; x < 6; x++)
++                    <!-- 揪團卡片 -->
++                    <div class="row gx-1 gy-2">
++                        @foreach (var events in Model.Events)
+                         {
+-
+                             <div class="col-6">
+-                                <!-- 每行顯示2個卡片 -->
+-                                <div class="card border-0 shadow-sm d-flex align-items-center justify-content-center" style="height: 300px;">
+-                                    <!-- 垂直水平置中 -->
+-                                    @Html.Raw(new EventCard(
+-                                                 "又在大安森林公園一邊哭一邊跨年",
+-                                                 "李思翰",
+-                                                 "大安森林公園",
+-                                                 "又哭。",
+-                                                 new DateTime(2025, 1, 1, 0, 0, 0),
+-                                                 "example.jpg",
+-                                                 "example.jpg"
+-                                             ).RenderHtml())
+-                                </div>
++                                <a href="@Url.Action("EventDetail", "Event", new { id = events.Id })" class="text-decoration-none">
++                                    <!-- 使整個卡片成為鏈接 -->
++                                    <div class="card border-0 shadow-sm d-flex align-items-center justify-content-center" style="height: 300px;">
++                                        @Html.Raw(new EventCard(
++                                            events.EventName,
++                                            events.MemberName,
++                                            events.Location,
++                                            events.Description,
++                                            events.EventTime,
++                                            events.MemberProfileImgUrl,
++                                            events.ImgUrl
++                                        ).RenderHtml())
++                                    </div>
++                                </a>
+                             </div>
+                         }
+                     </div>
++
++
++
++
+                     <!-- 分頁導航 -->
+                     <nav>
+                         <ul class="pagination justify-content-center mt-3">
+-                            <li class="page-item">
+-                                <a class="page-link" href="#">Previous</a>
+-                            </li>
+-                            <li class="page-item">
+-                                <a class="page-link" href="#">1</a>
+-                            </li>
+-                            <li class="page-item">
+-                                <a class="page-link" href="#">2</a>
+-                            </li>
+-                            <li class="page-item">
+-                                <a class="page-link" href="#">3</a>
+-                            </li>
+-                            <li class="page-item">
+-                                <a class="page-link" href="#">Next</a>
+-                            </li>
++                            <!-- Previous Page -->
++                            @if (Model.Posts.HasPreviousPage)
++                            {
++                                <li class="page-item">
++                                    <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex - 1, eventPage = 1 })">Previous</a>
++                                </li>
++                            }
++
++                            <!-- Page Numbers -->
++                            @for (int i = 1; i <= Model.Posts.TotalPages; i++)
++                            {
++                                <li class="page-item @(Model.Posts.PageIndex == i ? "active" : "")">
++                                    <a class="page-link" href="@Url.Action("Index", new { postPage = i, eventPage = 1 })">@i</a>
++                                </li>
++                            }
++
++                            <!-- Next Page -->
++                            @if (Model.Posts.HasNextPage)
++                            {
++                                <li class="page-item">
++                                    <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex + 1, eventPage = 1 })">Next</a>
++                                </li>
++                            }
+                         </ul>
+                     </nav>
++
+                 </div>
+             </div>
+         </div>
+-- 
+2.47.1.windows.1
+

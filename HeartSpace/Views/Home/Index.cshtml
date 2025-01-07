@@ -52,31 +52,32 @@
                         </div>
                     </div>
 
-                    <!-- 分頁導航 -->
+                    <!-- 貼文版分頁導航 -->
                     <nav>
                         <ul class="pagination justify-content-center mt-3">
                             @if (Model.Posts.HasPreviousPage)
                             {
                                 <li class="page-item">
-                                    <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex - 1 })">Previous</a>
+                                    <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex - 1, eventPage = Model.Events.PageIndex })">Previous</a>
                                 </li>
                             }
 
                             @for (int i = 1; i <= Model.Posts.TotalPages; i++)
                             {
                                 <li class="page-item @(i == Model.Posts.PageIndex ? "active" : "")">
-                                    <a class="page-link" href="@Url.Action("Index", new { postPage = i })">@i</a>
+                                    <a class="page-link" href="@Url.Action("Index", new { postPage = i, eventPage = Model.Events.PageIndex })">@i</a>
                                 </li>
                             }
 
                             @if (Model.Posts.HasNextPage)
                             {
                                 <li class="page-item">
-                                    <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex + 1 })">Next</a>
+                                    <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex + 1, eventPage = Model.Events.PageIndex })">Next</a>
                                 </li>
                             }
                         </ul>
                     </nav>
+
                 </div>
             </div>
         </div>
@@ -120,34 +121,32 @@
 
 
 
-                    <!-- 分頁導航 -->
+                    <!-- 揪團版分頁導航 -->
                     <nav>
                         <ul class="pagination justify-content-center mt-3">
-                            <!-- Previous Page -->
-                            @if (Model.Posts.HasPreviousPage)
+                            @if (Model.Events.HasPreviousPage)
                             {
                                 <li class="page-item">
-                                    <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex - 1, eventPage = 1 })">Previous</a>
+                                    <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex, eventPage = Model.Events.PageIndex - 1 })">Previous</a>
                                 </li>
                             }
 
-                            <!-- Page Numbers -->
-                            @for (int i = 1; i <= Model.Posts.TotalPages; i++)
+                            @for (int i = 1; i <= Model.Events.TotalPages; i++)
                             {
-                                <li class="page-item @(Model.Posts.PageIndex == i ? "active" : "")">
-                                    <a class="page-link" href="@Url.Action("Index", new { postPage = i, eventPage = 1 })">@i</a>
+                                <li class="page-item @(i == Model.Events.PageIndex ? "active" : "")">
+                                    <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex, eventPage = i })">@i</a>
                                 </li>
                             }
 
-                            <!-- Next Page -->
-                            @if (Model.Posts.HasNextPage)
+                            @if (Model.Events.HasNextPage)
                             {
                                 <li class="page-item">
-                                    <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex + 1, eventPage = 1 })">Next</a>
+                                    <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex, eventPage = Model.Events.PageIndex + 1 })">Next</a>
                                 </li>
                             }
                         </ul>
                     </nav>
+
 
                 </div>
             </div>
