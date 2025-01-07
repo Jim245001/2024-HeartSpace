@@ -1,5 +1,4 @@
 ﻿using HeartSpace.Models;
-using HeartSpace.Models.EFModel;
 using HeartSpace.Models.EFModels;
 using System.Linq;
 using System.Web.Mvc;

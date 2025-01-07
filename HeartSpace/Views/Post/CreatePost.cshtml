@@ -1,13 +1,14 @@
 ﻿@model HeartSpace.Models.DTOs.CreatePostDto
 
 @{
-    ViewBag.Title = "發貼文";
+    ViewBag.Title = "發佈貼文 <i class='fa-solid fa-feather'></i>";
 }
 
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewBag.Title</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
     <style>
@@ -59,12 +60,8 @@
 </head>
 <body>
     <div class="container mt-5">
-        <!-- 頁面標題 -->
-        <div class="section-title">
-            發佈貼文
-        </div>
+        <div class="section-title">發佈貼文</div>
 
-        <!-- 成功訊息 -->
         @if (TempData["SuccessMessage"] != null)
         {
             <div class="alert alert-success">
@@ -72,28 +69,32 @@
             </div>
         }
 
-        <!-- 表單 -->
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger">
+                發佈失敗，請檢查輸入內容！
+            </div>
+        }
+
         @using (Html.BeginForm("CreatePost", "Post", FormMethod.Post, new { enctype = "multipart/form-data" }))
         {
-            @Html.AntiForgeryToken() <!-- 確保這行位於表單內部 -->
+            @Html.AntiForgeryToken()
 
-            <!-- 標題區 -->
             <div class="form-section">
-                <label for="Title" class="form-label">標題：</label>
-                @Html.TextBoxFor(m => m.Title, new { @class = "form-control", placeholder = "請輸入貼文標題" })
+                <label for="Title" class="form-label">標題 <span class="text-danger">*</span>：</label>
+                @Html.TextBoxFor(m => m.Title, new { @class = "form-control", placeholder = "請輸入貼文標題", @id = "Title" })
                 @Html.ValidationMessageFor(m => m.Title, "", new { @class = "text-danger" })
+
+                <span class="text-danger" id="TitleError"></span>
             </div>
 
-            <!-- 圖片上傳區 -->
             <div class="form-section">
                 <label for="Image" class="form-label">上傳圖片：</label>
                 <input type="file" name="Image" id="Image" class="form-control" />
             </div>
 
-
-            <!-- 分類選擇 -->
             <div class="form-section">
-                <label for="CategoryId" class="form-label">分類：</label>
+                <label for="CategoryId" class="form-label">分類 <span class="text-danger">*</span>：</label>
                 @Html.DropDownListFor(
                     m => m.CategoryId,
                     ViewBag.Categories as IEnumerable<SelectListItem>,
@@ -102,14 +103,14 @@
                 @Html.ValidationMessageFor(m => m.CategoryId, "", new { @class = "text-danger" })
             </div>
 
-            <!-- 內文區 -->
             <div class="form-section">
-                <label for="Content" class="form-label">內文：</label>
-                @Html.TextAreaFor(m => m.PostContent, new { @class = "form-control", rows = 5, placeholder = "請輸入貼文內文" })
+                <label for="PostContent" class="form-label">內文 <span class="text-danger">*</span>：</label>
+                @Html.TextAreaFor(m => m.PostContent, new { @id = "Content", @class = "form-control", rows = 5, placeholder = "請輸入貼文內文" })
                 @Html.ValidationMessageFor(m => m.PostContent, "", new { @class = "text-danger" })
+                <span class="text-danger" id="ContentError"></span>
+                <div class="text-muted" id="contentCharCount">0/500</div>
             </div>
 
-            <!-- 提交按鈕 -->
             <div class="text-center">
                 <button type="submit" class="btn btn-submit">確認送出貼文</button>
             </div>
@@ -117,5 +118,52 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const titleInput = document.getElementById("Title");
+            const titleError = document.getElementById("TitleError");
+            const maxTitleLength = 20;
+
+            const contentInput = document.getElementById("Content");
+            const contentError = document.getElementById("ContentError");
+            const maxContentLength = 500;
+            const contentCharCount = document.getElementById("contentCharCount");
+
+            function validateTitle() {
+                const value = titleInput.value.trim();
+                if (value === "") {
+                    titleError.textContent = "標題為必填";
+                    titleInput.classList.add("is-invalid");
+                } else if (value.length > maxTitleLength) {
+                    titleError.textContent = `標題不可超過 ${maxTitleLength} 字`;
+                    titleInput.classList.add("is-invalid");
+                } else {
+                    titleError.textContent = "";
+                    titleInput.classList.remove("is-invalid");
+                }
+            }
+
+            function validateContent() {
+                const value = contentInput.value.trim();
+                if (value === "") {
+                    contentError.textContent = "內文為必填";
+                    contentInput.classList.add("is-invalid");
+                } else if (value.length > maxContentLength) {
+                    contentError.textContent = `內文不可超過 ${maxContentLength} 字`;
+                    contentInput.classList.add("is-invalid");
+                } else {
+                    contentError.textContent = "";
+                    contentInput.classList.remove("is-invalid");
+                }
+                contentCharCount.innerText = `${value.length}/${maxContentLength}`;
+            }
+
+            titleInput.addEventListener("blur", validateTitle);
+            titleInput.addEventListener("input", validateTitle);
+
+            contentInput.addEventListener("blur", validateContent);
+            contentInput.addEventListener("input", validateContent);
+        });
+    </script>
 </body>
 </html>
