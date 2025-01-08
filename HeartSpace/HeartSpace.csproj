@@ -162,6 +162,7 @@
     <Compile Include="Controllers\SearchController.cs" />
     <Compile Include="Helpers\ImageHelper.cs" />
     <Compile Include="Helpers\PaginatedLis.cs" />
+    <Compile Include="Helpers\PasswordHelper.cs" />
     <Compile Include="Models\EFModels\AppDbContext.cs" />
     <Compile Include="Models\EFModels\Category.cs" />
     <Compile Include="Models\EFModels\Event.cs" />
@@ -268,13 +269,13 @@
     <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\Account\Register.cshtml" />
     <Content Include="Views\Account\ForgotPassword.cshtml" />
-    <Content Include="Views\AdminController\ManageGroup.cshtml" />
     <Content Include="Views\Event\CreateEvent.cshtml" />
     <Content Include="Views\Event\EventDetail.cshtml" />
     <Content Include="Views\Event\EditEvent.cshtml" />
     <Content Include="Views\Post\CreatePost.cshtml" />
     <Content Include="Views\Post\EditPost.cshtml" />
     <Content Include="Views\Post\PostDetails.cshtml" />
+    <Content Include="Views\AdminController\ManageGroup.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

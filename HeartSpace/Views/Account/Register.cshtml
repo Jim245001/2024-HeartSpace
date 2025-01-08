@@ -1,61 +1,110 @@
-﻿
-@model HeartSpace.Models.RegisterViewModel
+﻿@model HeartSpace.Models.RegisterViewModel
 
 @{
     ViewData["Title"] = "註冊";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container d-flex align-items-center justify-content-center" style="min-height: 100vh;">
-    <div class="card p-4 shadow" style="max-width: 400px; width: 100%; border-radius: 10px;">
-        <div class="text-center mb-4">
-            <div style="background-color: #d7ceb2; padding: 20px; border-radius: 10px;">
-                <h1 class="mb-0">心聚點</h1>
-                <h2 class="fs-5">HeartSpace</h2>
-            </div>
+<style>
+    .text-danger ul {
+        list-style: none; /* 移除列表符號 */
+        padding-left: 0; /* 去除內縮 */
+        margin: 10px 0; /* 設定上下邊距 */
+        text-align: center; /* 文字置中 */
+    }
+
+        .text-danger ul li {
+            margin-bottom: 5px; /* 控制項目間距 */
+        }
+
+    .container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .card {
+        max-width: 400px;
+        width: 100%;
+        border-radius: 10px;
+    }
+
+    .card-header {
+        background-color: #d7ceb2;
+        padding: 20px;
+        border-radius: 10px;
+    }
+
+    .text-danger {
+        color: #dc3545; /* 確保錯誤訊息為紅色 */
+    }
+</style>
+
+<div class="container">
+    <div class="card p-4 shadow">
+        <div class="card-header text-center mb-4">
+            <h1 class="mb-0">心聚點</h1>
+            <h2 class="fs-5">HeartSpace</h2>
         </div>
         @using (Html.BeginForm("Register", "Account", FormMethod.Post))
         {
+            <!-- 全局錯誤訊息 -->
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+            <!-- 帳號 -->
             <div class="mb-3">
-                <label for="Account" class="form-label">帳號</label>
+                @Html.LabelFor(m => m.Account, "帳號", new { @class = "form-label" })
                 @Html.TextBoxFor(m => m.Account, new { @class = "form-control", placeholder = "帳號" })
                 @Html.ValidationMessageFor(m => m.Account, "", new { @class = "text-danger" })
             </div>
+
+            <!-- 密碼 -->
             <div class="mb-3">
-                <label for="Password" class="form-label">密碼</label>
+                @Html.LabelFor(m => m.Password, "密碼", new { @class = "form-label" })
                 @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "密碼" })
                 @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
             </div>
+
+            <!-- 再輸入密碼 -->
             <div class="mb-3">
-                <label for="ConfirmPassword" class="form-label">再輸入密碼</label>
+                @Html.LabelFor(m => m.ConfirmPassword, "再輸入密碼", new { @class = "form-label" })
                 @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control", placeholder = "再輸入密碼" })
                 @Html.ValidationMessageFor(m => m.ConfirmPassword, "", new { @class = "text-danger" })
             </div>
+
+            <!-- E-mail -->
             <div class="mb-3">
-                <label for="Email" class="form-label">E-mail</label>
+                @Html.LabelFor(m => m.Email, "E-mail", new { @class = "form-label" })
                 @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "E-mail" })
                 @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
             </div>
+
+            <!-- 姓名 -->
             <div class="mb-3">
-                <label for="Name" class="form-label">姓名</label>
-                @Html.TextBoxFor(m => m.Name, new { @class = "form-control", placeholder = "姓名" })
+                @Html.LabelFor(m => m.Name, "姓名", new { @class = "form-label" })
+                @Html.TextBoxFor(m => m.Name, new { @class = "form-control", placeholder = "姓名", maxlength = "50" })
                 @Html.ValidationMessageFor(m => m.Name, "", new { @class = "text-danger" })
             </div>
+
+            <!-- 暱稱 -->
             <div class="mb-3">
-                <label for="NickName" class="form-label">暱稱</label>
+                @Html.LabelFor(m => m.NickName, "暱稱", new { @class = "form-label" })
                 @Html.TextBoxFor(m => m.NickName, new { @class = "form-control", placeholder = "暱稱" })
                 @Html.ValidationMessageFor(m => m.NickName, "", new { @class = "text-danger" })
             </div>
+
+            <!-- 手機 -->
             <div class="mb-3">
-                <label for="PhoneNumber" class="form-label">手機</label>
+                @Html.LabelFor(m => m.PhoneNumber, "手機", new { @class = "form-label" })
                 @Html.TextBoxFor(m => m.PhoneNumber, new { @class = "form-control", placeholder = "手機" })
                 @Html.ValidationMessageFor(m => m.PhoneNumber, "", new { @class = "text-danger" })
             </div>
+
+            <!-- 提交按鈕 -->
             <div class="d-grid">
                 <button type="submit" class="btn btn-primary">註冊</button>
             </div>
         }
     </div>
 </div>
-
-
