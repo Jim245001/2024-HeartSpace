@@ -8,153 +8,174 @@
 }
 
 <style>
-
-a.text-decoration-none {
-    display: block; /* 確保 <a>
-    標籤的大小與其內部內容一致 */
-    margin: 0;      /* 移除可能的預設邊距 */
-    padding: 0;     /* 移除可能的預設填充 */
+    a.text-decoration-none {
+        display: block;
+        margin: 0;
+        padding: 0;
     }
-
 </style>
 
-    <div class="container-fluid px-0">
-        <!-- 使用 container-fluid 並移除 padding -->
-        <div class="row mx-0">
-            <!-- 移除 row 的 margin -->
-            <!-- 貼文版 -->
-            <div class="col-md-6 px-1">
-                <!-- 調整列間距 -->
-                <div class="card">
-                    <div class="card-header text-center">貼文版</div>
-                    <div class="card-body">
-                        <!-- 按鈕組 -->
-                        <div class="btn-group mb-3 w-100">
-                            <button class="btn btn-secondary btn-sm">最新</button>
-                            <button class="btn btn-secondary btn-sm">分類</button>
-                        </div>
-
-                        <!-- 貼文內容-->
-                        <div class="row gx-1 gy-2">
-                            @foreach (var post in Model.Posts)
-                            {
-                                <div class="col-6">
-                                    <a href="@Url.Action("PostDetails", "Post", new { id = post.Id })" class="text-decoration-none">
-                                        <!-- 使整個卡片成為鏈接 -->
-                                        <div class="card border-0 shadow-sm d-flex align-items-center justify-content-center" style="height: 300px;">
-                                            @Html.Raw(new PostCard(
-                                                post.Title,
-                                                post.MemberName,
-                                                post.PostContent,
-                                                post.PublishTime,
-                                                post.PostImg,
-                                                post.MemberImg
-                                            ).RenderHtml())
-                                        </div>
-                                    </a>
-                                </div>
-                            }
-                        </div>
-                        
-
-                        <!-- 貼文版分頁導航 -->
-                        <nav>
-                            <ul class="pagination justify-content-center mt-3">
-                                @if (Model.Posts.HasPreviousPage)
+<div class="container-fluid px-0">
+    <div class="row mx-0">
+        <!-- 貼文版 -->
+        <div class="col-md-6 px-1">
+            <div class="card">
+                <div class="card-header text-center">貼文版</div>
+                <div class="card-body">
+                    <!-- 按鈕組 -->
+                    <div class="btn-group mb-3 w-100">
+                        <button class="btn btn-secondary btn-sm w-50">最新</button>
+                        <div class="dropdown w-50">
+                            <button class="btn btn-secondary btn-sm w-100 dropdown-toggle" type="button" id="postCategoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                @(Model.SelectedCategoryId.HasValue
+                                    ? Model.Categories.FirstOrDefault(c => c.Id == Model.SelectedCategoryId)?.CategoryName ?? "分類"
+                                    : "分類")
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="postCategoryDropdown">
+                                <li>
+                                    <a class="dropdown-item" href="@Url.Action("Index", new { categoryId = (int?)null, postPage = 1, eventPage = Model.Events.PageIndex })">全部</a>
+                                </li>
+                                @foreach (var category in Model.Categories)
                                 {
-                                    <li class="page-item">
-                                        <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex - 1, eventPage = Model.Events.PageIndex })">Previous</a>
-                                    </li>
-                                }
-
-                                @for (int i = 1; i <= Model.Posts.TotalPages; i++)
-                                {
-                                    <li class="page-item @(i == Model.Posts.PageIndex ? "active" : "")">
-                                        <a class="page-link" href="@Url.Action("Index", new { postPage = i, eventPage = Model.Events.PageIndex })">@i</a>
-                                    </li>
-                                }
-
-                                @if (Model.Posts.HasNextPage)
-                                {
-                                    <li class="page-item">
-                                        <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex + 1, eventPage = Model.Events.PageIndex })">Next</a>
+                                    <li>
+                                        <a class="dropdown-item" href="@Url.Action("Index", new { categoryId = category.Id, postPage = 1, eventPage = Model.Events.PageIndex })">
+                                            @category.CategoryName
+                                        </a>
                                     </li>
                                 }
                             </ul>
-                        </nav>
-
+                        </div>
                     </div>
+
+                    <!-- 貼文內容 -->
+                    <div class="row gx-1 gy-2">
+                        @foreach (var post in Model.Posts)
+                        {
+                            <div class="col-6">
+                                <a href="@Url.Action("PostDetails", "Post", new { id = post.Id })" class="text-decoration-none">
+                                    <div class="card border-0 shadow-sm d-flex align-items-center justify-content-center" style="height: 300px;">
+                                        @Html.Raw(new PostCard(
+                                                 post.Title,
+                                                 post.MemberName,
+                                                 post.PostContent,
+                                                 post.PublishTime,
+                                                 post.PostImg,
+                                                 post.MemberImg
+                                             ).RenderHtml())
+                                    </div>
+                                </a>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- 分頁導航 -->
+                    <nav>
+                        <ul class="pagination justify-content-center mt-3">
+                            @if (Model.Posts.HasPreviousPage)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex - 1, eventPage = Model.Events.PageIndex, categoryId = Model.SelectedCategoryId })">Previous</a>
+                                </li>
+                            }
+
+                            @for (int i = 1; i <= Model.Posts.TotalPages; i++)
+                            {
+                                <li class="page-item @(i == Model.Posts.PageIndex ? "active" : "")">
+                                    <a class="page-link" href="@Url.Action("Index", new { postPage = i, eventPage = Model.Events.PageIndex, categoryId = Model.SelectedCategoryId })">@i</a>
+                                </li>
+                            }
+
+                            @if (Model.Posts.HasNextPage)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex + 1, eventPage = Model.Events.PageIndex, categoryId = Model.SelectedCategoryId })">Next</a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
                 </div>
             </div>
+        </div>
 
-            <!-- 揪團版 -->
-            <div class="col-md-6 px-1">
-                <!-- 調整列間距 -->
-                <div class="card">
-                    <div class="card-header text-center">揪團版</div>
-                    <div class="card-body">
-                        <!-- 按鈕組 -->
-                        <div class="btn-group mb-3 w-100">
-                            <button class="btn btn-secondary btn-sm">最新</button>
-                            <button class="btn btn-secondary btn-sm">分類</button>
-                        </div>
-
-
-                        <!-- 揪團卡片 -->
-                        <div class="row gx-1 gy-2">
-                            @foreach (var events in Model.Events)
-                            {
-                                <div class="col-6">
-                                    <a href="@Url.Action("EventDetail", "Event", new { id = events.Id })" class="text-decoration-none">
-                                        <!-- 使整個卡片成為鏈接 -->
-                                        <div class="card border-0 shadow-sm d-flex align-items-center justify-content-center" style="height: 300px;">
-                                            @Html.Raw(new EventCard(
-                                                events.EventName,
-                                                events.MemberName,
-                                                events.Location,
-                                                events.Description,
-                                                events.EventTime,
-                                                events.MemberProfileImgUrl,
-                                                events.ImgUrl
-                                            ).RenderHtml())
-                                        </div>
-                                    </a>
-                                </div>
-                            }
-                        </div>
-
-
-
-
-                        <!-- 揪團版分頁導航 -->
-                        <nav>
-                            <ul class="pagination justify-content-center mt-3">
-                                @if (Model.Events.HasPreviousPage)
+        <!-- 揪團版 -->
+        <div class="col-md-6 px-1">
+            <div class="card">
+                <div class="card-header text-center">揪團版</div>
+                <div class="card-body">
+                    <div class="btn-group mb-3 w-100">
+                        <button class="btn btn-secondary btn-sm w-50">最新</button>
+                        <div class="dropdown w-50">
+                            <button class="btn btn-secondary btn-sm w-100 dropdown-toggle" type="button" id="eventCategoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                @(Model.SelectedCategoryId.HasValue
+                                    ? Model.Categories.FirstOrDefault(c => c.Id == Model.SelectedCategoryId)?.CategoryName ?? "分類"
+                                    : "分類")
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="eventCategoryDropdown">
+                                <li>
+                                    <a class="dropdown-item" href="@Url.Action("Index", new { categoryId = (int?)null, postPage = Model.Posts.PageIndex, eventPage = 1 })">全部</a>
+                                </li>
+                                @foreach (var category in Model.Categories)
                                 {
-                                    <li class="page-item">
-                                        <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex, eventPage = Model.Events.PageIndex - 1 })">Previous</a>
-                                    </li>
-                                }
-
-                                @for (int i = 1; i <= Model.Events.TotalPages; i++)
-                                {
-                                    <li class="page-item @(i == Model.Events.PageIndex ? "active" : "")">
-                                        <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex, eventPage = i })">@i</a>
-                                    </li>
-                                }
-
-                                @if (Model.Events.HasNextPage)
-                                {
-                                    <li class="page-item">
-                                        <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex, eventPage = Model.Events.PageIndex + 1 })">Next</a>
+                                    <li>
+                                        <a class="dropdown-item" href="@Url.Action("Index", new { categoryId = category.Id, postPage = Model.Posts.PageIndex, eventPage = 1 })">
+                                            @category.CategoryName
+                                        </a>
                                     </li>
                                 }
                             </ul>
-                        </nav>
-
-
+                        </div>
                     </div>
+
+                    <div class="row gx-1 gy-2">
+                        @foreach (var events in Model.Events)
+                        {
+                            <div class="col-6">
+                                <a href="@Url.Action("EventDetail", "Event", new { id = events.Id })" class="text-decoration-none">
+                                    <div class="card border-0 shadow-sm d-flex align-items-center justify-content-center" style="height: 300px;">
+                                        @Html.Raw(new EventCard(
+                                                 events.EventName,
+                                                 events.MemberName,
+                                                 events.Location,
+                                                 events.Description,
+                                                 events.EventTime,
+                                                 events.MemberProfileImgUrl,
+                                                 events.ImgUrl
+                                             ).RenderHtml())
+                                    </div>
+                                </a>
+                            </div>
+                        }
+                    </div>
+
+                    <nav>
+                        <ul class="pagination justify-content-center mt-3">
+                            @if (Model.Events.HasPreviousPage)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex, eventPage = Model.Events.PageIndex - 1, categoryId = Model.SelectedCategoryId })">Previous</a>
+                                </li>
+                            }
+
+                            @for (int i = 1; i <= Model.Events.TotalPages; i++)
+                            {
+                                <li class="page-item @(i == Model.Events.PageIndex ? "active" : "")">
+                                    <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex, eventPage = i, categoryId = Model.SelectedCategoryId })">@i</a>
+                                </li>
+                            }
+
+                            @if (Model.Events.HasNextPage)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex, eventPage = Model.Events.PageIndex + 1, categoryId = Model.SelectedCategoryId })">Next</a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
