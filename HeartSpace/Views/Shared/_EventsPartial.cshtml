@@ -1,0 +1,50 @@
+﻿
+@using HeartSpace.Models
+
+<!-- 顯示活動的部分 -->
+<div class="row gx-1 gy-2">
+    @foreach (var events in Model)
+    {
+        <div class="col-6">
+            <a href="@Url.Action("EventDetail", "Event", new { id = events.Id })" class="text-decoration-none">
+                <div class="card border-0 shadow-sm d-flex align-items-center justify-content-center" style="height: 300px;">
+                    @Html.Raw(new EventCard(
+                                        events.EventName,
+                                        events.MemberName,
+                                        events.Location,
+                                        events.Description,
+                                        events.EventTime,
+                                        events.MemberProfileImgUrl,
+                                        events.ImgUrl
+                                    ).RenderHtml())
+                </div>
+            </a>
+        </div>
+    }
+</div>
+
+<!-- 分頁導航 -->
+<nav>
+    <ul class="pagination justify-content-center mt-3">
+        @if (Model.HasPreviousPage)
+        {
+            <li class="page-item">
+                <a class="page-link" href="javascript:void(0);" onclick="loadEvents(@Model.PageIndex - 1)">Previous</a>
+            </li>
+        }
+
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                <a class="page-link" href="javascript:void(0);" onclick="loadEvents(@i)">@i</a>
+            </li>
+        }
+
+        @if (Model.HasNextPage)
+        {
+            <li class="page-item">
+                <a class="page-link" href="javascript:void(0);" onclick="loadEvents(@Model.PageIndex + 1)">Next</a>
+            </li>
+        }
+    </ul>
+</nav>
