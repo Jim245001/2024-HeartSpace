@@ -26,7 +26,6 @@ namespace HeartSpace.Controllers
         //[Authorize]
         public ActionResult EditProfile()
         {
-            // 測試用的會員 ID
             int memberId = 1;
 
             // 從資料庫取得會員資料
@@ -42,9 +41,9 @@ namespace HeartSpace.Controllers
                 Id = member.Id,
                 Name = member.Name,
                 Email = member.Email,
+                Account = member.Account,
                 MemberImg = member.MemberImg,
-                NickName = member.NickName,
-                //AbsentCount = member.AbsentCount // 若有缺席次數
+                NickName = member.NickName
             };
 
             return View(viewModel);
@@ -57,6 +56,8 @@ namespace HeartSpace.Controllers
             // 檢查 ModelState 是否有效
             if (!ModelState.IsValid)
             {
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                TempData["ErrorMessage"] = string.Join("<br/>", errors);
                 return View(model);
             }
 
@@ -76,17 +77,20 @@ namespace HeartSpace.Controllers
                 member.Name = model.Name;
                 member.NickName = model.NickName;
 
-                // 處理頭像上傳，使用 ToBase64String() 和 FromBase64String()
+                // 處理頭像上傳
                 if (model.MemberImgFile != null && model.MemberImgFile.ContentLength > 0)
                 {
                     try
                     {
-                        member.MemberImg = model.MemberImgFile.ToBase64String().FromBase64String();
+                        using (var binaryReader = new System.IO.BinaryReader(model.MemberImgFile.InputStream))
+                        {
+                            member.MemberImg = binaryReader.ReadBytes(model.MemberImgFile.ContentLength); // 將圖片轉為 byte[] 並儲存
+                        }
                     }
                     catch (Exception ex)
                     {
                         ModelState.AddModelError("MemberImgFile", "上傳圖片時發生錯誤：" + ex.Message);
-                        return View(model);
+                        return View(model); // 發生錯誤時，回傳表單
                     }
                 }
 
@@ -95,7 +99,7 @@ namespace HeartSpace.Controllers
                 {
                     db.SaveChanges();
                     TempData["SuccessMessage"] = "資料已成功儲存！";
-                    return RedirectToAction("EditProfile", new { id = model.Id });
+                    return RedirectToAction("EditProfile");
                 }
                 catch (Exception ex)
                 {

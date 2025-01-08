@@ -1,144 +1,133 @@
-﻿<div class="container" style="margin-top: 20px;">
-    @if (Model.Disabled)
-    {
-    <div class="alert alert-warning">
-        此貼文已被發文者關閉。
-    </div>
-    }
-    else
-    {
- <!-- 貼文內容 -->
-    <div class="post-section" style="border: 1px solid #ddd; padding: 20px; border-radius: 10px; background-color: #f8f9fa;">
-        <!-- 標題與原PO資訊 -->
-        <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 10px;">
-            <div>
-                <h2 style="margin: 0; color: #fd7e14; font-weight: bold; padding: 5px; border-radius: 5px;
-                    text-shadow:
-                        -1px -1px 0 #ffc078,
-                        1px -1px 0 #ffc078,
-                        -1px 1px 0 #ffc078,
-                        1px 1px 0 #ffc078;">
-                    @Model.Title
-                </h2>
-            </div>
-            <div style="display: flex; align-items: center;">
-                <img src="data:image/png;base64,@(Model.MemberImg ?? "")"
-                     alt="原PO頭像"
-                     style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;">
-                <span style="font-weight: bold; color: #495057;">@Model.MemberName</span>
-            </div>
-        </div>
+﻿@model HeartSpace.Models.PostViewModel
+@using System.Text.RegularExpressions;
 
-        <!-- 分類與發佈時間 -->
-        <div style="border-top: 2px solid #fd7e14; margin-top: 10px; padding-top: 10px; width: 100%;">
-            <p style="margin: 0; color: #6c757d;">分類：<strong>@Model.CategoryName</strong></p>
-            <p style="margin: 0; margin-top: 2px; color: #6c757d;">發佈時間：<strong>@Model.PublishTime.ToString("yyyy-MM-dd HH:mm:ss")</strong></p>
-        </div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
-        <!-- 貼文圖片 -->
-        @if (!string.IsNullOrEmpty(Model.PostImg))
-            {
-        <div style="margin-top: 20px;">
-            <img src="data:image/png;base64,@Model.PostImg" alt="貼文圖片" style="max-width: 100%; height: auto; border-radius: 5px;" />
-        </div>
-            }
-
-        <!-- 貼文內容 -->
-        <div class="post-content" style="margin-top: 20px; color: #212529;">
-            <p>@Model.PostContent</p>
-        </div>
-
-        <!-- 修改與關閉按鈕 -->
-        <div style="margin-top: 20px; text-align: right;">
-            @if (ViewBag.CurrentUserId == Model.MemberId)
+<div class="container" style="margin-top: 20px; font-family: 'Microsoft JhengHei', sans-serif;">
+    <!-- 貼文內容 -->
+    <div class="post-section rounded shadow-sm bg-light p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1 class="mb-0" style="font-size: 1.8rem; font-weight: bold; color: #fd7e14;">@Model.Title</h1>
+            <div class="d-flex align-items-center">
+                @if (!string.IsNullOrEmpty(Model.MemberImgBase64))
                 {
-            <form action="@Url.Action("TogglePostStatus", "Post")" method="post" style="display:inline;">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="postId" value="@Model.Id" />
-                <button type="submit" class="btn btn-danger" style="margin-right: 10px;">
-                    @(Model.Disabled ? "重新開啟" : "關閉")
-                </button>
-            </form>
-            <a class="btn btn-primary" href="@Url.Action("EditPost", "Post", new { id = Model.Id })">修改</a>
+                    <img src="@Model.MemberImgBase64" alt="原PO頭像" class="rounded-circle me-3"
+                         style="width: 50px; height: 50px; object-fit: cover;" />
                 }
+                else
+                {
+                    <i class="fa-regular fa-circle-user me-3" style="font-size: 50px; color: #ccc;"></i>
+                }
+                <span style="font-weight: bold; color: #495057;">@Model.MemberNickName</span>
+            </div>
         </div>
+        <div class="d-flex justify-content-start align-items-center text-muted mb-3" style="font-size: 1rem;">
+            <span class="me-4"><i class="fa-solid fa-tag me-1"></i>@Model.CategoryName</span>
+            <span class="me-4"><i class="fa-solid fa-clock me-1"></i>@Model.PublishTime.ToString("yyyy-MM-dd HH:mm")</span>
+        </div>
+        @if (!string.IsNullOrEmpty(Model.PostImg))
+        {
+            <img src="data:image/png;base64,@Model.PostImg" alt="貼文圖片" class="img-fluid rounded mb-3" />
+        }
+        <p style="color: #212529; font-size: 1.1rem;">@Model.PostContent</p>
+        @if (ViewBag.CurrentUserId == Model.MemberId)
+        {
+            <div class="text-end">
+                <form action="@Url.Action("TogglePostStatus", "Post")" method="post" style="display:inline;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="postId" value="@Model.Id" />
+                    <button type="submit" class="btn btn-danger me-2">
+                        @(Model.Disabled ? "重新開啟" : "關閉")
+                    </button>
+                </form>
+                <a class="btn btn-primary" href="@Url.Action("EditPost", "Post", new { id = Model.Id })">修改</a>
+            </div>
+        }
     </div>
-    }
-
-    <!-- 訊息通知 -->
-    @if (TempData["SuccessMessage"] != null)
-    {
-    <div class="alert alert-success" role="alert">
-        @TempData["SuccessMessage"]
-    </div>
-    }
-
-    @if (TempData["ErrorMessage"] != null)
-    {
-    <div class="alert alert-danger" role="alert">
-        @TempData["ErrorMessage"]
-    </div>
-    }
 
     <!-- 留言板 -->
-    <div class="comments-section" style="margin-top: 30px;">
-        <h3 style="border-bottom: 2px solid #28a745; padding-bottom: 5px; color: #28a745;">留言板</h3>
-
+    <div class="comments-section mt-4">
+        <h3 class="border-bottom pb-2 mb-4" style="font-size: 1.5rem; font-weight: bold; color: #6a7888;">
+            <i class="fa-solid fa-comments me-2"></i>留言板
+        </h3>
+        <div class="mb-4">
+            <form action="@Url.Action("AddCommentAndRefresh", "Post")" method="post" class="d-flex flex-column">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="postId" value="@Model.Id" />
+                <textarea id="commentContent" name="content" class="form-control mb-2" rows="3" placeholder="輸入您的留言..." required></textarea>
+                <button type="submit" class="btn btn-success" id="submitComment" style="background-color: #FDD9A0; border: none;" disabled>送出留言</button>
+            </form>
+        </div>
         @if (Model.Comments != null && Model.Comments.Any())
         {
-        <ul style="list-style: none; padding: 0;">
-            @foreach (var comment in Model.PostComment.OrderBy(c => c.FloorNumber))
+            <div class="list-group">
+                @foreach (var comment in Model.Comments.OrderBy(c => c.FloorNumber))
                 {
-            <li id="floor@(comment.FloorNumber)" style="margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background-color: #fff;">
-                <!-- 樓層編號與留言資訊 -->
-                <div style="display: flex; align-items: center;">
-                    <img src="data:image/png;base64,@comment.UserImg" alt="留言者頭像"
-                         style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
-                    <strong style="color: #495057;">@comment.UserName</strong>
-                    <span style="margin-left: 10px; color: #007bff;">#B@(comment.FloorNumber)</span>
-                    <span style="margin-left: auto; color: #6c757d; font-size: 0.9em;">
-                        @comment.CommentTime.ToString("yyyy-MM-dd HH:mm")
-                    </span>
-                </div>
-
-                @if (comment.Disabled)
-                        {
-                            <!-- 留言已被刪除 -->
-                <p style="color: #6c757d; font-style: italic; margin-left: 40px; margin-top: 10px;">此留言已被刪除。</p>
-                        }
-                        else
-                        {
- <!-- 留言內容 -->
-                <p style="margin-left: 40px; margin-top: 10px; color: #212529;">
-                    @Html.Raw(comment.Comment)
-                </p>
-
- <!-- 刪除留言按鈕 -->
-                if (ViewBag.CurrentUserId == PostComment.UserId)
+                    <div class="list-group-item rounded mb-3 shadow-sm">
+                        <div class="d-flex flex-column">
+                            <!-- 樓層號碼 -->
+                            <span class="text-primary fw-bold" style="margin-bottom: 5px; cursor: pointer;" onclick="mentionUser('#B@(comment.FloorNumber)')">
+                                #B@(comment.FloorNumber)
+                            </span>
+                            <div class="d-flex align-items-start">
+                                <!-- 留言者頭像 -->
+                                @if (!string.IsNullOrEmpty(comment.UserImg) && comment.UserImg.StartsWith("data:image"))
+                                {
+                                    <img src="@comment.UserImg" alt="留言者頭像" class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover;" />
+                                }
+                                else
+                                {
+                                    <i class="fa-regular fa-circle-user me-3" style="font-size: 50px; color: #ccc;"></i>
+                                }
+                                <div class="flex-grow-1">
+                                    <!-- 留言者資訊 -->
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <strong style="margin-bottom: 5px; display: block;">@comment.UserNickName</strong>
+                                        <small class="text-muted">@comment.CommentTime.ToString("MM-dd HH:mm")</small>
+                                    </div>
+                                    <!-- 留言內容 -->
+                                    <p class="mb-0" style="color: #212529; font-size: 1rem;">
+                                        @Html.Raw(Regex.Replace(comment.Comment, @"#B\d+", match => $"<a href='#' style='color: #007bff; text-decoration: underline;' onclick='mentionUser(\"{match.Value}\"); return false;'>{match.Value}</a>"))
+                                    </p>
+                                </div>
+                            </div>
+                            @if (ViewBag.CurrentUserId == comment.UserId)
                             {
-                <form action="@Url.Action("DeleteComment", "Post")" method="post" style="position: absolute; bottom: 10px; right: 10px;">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="commentId" value="@comment.CommentId" />
-                    <button type="submit" class="btn btn-danger btn-sm">刪除</button>
-                </form>
+                                <div class="text-end mt-2">
+                                    <form action="@Url.Action("DeleteComment", "Post")" method="post" style="display:inline;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="commentId" value="@comment.CommentId" />
+                                        <button type="submit" class="btn btn-danger btn-sm">刪除</button>
+                                    </form>
+                                </div>
                             }
-                        }
-            </li>
+                        </div>
+                    </div>
                 }
-        </ul>
+            </div>
         }
         else
         {
-        <p style="color: #6c757d;">目前沒有留言，快來搶沙發！</p>
+            <p class="text-muted">目前沒有留言，快來搶沙發！</p>
         }
     </div>
-
-    <!-- 留言表單 -->
-    <div class="add-comment-section" style="margin-top: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background-color: #f8f9fa;">
-        <form action="@Url.Action("AddCommentAndRefresh", "Post")" method="post">
-            <input type="hidden" name="postId" value="@Model.Id" />
-            <textarea id="commentContent" name="content" class="form-control" rows="3" placeholder="輸入您的留言..." required></textarea>
-            <button type="submit" class="btn btn-success" style="margin-top: 10px;">送出留言</button>
-        </form>
-    </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const commentBox = document.getElementById("commentContent");
+            const submitButton = document.getElementById("submitComment");
+
+            commentBox.addEventListener("input", function () {
+                submitButton.disabled = !this.value.trim();
+            });
+        });
+
+        function mentionUser(floorNumber) {
+            const textarea = document.getElementById('commentContent');
+            textarea.value += ` ${floorNumber}`;
+            textarea.focus();
+        }
+    </script>
+}

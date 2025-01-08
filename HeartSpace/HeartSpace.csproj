@@ -148,10 +148,8 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\UnityConfig.cs" />
-
     <Compile Include="App_Start\UnityMvcActivator.cs" />
-
-	  <Compile Include="DTOs\CreatePostDto.cs" />
+    <Compile Include="DTOs\CreatePostDto.cs" />
     <Compile Include="DTOs\EventService.cs" />
     <Compile Include="DTOs\EventWithParticipantsDto.cs" />
     <Compile Include="DTOs\PostService.cs" />
@@ -174,7 +172,7 @@
     <Compile Include="Models\EFModels\Post.cs" />
     <Compile Include="Models\EFModels\PostComment.cs" />
     <Compile Include="Models\EFModels\Tag.cs" />
-	<Compile Include="Models\HomePageViewModel.cs" />
+    <Compile Include="Models\HomePageViewModel.cs" />
     <Compile Include="Models\ViewModels\EventStatusViewModel.cs" />
     <Compile Include="Repositories\EventRepository.cs" />
     <Compile Include="Repositories\MemberRepository.cs" />
@@ -275,17 +273,20 @@
     <Content Include="Views\Event\CreateEvent.cshtml" />
     <Content Include="Views\Event\EventDetail.cshtml" />
     <Content Include="Views\Event\EditEvent.cshtml" />
-    <Content Include="Views\Post\CreatePost.cshtml" />
     <Content Include="Views\Post\EditPost.cshtml" />
     <Content Include="Views\Post\PostDetails.cshtml" />
     <Content Include="Views\Profile\EditProfile.cshtml" />
-	  <Content Include="Views\Post\CreatePost.cshtml" />
-	  <Content Include="Views\Post\EditPost.cshtml" />
-	  <Content Include="Views\Post\PostDetails.cshtml" />
-	  <Content Include="Views\Event\EventStatus.cshtml" />
+    <Content Include="Views\Post\EditPost.cshtml" />
+    <Content Include="Views\Post\PostDetails.cshtml" />
+    <Content Include="Views\Event\EventStatus.cshtml" />
+    <Content Include="Views\Post\CreatePost.cshtml" />
+    <Content Include="Views\Search\SearchEvent.cshtml" />
+    <Content Include="Views\Search\SearchPost.cshtml" />
+    <Content Include="Views\Shared\_PostCard.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="DTOs\Services\Interfaces\" />
     <Folder Include="Views\Default\" />
     <Folder Include="Views\Image\" />
   </ItemGroup>

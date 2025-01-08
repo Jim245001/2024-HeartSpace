@@ -32,7 +32,7 @@ public class HomeController : Controller
 				Title = p.Title,
 				PostContent = p.PostContent,
 				PublishTime = p.PublishTime,
-				MemberName = p.Member != null ? p.Member.Name : "未知作者"
+				MemberNickName = p.Member != null ? p.Member.Name : "未知作者"
 			});
 
 		var paginatedPosts = PaginatedList<PostViewModel>.Create(postsQuery, postPage, pageSize);

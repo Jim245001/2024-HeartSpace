@@ -39,11 +39,11 @@
                                         <div class="card border-0 shadow-sm d-flex align-items-center justify-content-center" style="height: 300px;">
                                             @Html.Raw(new PostCard(
                                                 post.Title,
-                                                post.MemberName,
+                                                post.MemberNickName,
                                                 post.PostContent,
                                                 post.PublishTime,
                                                 post.PostImg,
-                                                post.MemberImg
+                                                post.MemberImgBase64
                                             ).RenderHtml())
                                         </div>
                                     </a>

@@ -25,12 +25,13 @@
 
 
         <!-- 頭像 -->
-        <div class="d-flex justify-content-center align-items-center" style="flex-direction: column; margin-bottom: 20px;">
-            <label for="MemberImg" style="font-weight: bold; color: #495057;">會員頭像</label>
-            <img src="data:image/png;base64,@Model.MemberImgBase64" alt="會員頭像"
-                 style="width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 5px solid #fd7e14;" />
-            <input type="file" name="MemberImgFile" class="form-control-file" style="max-width: 300px; margin-top: 10px;" />
-        </div>
+<div class="d-flex justify-content-center align-items-center" style="flex-direction: column; margin-bottom: 20px;">
+    <label for="MemberImgFile" style="font-weight: bold; color: #495057;">會員頭像</label>
+    <img src="@Model.MemberImgBase64" alt="會員頭像"
+         style="width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 5px solid #fd7e14;" />
+    <input type="file" id="MemberImgFile" name="MemberImgFile" class="form-control-file"
+           style="max-width: 300px; margin-top: 10px;" />
+</div>
 
         <!-- 會員名稱 -->
         <div class="form-group">
@@ -45,11 +46,20 @@
             @Html.ValidationMessageFor(model => model.NickName, "", new { @class = "text-danger" })
         </div>
 
+        <div class="form-group">
+            <label for="Account" style="font-weight: bold; color: #495057;">會員帳號</label>
+            <input type="text" class="form-control" value="@Model.Account" readonly
+                   style="background-color: #e9ecef; cursor: not-allowed;" />
+            @Html.HiddenFor(model => model.Account)
+        </div>
+
         <!-- 信箱 (唯讀) -->
         <div class="form-group">
             <label for="Email" style="font-weight: bold; color: #495057;">信箱</label>
             <input type="text" class="form-control" value="@Model.Email" readonly
                    style="background-color: #e9ecef; cursor: not-allowed;" />
+            @Html.HiddenFor(model => model.Email)
+
         </div>
 
         <!-- 修改按鈕 -->

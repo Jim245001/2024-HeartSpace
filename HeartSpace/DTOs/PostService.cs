@@ -34,6 +34,32 @@ namespace HeartSpace.Models.Services
             });
         }
 
+        public IEnumerable<CreatePostDto> SearchPosts(string keyword)
+        {
+            // 若未提供關鍵字，回傳所有貼文
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                return GetAllPosts();
+            }
+
+            // 查詢符合關鍵字的貼文
+            var posts = _repository.GetAllPosts()
+                .Where(p => p.Title.Contains(keyword) || p.PostContent.Contains(keyword))
+                .ToList();
+
+            return posts.Select(p => new CreatePostDto
+            {
+                Id = p.Id,
+                Title = p.Title,
+                PostContent = p.PostContent,
+                CategoryId = p.CategoryId,
+                MemberId = p.MemberId,
+                PublishTime = p.PublishTime,
+                PostImg = p.PostImg != null ? Convert.ToBase64String(p.PostImg) : null // 將 byte[] 轉為 Base64
+            });
+        }
+
+
         public CreatePostDto GetPostById(int id)
         {
             var post = _repository.GetPostById(id);

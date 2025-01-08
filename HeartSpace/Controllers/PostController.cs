@@ -3,6 +3,7 @@ using HeartSpace.Models.DTOs;
 using HeartSpace.Models.EFModels;
 using HeartSpace.Models.Services;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Web;
@@ -20,7 +21,10 @@ namespace HeartSpace.Controllers
 			_postService = postService;
 		}
 
-		[HttpGet]
+        // 在控制器類別內，新增一個靜態屬性來存儲刪除的留言 ID
+        private static readonly List<int> DeletedCommentIds = new List<int>();
+
+        [HttpGet]
 		public ActionResult CreatePost()
 		{
 			var model = new CreatePostDto();
@@ -64,27 +68,22 @@ namespace HeartSpace.Controllers
 		[HttpGet]
 		public ActionResult PostDetails(int id)
 		{
-			var post = _postService.GetPostById(id);
 
-			if (post == null)
-			{
-				return HttpNotFound("找不到該貼文！");
-			}
+            var post = _postService.GetPostById(id);
 
-            // 將當前用戶的 ID 傳到前端
-            ViewBag.CurrentUserId = GetCurrentUserId();
-            ViewBag.DeletedCommentIds = PostController.DeletedCommentIds;
-
+            if (post == null)
+            {
+                return HttpNotFound("找不到該貼文！");
+            }
 
             using (var db = new AppDbContext())
             {
-                // 取得所有留言資料，並按時間排序
                 var comments = db.PostComments
                     .Where(c => c.PostId == id)
                     .OrderBy(c => c.CommentTime)
                     .ToList();
+                ViewBag.CurrentUserId = 1; //測試
 
-                // 構建 ViewModel，包含留言
                 var viewModel = new PostViewModel
                 {
                     Id = post.Id,
@@ -92,33 +91,29 @@ namespace HeartSpace.Controllers
                     PostContent = post.PostContent,
                     PostImg = post.PostImg,
                     CategoryName = _postService.GetCategoryNameById(post.CategoryId),
-                    MemberName = db.Members.FirstOrDefault(m => m.Id == post.MemberId)?.Name,
-                    MemberImg = db.Members.FirstOrDefault(m => m.Id == post.MemberId)?.MemberImg != null
-            ? "data:image/png;base64," + Convert.ToBase64String(db.Members.FirstOrDefault(m => m.Id == post.MemberId).MemberImg)
-            : "data:image/png;base64,預設Base64字串",
+                    MemberNickName = db.Members.FirstOrDefault(m => m.Id == post.MemberId)?.NickName, // 改為 NickName
+                    MemberImg = db.Members.FirstOrDefault(m => m.Id == post.MemberId)?.MemberImg,
                     PublishTime = post.PublishTime,
-                    MemberId = post.MemberId, // 發文者的 ID
-
-
-                    // 留言集合
+                    MemberId = post.MemberId,
                     Comments = comments.Select((c, index) => new CommentViewModel
                     {
                         PostId = c.PostId,
                         CommentId = c.Id,
                         UserId = c.UserId,
-                        UserName = db.Members.FirstOrDefault(m => m.Id == c.UserId)?.Name,
-                        UserImg = c.Member.MemberImg != null
-                  ? "data:image/png;base64," + Convert.ToBase64String(c.Member.MemberImg)
-                  : "data:image/png;base64,預設Base64字串",
+                        UserNickName = db.Members.FirstOrDefault(m => m.Id == c.UserId)?.NickName,
+                        UserImg = db.Members.FirstOrDefault(m => m.Id == c.UserId)?.MemberImg != null
+    ? "data:image/png;base64," + Convert.ToBase64String(db.Members.FirstOrDefault(m => m.Id == c.UserId)?.MemberImg)
+    : null, // 當圖片為 null 時，交由前端顯示 Font Awesome
                         Comment = c.Comment,
                         CommentTime = c.CommentTime,
                         Disabled = c.Disabled ?? false,
-                        FloorNumber = index + 1 // 樓層編號
+                        FloorNumber = index + 1
                     }).ToList()
                 };
 
-			return View(viewModel);
-		}
+                return View(viewModel);
+            }
+        }
 
 		[HttpGet]
 		public ActionResult EditPost(int id)
