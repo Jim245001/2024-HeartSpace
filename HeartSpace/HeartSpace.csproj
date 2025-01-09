@@ -164,6 +164,7 @@
     <Compile Include="DTOs\Services\Interfaces\IPostService.cs" />
     <Compile Include="Helpers\ImageHelper.cs" />
     <Compile Include="Helpers\PaginatedLis.cs" />
+    <Compile Include="Helpers\PasswordHelper.cs" />
     <Compile Include="Models\EFModels\AppDbContext.cs" />
     <Compile Include="Models\EFModels\Category.cs" />
     <Compile Include="Models\EFModels\Event.cs" />
@@ -186,7 +187,6 @@
     <Compile Include="Models\ForgotPasswordViewModel.cs" />
     <Compile Include="Models\LoginViewModel.cs" />
     <Compile Include="Models\PostCard.cs" />
-    <Compile Include="Models\PostViewModel.cs" />
     <Compile Include="Models\ProfileViewModel.cs" />
     <Compile Include="Models\RegisterViewModel.cs" />
     <Compile Include="Models\ViewModels\EventViewModel.cs" />
@@ -271,7 +271,6 @@
     <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\Account\Register.cshtml" />
     <Content Include="Views\Account\ForgotPassword.cshtml" />
-    <Content Include="Views\AdminController\ManageGroup.cshtml" />
     <Content Include="Views\Event\CreateEvent.cshtml" />
     <Content Include="Views\Event\EventDetail.cshtml" />
     <Content Include="Views\Event\EditEvent.cshtml" />

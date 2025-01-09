@@ -18,36 +18,62 @@ public class HomeController : Controller
 		_context = context;
 	}
 
-	public ActionResult Index(int postPage = 1, int eventPage = 1)
+	public ActionResult Index(int? categoryId = null)
+	{
+		// 取得分類資料
+		var categories = _context.Categories
+			.OrderBy(c => c.DisplayOrder)
+			.ToList();
+
+		// 建立 ViewModel
+		var viewModel = new HomePageViewModel
+		{
+			Categories = categories,
+			SelectedCategoryId = categoryId
+		};
+
+		return View(viewModel);
+	}
+
+	public ActionResult GetPosts(int postPage = 1, int? categoryId = null)
 	{
 		int pageSize = 6; // 每頁顯示 6 筆資料
-        var categoryDict = _context.Categories
-    .ToDictionary(c => c.Id, c => c.CategoryName);
-        // 分頁處理貼文資料
-        var postsQuery = _context.Posts
-            .Include(p => p.Member)
 
-            .OrderByDescending(p => p.PublishTime)
-            .Select(p => new PostCard // 將 PostViewModel 直接轉換成 PostCard
-            {
-                Id = p.Id,
-                Title = p.Title,
-                PostContent = p.PostContent,
-                PublishTime = p.PublishTime,
-                MemberNickName = p.Member != null ? p.Member.NickName : "未知作者",
-                PostImg = p.PostImg != null ? Convert.ToBase64String(p.PostImg) : null, // 如果有圖片，轉換為 Base64
-                CategoryName = categoryDict.ContainsKey(p.CategoryId) ? categoryDict[p.CategoryId] : "未分類" // 從字典中查找分類名稱
-            });
+		// 分頁處理貼文資料，並根據 CategoryId 進行篩選
+		var postsQuery = _context.Posts
+			.Include(p => p.Member) // 載入會員資料
+			.Where(p => !categoryId.HasValue || p.CategoryId == categoryId) // 如果 categoryId 有值，進行篩選
+			.Select(p => new PostViewModel
+			{
+				Id = p.Id,
+				Title = p.Title,
+				PostContent = p.PostContent,
+				PublishTime = p.PublishTime,
+				MemberName = p.Member != null ? p.Member.Name : "未知作者",
+				CategoryId = p.CategoryId // 加入 CategoryId 用於前端顯示
+			});
 
-        var paginatedPosts = PaginatedList<PostCard>.Create(postsQuery, postPage, pageSize); // 使用 PostCard 作為類型
+		var paginatedPosts = PaginatedList<PostViewModel>.Create(
+			postsQuery,
+			postPage,
+			pageSize,
+			query => query.OrderByDescending(p => p.PublishTime) // 傳入排序邏輯
+		);
 
-        // 揪團活動資料分頁
-        var eventsQuery = _context.Events
+		return PartialView("_PostsPartial", paginatedPosts);
+	}
+
+	public ActionResult GetEvents(int eventPage = 1, int? categoryId = null)
+	{
+		int pageSize = 6; // 每頁顯示 6 筆資料
+
+		// 根據 categoryId 進行篩選
+		var eventsQuery = _context.Events
 			.Include(e => e.Member)
-			.OrderByDescending(e => e.EventTime)
+			.Where(e => !categoryId.HasValue || e.CategoryId == categoryId) // 如果 categoryId 有值，進行篩選
 			.Select(e => new EventViewModel
 			{
-				Id = e.Id, // 確保選取了 Id
+				Id = e.Id,
 				EventName = e.EventName,
 				Description = e.Description,
 				Location = e.Location,
@@ -56,16 +82,14 @@ public class HomeController : Controller
 				Img = e.EventImg
 			});
 
-		var paginatedEvents = PaginatedList<EventViewModel>.Create(eventsQuery, eventPage, pageSize);
+		var paginatedEvents = PaginatedList<EventViewModel>.Create(
+			eventsQuery,
+			eventPage,
+			pageSize,
+			query => query.OrderByDescending(e => e.EventTime) // 傳入排序邏輯
+		);
 
-		// 建立 ViewModel
-		var viewModel = new HomePageViewModel
-		{
-            Posts = paginatedPosts,
-
-            Events = paginatedEvents
-		};
-
-		return View(viewModel);
+		return PartialView("_EventsPartial", paginatedEvents);
 	}
+
 }

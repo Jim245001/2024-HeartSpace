@@ -8,7 +8,7 @@ namespace HeartSpace.Models.EFModels
 	public partial class AppDbContext : DbContext
 	{
 		public AppDbContext()
-			: base("name=AppDbContext")
+			: base("name=AppDbContext1")
 		{
 		}
 
@@ -28,9 +28,13 @@ namespace HeartSpace.Models.EFModels
 				.WithRequired(e => e.Category)
 				.WillCascadeOnDelete(false);
 
-            modelBuilder.Entity<Event>()
-                .Property(e => e.Limit)
-                .IsUnicode(false);
+			modelBuilder.Entity<EventComment>()
+				.Property(e => e.Disabled)
+				.IsFixedLength();
+
+			modelBuilder.Entity<Event>()
+				.Property(e => e.Limit)
+				.IsUnicode(false);
 
 			modelBuilder.Entity<Event>()
 				.HasMany(e => e.EventComments)

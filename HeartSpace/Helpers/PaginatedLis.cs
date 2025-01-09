@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using HeartSpace.Models;
-
 
 namespace HeartSpace.Helpers
 {
@@ -11,20 +9,26 @@ namespace HeartSpace.Helpers
 		public int PageIndex { get; private set; }
 		public int TotalPages { get; private set; }
 
-		public PaginatedList(IQueryable<T> source, int pageIndex, int pageSize)
+		public PaginatedList(List<T> items, int count, int pageIndex, int pageSize)
 		{
 			PageIndex = pageIndex;
-			TotalPages = (int)Math.Ceiling(source.Count() / (double)pageSize);
+			TotalPages = (int)Math.Ceiling(count / (double)pageSize);
 
-			this.AddRange(source.Skip((PageIndex - 1) * pageSize).Take(pageSize));
+			this.AddRange(items);
 		}
 
 		public bool HasPreviousPage => PageIndex > 1;
 		public bool HasNextPage => PageIndex < TotalPages;
 
-		public static PaginatedList<T> Create(IQueryable<T> source, int pageIndex, int pageSize)
+		public static PaginatedList<T> Create(IQueryable<T> source, int pageIndex, int pageSize, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy)
 		{
-			return new PaginatedList<T>(source, pageIndex, pageSize);
+			var count = source.Count();
+			var items = orderBy(source)
+				.Skip((pageIndex - 1) * pageSize)
+				.Take(pageSize)
+				.ToList();
+			return new PaginatedList<T>(items, count, pageIndex, pageSize);
 		}
 	}
+
 }
