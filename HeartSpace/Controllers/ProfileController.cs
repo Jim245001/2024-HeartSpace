@@ -4,115 +4,185 @@ using HeartSpace.Models;
 using HeartSpace.Models.EFModels;
 using System;
 using System.Collections.Generic;
-using System.EnterpriseServices;
-using System.IO;
 using System.Linq;
 using System.Web;
-using System.Web.ApplicationServices;
 using System.Web.Mvc;
+using System.IO;
+using HeartSpace.Models.ViewModels;
 
 namespace HeartSpace.Controllers
 {
-    public class ProfileController : Controller
-    {
-        private readonly AppDbContext db = new AppDbContext();
+	public class ProfileController : Controller
+	{
+		private readonly AppDbContext db = new AppDbContext();
 
-        public ActionResult Profile()
-        {
-            return View();
-        }
+		[HttpGet]
+		public ActionResult Profile(int? id)
+		{
+			if (id == null)
+			{
+				TempData["ErrorMessage"] = "會員編號未提供！";
+				return RedirectToAction("ProfileList");
+			}
 
-        [HttpGet]
-        //[Authorize]
-        public ActionResult EditProfile()
-        {
-            int memberId = 1;
+			var member = db.Members.Find(id.Value);
+			if (member == null)
+			{
+				TempData["ErrorMessage"] = "找不到對應的會員資料！";
+				return RedirectToAction("ProfileList");
+			}
 
-            // 從資料庫取得會員資料
-            var member = db.Members.Find(memberId);
-            if (member == null)
-            {
-                return HttpNotFound();
-            }
+			// 查詢報名的活動
+			var registeredEvents = db.EventMembers
+				.Where(em => em.MemberId == id)
+				.Select(em => new EventRecord
+				{
+					EventId = em.Event.Id,
+					EventName = em.Event.EventName,
+					EventTime = em.Event.EventTime,
+					Location = em.Event.Location,
+					IsAttend = em.IsAttend
+				}).ToList();
 
-            // 填入 ViewModel
-            var viewModel = new ProfileViewModel
-            {
-                Id = member.Id,
-                Name = member.Name,
-                Email = member.Email,
-                Account = member.Account,
-                MemberImg = member.MemberImg,
-                NickName = member.NickName
-            };
+			// 查詢已參加的活動
+			var attendedEvents = db.EventMembers
+				.Where(em => em.MemberId == id && em.IsAttend == true)
+				.Select(em => new EventRecord
+				{
+					EventId = em.Event.Id,
+					EventName = em.Event.EventName,
+					EventTime = em.Event.EventTime,
+					Location = em.Event.Location,
+					IsAttend = em.IsAttend
+				}).ToList();
 
-            return View(viewModel);
-        }
+			// 查詢發起的活動
+			var createdEvents = db.Events
+				.Where(e => e.MemberId == id)
+				.Select(e => new EventRecord
+				{
+					EventId = e.Id,
+					EventName = e.EventName,
+					EventTime = e.EventTime,
+					Location = e.Location
+				}).ToList();
 
-        [HttpPost]
-        //[Authorize]
-        public ActionResult EditProfile(ProfileViewModel model)
-        {
-            // 檢查 ModelState 是否有效
-            if (!ModelState.IsValid)
-            {
-                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
-                TempData["ErrorMessage"] = string.Join("<br/>", errors);
-                return View(model);
-            }
+			// 查詢發布的貼文
+			var userPosts = db.Posts
+				.Where(p => p.MemberId == id)
+				.Select(p => new PostRecord
+				{
+					PostId = p.Id,
+					Title = p.Title,
+					PublishTime = p.PublishTime,
+					Content = p.PostContent
+				}).ToList();
 
-            // 檢查暱稱是否重複
-            var isNickNameExists = db.Members.Any(m => m.NickName == model.NickName && m.Id != model.Id);
-            if (isNickNameExists)
-            {
-                ModelState.AddModelError("NickName", "該暱稱已被使用，請選擇其他暱稱。");
-                return View(model);
-            }
+			// 計算缺席次數
+			int absentEventCount = GetAbsentEventCount(id.Value);
 
-            // 嘗試更新會員資料
-            var member = db.Members.Find(model.Id);
-            if (member != null)
-            {
-                // 更新會員名稱和暱稱
-                member.Name = model.Name;
-                member.NickName = model.NickName;
+			// 建立 ViewModel
+			var model = new ProfileViewModel
+			{
+				Id = member.Id,
+				Name = member.Name,
+				NickName = member.NickName,
+				RegisteredEvents = registeredEvents,
+				AttendedEvents = attendedEvents,
+				CreatedEvents = createdEvents,
+				UserPosts = userPosts,
+				AbsentEventCount = absentEventCount
+			};
 
-                // 處理頭像上傳
-                if (model.MemberImgFile != null && model.MemberImgFile.ContentLength > 0)
-                {
-                    try
-                    {
-                        using (var binaryReader = new System.IO.BinaryReader(model.MemberImgFile.InputStream))
-                        {
-                            member.MemberImg = binaryReader.ReadBytes(model.MemberImgFile.ContentLength); // 將圖片轉為 byte[] 並儲存
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        ModelState.AddModelError("MemberImgFile", "上傳圖片時發生錯誤：" + ex.Message);
-                        return View(model); // 發生錯誤時，回傳表單
-                    }
-                }
 
-                // 保存資料庫變更
-                try
-                {
-                    db.SaveChanges();
-                    TempData["SuccessMessage"] = "資料已成功儲存！";
-                    return RedirectToAction("EditProfile");
-                }
-                catch (Exception ex)
-                {
-                    ModelState.AddModelError("", "儲存資料時發生錯誤：" + ex.Message);
-                    return View(model);
-                }
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "找不到對應的會員資料！";
-            }
+			var events = db.EventMembers
+				.Where(em => em.MemberId == id)
+				.Select(em => new EventViewModel
+				{
+					Id = em.Event.Id,
+					EventName = em.Event.EventName,
+					EventTime = em.Event.EventTime,
+					Location = em.Event.Location
+				}).ToList();
 
-            return View(model);
-        }
-    }
+			ViewBag.Events = events;
+
+
+			return View(model);
+		}
+
+		private int GetAbsentEventCount(int memberId)
+		{
+			// 從資料庫中計算指定使用者的缺席次數
+			return db.EventMembers
+				.Count(em => em.MemberId == memberId && em.IsAttend == false);
+		}
+
+		[HttpGet]
+		public ActionResult EditProfile(int? id)
+		{
+			if (id == null)
+			{
+				TempData["ErrorMessage"] = "會員編號未提供！";
+				return RedirectToAction("ProfileList");
+			}
+
+			var member = db.Members.Find(id.Value);
+			if (member == null)
+			{
+				TempData["ErrorMessage"] = "找不到對應的會員資料！";
+				return RedirectToAction("ProfileList");
+			}
+
+			// 計算缺席次數
+			int absentEventCount = GetAbsentEventCount(id.Value);
+
+			// 建立 ViewModel
+			var model = new ProfileViewModel
+			{
+				Id = member.Id,
+				Name = member.Name,
+				NickName = member.NickName,
+				MemberImg = member.MemberImg,
+				AbsentEventCount = absentEventCount
+			};
+
+			return View(model);
+		}
+
+		[HttpPost]
+		public ActionResult EditProfile(ProfileViewModel model)
+		{
+			if (!ModelState.IsValid)
+			{
+				model.AbsentEventCount = GetAbsentEventCount(model.Id);
+				return View(model);
+			}
+
+			// 更新會員邏輯
+			var member = db.Members.Find(model.Id);
+			if (member != null)
+			{
+				member.Name = model.Name;
+				member.NickName = model.NickName;
+
+				if (model.MemberImgFile != null && model.MemberImgFile.ContentLength > 0)
+				{
+					using (var binaryReader = new BinaryReader(model.MemberImgFile.InputStream))
+					{
+						member.MemberImg = binaryReader.ReadBytes(model.MemberImgFile.ContentLength);
+					}
+				}
+
+				db.SaveChanges();
+				TempData["SuccessMessage"] = "會員資料已更新！";
+			}
+			else
+			{
+				TempData["ErrorMessage"] = "找不到對應的會員資料！";
+			}
+
+			return RedirectToAction("EditProfile", new { id = model.Id });
+		}
+	}
 }
