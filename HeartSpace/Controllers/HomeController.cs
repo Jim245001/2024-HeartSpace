@@ -55,7 +55,7 @@ public class HomeController : Controller
             .Where(m => m.Id == e.MemberId)
             .Select(m => m.Name)
             .FirstOrDefault() ?? "未知主辦者", // 根據 MemberId 抓取 Name
-        Img = e.EventImg,
+        EventImg = e.EventImg,
     });
 
         var paginatedEvents = PaginatedList<EventViewModel>.Create(eventsQuery, eventPage, pageSize);

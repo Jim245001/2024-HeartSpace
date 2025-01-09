@@ -59,7 +59,7 @@ namespace HeartSpace.Models.ViewModels
 		[Display(Name = "評論數量")]
 
 		// 圖片相關
-		[Display(Name = "顯示用照片")]
+		
 		public string EventImg { get; set; } // 用於顯示圖片的二進制數據
 
 		[ValidateImage(5 * 1024 * 1024, "image/jpeg", "image/png", "image/gif", ErrorMessage = "圖片必須為 JPEG、PNG 或 GIF 格式，且大小不能超過 5MB")]
