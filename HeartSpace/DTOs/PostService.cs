@@ -5,6 +5,7 @@ using HeartSpace.Models.EFModels;
 using HeartSpace.Models.Repositories;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -23,11 +24,12 @@ namespace HeartSpace.Models.Services
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public IEnumerable<CreatePostDto> FindPostsByKeyword(string keyword)
+        public IEnumerable<CreatePostDto> FindPostsByKeyword(string keyword, int pageIndex, int pageSize)
         {
-            keyword = keyword?.Trim().ToLower();
+            var categoryDictionary = _context.Categories
+        .ToDictionary(c => c.Id, c => c.CategoryName);
 
-            var posts = _context.Posts
+            var pagedPosts = _context.Posts
                 .Join(_context.Members,
                       post => post.MemberId,
                       member => member.Id,
@@ -35,26 +37,28 @@ namespace HeartSpace.Models.Services
                 .Where(pm =>
                     (pm.post.Title != null && pm.post.Title.ToLower().Contains(keyword)) ||
                     (pm.member.NickName != null && pm.member.NickName.ToLower().Contains(keyword)))
-                .AsEnumerable()
-                .Select(pm => new CreatePostDto
-                {
-                    Id = pm.post.Id,
-                    Title = pm.post.Title,
-                    PostContent = pm.post.PostContent,
-                    PostImg = pm.post.PostImg != null ? Convert.ToBase64String(pm.post.PostImg) : null,
-                    PublishTime = pm.post.PublishTime,
-                    MemberNickName = pm.member.NickName,
-                    MemberImgBase64 = pm.member.MemberImg != null ? Convert.ToBase64String(pm.member.MemberImg) : null,
-                    CategoryName = _context.Categories
-                        .Where(c => c.Id == pm.post.CategoryId)
-                        .Select(c => c.CategoryName)
-                        .FirstOrDefault(),
-                    Disabled = pm.post.Disabled
-                }).ToList();
+                .OrderBy(pm => pm.post.PublishTime)
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
 
-            return posts;
+            return pagedPosts.Select(pm => new CreatePostDto
+            {
+                Id = pm.post.Id,
+                Title = pm.post.Title,
+                PostContent = pm.post.PostContent,
+                PostImg = ImageHelper.ToBase64String(pm.post.PostImg),
+                PublishTime = pm.post.PublishTime,
+                MemberNickName = pm.member.NickName,
+                MemberImgBase64 = ImageHelper.ToBase64String(pm.member.MemberImg),
+                CategoryName = categoryDictionary.ContainsKey(pm.post.CategoryId)
+                    ? categoryDictionary[pm.post.CategoryId]
+                    : null,
+                Disabled = pm.post.Disabled
+            }).ToList();
         }
-       
+
+
 
 
 
@@ -80,7 +84,7 @@ namespace HeartSpace.Models.Services
                ? $"data:image/png;base64,{Convert.ToBase64String(pm.post.PostImg)}"
                : null,
            MemberNickName = pm.member.NickName,
-           MemberImg = pm.member.MemberImg != null
+           MemberImgBase64 = pm.member.MemberImg != null
                ? $"data:image/png;base64,{Convert.ToBase64String(pm.member.MemberImg)}"
                : null, // 轉換會員圖片為 Base64
            CategoryName = _context.Categories
@@ -106,7 +110,7 @@ namespace HeartSpace.Models.Services
            PublishTime = pm.post.PublishTime,
            PostImg = pm.post.PostImg != null ? Convert.ToBase64String(pm.post.PostImg) : null,
            MemberNickName = pm.member.NickName,
-           MemberImgBase64 = pm.member.MemberImg != null ? Convert.ToBase64String(pm.member.MemberImg) : null,
+           //MemberImgBase64 = pm.member.MemberImg != null ? Convert.ToBase64String(pm.member.MemberImg) : null,
            CategoryName = _context.Categories
                .Where(c => c.Id == pm.post.CategoryId)
                .Select(c => c.CategoryName)

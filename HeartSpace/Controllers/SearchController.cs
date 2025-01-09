@@ -7,6 +7,11 @@ using System.Linq;
 using HeartSpace.Models.DTOs;
 using System;
 using HeartSpace.Models.ViewModels;
+using System.Data.Entity;
+using System.Diagnostics;
+using HeartSpace.Models.EFModels;
+using System.Drawing.Printing;
+using HeartSpace.Helpers;
 
 
 
@@ -20,46 +25,42 @@ namespace HeartSpace.Controllers
         public SearchController(IPostService postService)
         {
             _postService = postService ?? throw new ArgumentNullException(nameof(postService));
+          
         }
+        
 
-    
 
-        public ActionResult SearchPost(string keyword)
+        public ActionResult SearchPost(string keyword, int pageIndex = 1, int pageSize = 10)
         {
-            // 從服務層獲取搜尋結果與推薦貼文
-            var posts = _postService.FindPostsByKeyword(keyword)
-                .Select(p => new PostCard
-                {
-                    Id = p.Id,
-                    Title = p.Title,
-                    PostContent = p.PostContent,
-                    PublishTime = p.PublishTime,
-                    PostImg = p.PostImg,
-                    MemberNickName = p.MemberNickName,
-                    MemberImg = p.MemberImgBase64,
-                    CategoryName = p.CategoryName
-                })
-                .ToList();
 
-            var recommendedPosts = _postService.GetRandomPosts(6)
-                .Select(p => new PostCard
-                {
-                    Id = p.Id,
-                    Title = p.Title,
-                    PostContent = p.PostContent,
-                    PublishTime = p.PublishTime,
-                    PostImg = p.PostImg,
-                    MemberNickName = p.MemberNickName,
-                    MemberImg = p.MemberImgBase64,
-                    CategoryName = p.CategoryName
-                })
-                .ToList();
+            // 從服務層獲取 CreatePostDto
+            var postDtos = _postService.FindPostsByKeyword(keyword, pageIndex, pageSize);
+
+            // 將 CreatePostDto 轉換為 PostCard
+            var posts = postDtos.Select(dto => new PostCard
+            {
+                Id = dto.Id,
+                Title = dto.Title,
+                PostContent = dto.PostContent,
+                PublishTime = dto.PublishTime,
+                PostImg = dto.PostImg != null
+                    ? $"data:image/png;base64,{dto.PostImg}"
+                    : null,
+                MemberNickName = dto.MemberNickName,
+                MemberImgBase64 = dto.MemberImgBase64 != null
+                    ? $"data:image/png;base64,{dto.MemberImgBase64}"
+                    : null,
+                CategoryName = dto.CategoryName
+            }).ToList();
+
+            // 獲取推薦貼文
+            var recommendedPosts = _postService.GetRandomPosts(6);
 
             // 建立 ViewModel
             var viewModel = new SearchPostViewModel
             {
-                Posts = posts,
-                RecommendedPosts = recommendedPosts
+                Posts = PaginatedList<PostCard>.Create(posts, pageIndex, pageSize),
+                RecommendedPosts = recommendedPosts.ToList()
             };
 
             // 傳遞搜尋關鍵字給前端

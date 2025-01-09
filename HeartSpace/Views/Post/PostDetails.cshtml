@@ -30,6 +30,7 @@
             <img src="data:image/png;base64,@Model.PostImg" alt="貼文圖片" class="img-fluid rounded mb-3" />
         }
         <p style="color: #212529; font-size: 1.1rem;">@Model.PostContent</p>
+
         @if (ViewBag.CurrentUserId == Model.MemberId)
         {
             <div class="text-end">

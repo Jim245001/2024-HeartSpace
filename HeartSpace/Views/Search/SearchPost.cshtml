@@ -5,6 +5,27 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<style>
+    .container-fluid {
+        max-width: 100%;
+        padding: 0 15px;
+    }
+
+    .row {
+        margin: 0 auto;
+    }
+
+    .card {
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.15);
+        }
+
+</style>
 <div class="container mt-4">
     <h1 class="mb-4">搜尋貼文</h1>
 
@@ -16,31 +37,36 @@
         </div>
     </form>
 
-    <!-- 搜尋結果 -->
-    @if (Model.Posts != null && Model.Posts.Any())
-    {
-        <div class="alert alert-success text-center">
-            搜尋結果：找到符合「<strong>@ViewBag.Keyword</strong>」的貼文！
-        </div>
 
-        <div class="row">
-            @foreach (var post in Model.Posts)
-            {
-                <div class="col-md-6 mb-4">
-                    @Html.Partial("_PostCard", post)
-                </div>
-            }
-        </div>
-    }
-    else
+    <!-- 搜尋結果 -->
+    @if (ViewBag.Keyword != null)
     {
-        <div class="alert alert-warning text-center">
-            找不到符合「<strong>@ViewBag.Keyword</strong>」的貼文！
-        </div>
+        if (Model.Posts != null && Model.Posts.Any())
+        {
+            <div class="alert alert-success text-center">
+                搜尋結果：找到符合「<strong>@ViewBag.Keyword</strong>」的貼文！
+            </div>
+
+            <div class="row">
+                @foreach (var post in Model.Posts)
+                {
+                    <div class="col-md-6 mb-4">
+                        @Html.Partial("_PostCard", post)
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning text-center">
+                找不到符合「<strong>@ViewBag.Keyword</strong>」的貼文！
+            </div>
+        }
     }
+
 
     <!-- 隨機推薦貼文 -->
-    <h3 class="mt-5">隨機推薦貼文</h3>
+    <h3 class="mt-5">推薦貼文</h3>
     @if (Model.RecommendedPosts != null && Model.RecommendedPosts.Any())
     {
         <div class="row">

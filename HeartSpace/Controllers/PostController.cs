@@ -68,7 +68,6 @@ namespace HeartSpace.Controllers
 		[HttpGet]
 		public ActionResult PostDetails(int id)
 		{
-
             var post = _postService.GetPostById(id);
 
             if (post == null)

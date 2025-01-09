@@ -12,7 +12,7 @@ namespace HeartSpace.DTOs.Services.Interfaces
     public interface IPostService
     {
         IEnumerable<CreatePostDto> GetAllPosts();
-        IEnumerable<CreatePostDto> FindPostsByKeyword(string keyword);
+        IEnumerable<CreatePostDto> FindPostsByKeyword(string keyword, int pageIndex, int pageSize);
 
         IEnumerable<PostCard> GetRandomPosts(int count);
 

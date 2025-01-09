@@ -10,7 +10,6 @@ namespace HeartSpace.Models
         public DateTime PublishTime { get; set; } // 發佈時間
         public string PostImg { get; set; } // 圖片的 Base64 編碼
         public string MemberNickName { get; set; } // 發文者暱稱
-        public string MemberImg { get; set; }
         public string MemberImgBase64 { get; set; }
         public string CategoryName { get; set; } // 類別名稱
 
@@ -19,7 +18,7 @@ namespace HeartSpace.Models
 
 
         // 初始化建構函式
-        public PostCard(int id, string title, string postContent, DateTime publishTime, string postImg,string memberNickName, string memberImg, string categoryName)
+        public PostCard(int id, string title, string postContent, DateTime publishTime, string postImg,string memberNickName, string memberImgBase64, string categoryName)
         {
             Id = id;
             Title = title;
@@ -27,7 +26,7 @@ namespace HeartSpace.Models
             PublishTime = publishTime;
             PostImg = postImg;
             MemberNickName = memberNickName;
-            MemberImg = memberImg;
+            MemberImgBase64 = memberImgBase64;
             CategoryName = categoryName;
 
         }
@@ -52,7 +51,7 @@ namespace HeartSpace.Models
                     <div style='margin-top: 5px; text-align: left;'>
                         <p style='margin: 0;'><strong style='font-size:16px'>{Title}</strong></p>
                         <p style='margin: -2px'>
-                            <img src='{MemberImg}' style='width: 9px; height: 9px; object-fit: cover;' />
+                            <img src='{MemberImgBase64}' style='width: 9px; height: 9px; object-fit: cover;' />
                             <strong style='font-size:9px'>{MemberNickName}</strong>
                         </p>
                         <p style='margin: 6px 0 0 0; font-size:12px;margin-top:15px;'>{truncatedPostContent}</p>
