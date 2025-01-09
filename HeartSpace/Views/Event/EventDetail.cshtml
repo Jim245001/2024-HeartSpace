@@ -298,19 +298,21 @@
                             @if (Model.IsEventOwner || Model.Role == "admin")
                             {
                                 <!-- 關閉按鈕 -->
-                                <button class="btn btn-warning w-100 py-2"
-                                        data-bs-toggle="modal" data-bs-target="#confirmCloseModal">
-                                    關閉揪團
-                                </button>
+                            <button class="btn btn-warning w-100 py-2"
+                                    data-bs-toggle="modal" data-bs-target="#confirmCloseModal">
+                                <i class="fa-solid fa-trash"></i>
+                                關閉揪團
+                            </button>
                             }
 
                             @if (Model.IsEventOwner)
                             {
                                 <!-- 修改按鈕 -->
-                                <a href="@Url.Action("EditEvent", "Event", new { id = Model.Id })"
-                                   class="btn btn-warning w-100 py-2">
-                                    修改揪團
-                                </a>
+                        <a href="@Url.Action("EditEvent", "Event", new { id = Model.Id })"
+                           class="btn btn-warning w-100 py-2">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                            修改揪團
+                        </a>
                             }
                         </div>
                     }

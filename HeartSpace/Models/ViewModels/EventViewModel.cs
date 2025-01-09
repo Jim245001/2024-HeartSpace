@@ -85,9 +85,6 @@ namespace HeartSpace.Models.ViewModels
 
 		public int? CommentCount { get; set; }
 
-
-
-
 		public bool IsRegistered { get; set; } // 是否已報名
 
 		public bool IsFull { get; set; } //報名是否已滿
@@ -111,7 +108,6 @@ namespace HeartSpace.Models.ViewModels
 		public bool IsEventOwner { get; set; } // 是否為活動發起人
 
 		public bool IsAdmin => Role?.ToLower() == "admin";  // 是否為管理員
-
 
 
 		public List<CommentViewModel> Comments { get; set; } = new List<CommentViewModel>();

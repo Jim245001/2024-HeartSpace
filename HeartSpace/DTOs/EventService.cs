@@ -5,7 +5,7 @@ using HeartSpace.Models.ViewModels;
 using System.Linq;
 using System.Data.Entity;
 using HeartSpace.Models.EFModels;
-using HeartSpace.Models;
+
 
 namespace HeartSpace.BLL
 {
@@ -146,43 +146,60 @@ namespace HeartSpace.BLL
 
 
 		//檢視揪團
-		public EventViewModel GetEventWithDetails(int id)
+		public EventViewModel GetEventDetailsWithExtras(int eventId, int currentMemberId)
 		{
-			using (var context = new AppDbContext())
+			// 從資料庫取得活動資料
+			var eventEntity = _eventRepository.GetEventDetails(eventId); // 返回 EFModels.Event
+
+			if (eventEntity == null)
 			{
-				var eventItem = context.Events
-					.Include(e => e.Category) // 確保載入 Category 資料
-					.FirstOrDefault(e => e.Id == id);
-
-				if (eventItem == null)
-					return null;
-
-				// 根據 MemberId 查詢 Member
-				var member = context.Members.FirstOrDefault(m => m.Id == eventItem.MemberId);
-
-				return new EventViewModel
-				{
-					Id = eventItem.Id,
-					EventName = eventItem.EventName,
-					MemberId = eventItem.MemberId,
-					MemberName = member?.Name, // 查詢得到的 Member.Name
-					MemberNickName = member?.NickName,
-					MemberProfileImg = member?.MemberImg, // 查詢得到的 Member.Img
-					Description = eventItem.Description,
-					EventTime = eventItem.EventTime,
-					Location = eventItem.Location,
-					IsOnline = eventItem.IsOnline,
-					ParticipantMax = eventItem.ParticipantMax,
-					ParticipantMin = eventItem.ParticipantMin,
-					Limit = eventItem.Limit,
-					DeadLine = eventItem.DeadLine,
-					CommentCount = eventItem.CommentCount,
-					ParticipantNow = eventItem.ParticipantNow,
-					CategoryName = eventItem.Category?.CategoryName, // 直接訪問 Category
-					Disabled = eventItem.Disabled
-				};
+				return null; // 如果找不到活動，返回 null
 			}
+
+			// 將 EFModels.Event 轉換為 ViewModels.EventViewModel
+			var model = new EventViewModel
+			{
+				Id = eventEntity.Id,
+				EventName = eventEntity.EventName,
+				MemberId = eventEntity.MemberId,
+				ParticipantMax = eventEntity.ParticipantMax,
+				ParticipantNow = _eventRepository.GetParticipantCount(eventId),
+				IsOnline = eventEntity.IsOnline,
+				Location = eventEntity.Location,
+				Description = eventEntity.Description,
+				EventTime = eventEntity.EventTime,
+				DeadLine = eventEntity.DeadLine,
+				CategoryName = eventEntity.Category?.CategoryName, // 假設有類別關聯
+				Comments = new List<CommentViewModel>() // 初始化評論列表
+			};
+
+			// 設置是否為活動發起人
+			model.IsEventOwner = model.MemberId == currentMemberId;
+
+			// 設置是否已報名
+			model.IsRegistered = _eventRepository.IsMemberRegistered(eventId, currentMemberId);
+
+			// 加載評論資料
+			var comments = _eventRepository.GetEventComments(eventId)
+				.Select(c => new CommentViewModel
+				{
+					Id = c.Id,
+					MemberId = c.MemberId,
+					MemberName = c.Member?.Name ?? "未知用戶",
+					MemberNickName = c.Member?.NickName ?? "未知用戶",
+					MemberProfileImg = c.Member?.MemberImg,
+					EventCommentContent = c.EventCommentContent,
+					CommentTime = c.CommentTime
+				}).ToList();
+			model.Comments = comments;
+
+			// 檢查是否已達報名上限
+			model.IsFull = model.ParticipantNow >= model.ParticipantMax;
+
+			return model;
 		}
+
+
 
 		public EventStatusViewModel GetEventStatus(int eventId)
 		{
@@ -211,7 +228,8 @@ namespace HeartSpace.BLL
 					NickName = p.NickName,
 					FullName = p.MemberName,
 					Email = p.Email,
-					ProfileImage = p.MemberImg
+					ProfileImage = p.MemberImg,
+					IsAttend = p.IsAttend
 				}).ToList(),
 
 				CategoryName = eventDetails.CategoryName,
@@ -226,7 +244,10 @@ namespace HeartSpace.BLL
 			};
 		}
 
-
+		public void UpdateAttendance(int memberId, int eventId, bool? isAttend)
+		{
+			_eventRepository.UpdateAttendance(memberId, eventId, isAttend);
+		}
 	}
 
 

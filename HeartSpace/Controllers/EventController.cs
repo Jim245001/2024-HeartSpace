@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using System.Web.UI;
@@ -15,6 +16,19 @@ namespace HeartSpace.Controllers
 		public EventController()
 		{
 			_eventService = new EventService();
+		}
+
+		//檢視揪團
+		public ActionResult EventDetail(int id)
+		{
+			var model = _eventService.GetEventDetailsWithExtras(id, GetCurrentMemberId());
+
+			if (model == null)
+			{
+				return HttpNotFound();
+			}
+
+			return View(model);
 		}
 
 		//建立揪團
@@ -229,50 +243,42 @@ namespace HeartSpace.Controllers
 			}
 		}
 
-		//檢視揪團
-		public ActionResult EventDetail(int id)
+		//報名狀況
+		[HttpGet]
+		public ActionResult EventStatus(int id)
 		{
-			var model = _eventService.GetEventWithDetails(id);
+			// 獲取活動詳細資料
+			var model = _eventService.GetEventStatus(id);
+
 			if (model == null)
 			{
-				return HttpNotFound();
+				return HttpNotFound(); 
 			}
-
-			// 獲取當前用戶的 ID
-			int currentMemberId = GetCurrentMemberId(); // 假設有這個方法
-
-			// 設置是否為活動發起人
-			model.IsEventOwner = model.MemberId == currentMemberId;
-
-			// 設置是否已報名此活動
-			model.IsRegistered = _eventService.IsMemberRegistered(id, currentMemberId);
-
-			// 加載評論，並判斷是否為留言者本人
-			model.Comments = _eventService.GetEventComments(id)
-				.Select(c => new CommentViewModel
-				{
-					Id = c.Id,
-					MemberId = c.MemberId,
-					MemberName = c.Member?.Name ?? "未知用戶", 
-					MemberNickName = c.Member?.NickName ?? "未知用戶", 
-					MemberProfileImg = c.Member?.MemberImg,
-					EventCommentContent = c.EventCommentContent,
-					CommentTime = c.CommentTime,
-					IsCommentOwner = _eventService.IsCommentOwner(c.Id, currentMemberId)  
-				})
-				.ToList();
-
-			// 加載當前參與人數
-			model.ParticipantNow = _eventService.GetParticipantCount(id);
-
-			// 加載活動報名人數上限
-			model.ParticipantMax = model.ParticipantMax; // 確保 ParticipantMax 已從服務層載入
-
-			// 檢查是否已達報名上限
-			model.IsFull = model.ParticipantNow >= model.ParticipantMax;
 
 			return View(model);
 		}
+
+		//出席狀況
+		[HttpPost]
+		public JsonResult UpdateAttendanceBatch(List<AttendanceUpdateViewModel> updates)
+		{
+			try
+			{
+				// 調用 Service 更新出席狀態
+				foreach (var update in updates)
+				{
+					_eventService.UpdateAttendance(update.MemberId, update.EventId, update.IsAttend);
+				}
+
+				return Json(new { success = true });
+			}
+			catch (Exception ex)
+			{
+				return Json(new { success = false, message = ex.Message });
+			}
+		}
+
+
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]

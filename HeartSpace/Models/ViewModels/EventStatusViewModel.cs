@@ -30,6 +30,14 @@ namespace HeartSpace.Models.ViewModels
 		public string FullName { get; set; } // 姓名
 		public string Email { get; set; } // 信箱
 		public string ProfileImage { get; set; } // 頭像
+		public bool? IsAttend { get; set; } // 出席狀態 (true: 已出席, false: 未出席, null: 未選擇)
 	}
 
+	public class AttendanceUpdateViewModel
+	{
+		public int MemberId { get; set; }
+		public int EventId { get; set; }
+		public bool? IsAttend { get; set; }
+	}
 }
+

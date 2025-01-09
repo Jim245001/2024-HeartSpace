@@ -53,18 +53,17 @@ namespace HeartSpace.DAL
 		}
 
 		// 根據 ID 獲取活動
-		public Event GetEventById(int id)
+		public Event GetEventDetails(int id)
 		{
-			using (var connection = CreateConnection())
+			using (var context = new AppDbContext())
 			{
-				const string sql = "SELECT * FROM Events WHERE Id = @Id";
-				var eventResult = connection.QueryFirstOrDefault<Event>(sql, new { Id = id });
-
-
-				return eventResult;
-
+				return context.Events
+					.Include(e => e.Category)
+					.Include(e => e.Member) // 預先載入 Member 資料
+					.FirstOrDefault(e => e.Id == id);
 			}
 		}
+
 
 		// 新增活動
 		public int AddEvent(Event newEvent)
@@ -132,7 +131,19 @@ VALUES (@EventName, @MemberId, @EventImg, @CategoryId, @Description, @EventTime,
 				return connection.Query<Category>(query).ToList();
 			}
 		}
+		// 根據 ID 獲取活動
+		public Event GetEventById(int id)
+		{
+			using (var connection = CreateConnection())
+			{
+				const string sql = "SELECT * FROM Events WHERE Id = @Id";
+				var eventResult = connection.QueryFirstOrDefault<Event>(sql, new { Id = id });
 
+
+				return eventResult;
+
+			}
+		}
 		// 獲取指定活動的所有評論
 		public IEnumerable<EventComment> GetEventComments(int eventId)
 		{
@@ -153,9 +164,6 @@ VALUES (@EventName, @MemberId, @EventImg, @CategoryId, @Description, @EventTime,
 				return context.Events.Any(e => e.Id == eventId);
 			}
 		}
-
-
-
 
 		// 新增評論資料到資料庫
 		public void AddComment(EventComment comment)
@@ -284,6 +292,7 @@ VALUES (@EventName, @MemberId, @EventImg, @CategoryId, @Description, @EventTime,
             em.Id AS EventMemberId,
             em.EventId,
             em.MemberId,
+			em.IsAttend,
             m.Name AS MemberName,
             m.NickName,
             m.Email,
@@ -315,8 +324,15 @@ VALUES (@EventName, @MemberId, @EventImg, @CategoryId, @Description, @EventTime,
 				return eventResult;
 			}
 		}
-
-
+		// 出席狀態
+		public void UpdateAttendance(int memberId, int eventId, bool? isAttend)
+		{
+			using (var connection = CreateConnection())
+			{
+				const string query = "UPDATE EventMembers SET IsAttend = @IsAttend WHERE EventId = @EventId AND MemberId = @MemberId";
+				connection.Execute(query, new { MemberId = memberId, EventId = eventId, IsAttend = isAttend });
+			}
+		}
 	}
 }
 
