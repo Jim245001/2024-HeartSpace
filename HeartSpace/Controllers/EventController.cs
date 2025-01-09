@@ -65,38 +65,23 @@ namespace HeartSpace.Controllers
 			}
 
 			// 圖片處理
-			byte[] imageData = null;
+			string imagePath = null;
+
+			//如果有上傳圖片，處理圖片儲存並獲取路徑
 			//不為 null 且檔案大小大於 0 時，進行圖片處理
 			if (model.UploadedEventImg != null && model.UploadedEventImg.ContentLength > 0)
 			{
-				var allowedFileTypes = new[] { "image/jpeg", "image/png", "image/gif" };
-				if (!allowedFileTypes.Contains(model.UploadedEventImg.ContentType))
-				{
-					ModelState.AddModelError("UploadedImg", "只允許上傳 JPEG、PNG 或 GIF 格式的圖片。");
-					ViewBag.Categories = _eventService.GetCategories();
-					return View(model);
-				}
+				// 生成唯一檔名，避免覆蓋
+				string fileName = $"{Guid.NewGuid()}{System.IO.Path.GetExtension(model.UploadedEventImg.FileName)}";
 
-				if (model.UploadedEventImg.ContentLength > 5 * 1024 * 1024) // 限制大小為 5MB
-				{
-					ModelState.AddModelError("UploadedEventImg", "圖片大小不能超過 5MB。");
-					ViewBag.Categories = _eventService.GetCategories();
-					return View(model);
-				}
+				// 設定圖片儲存的相對路徑
+				string savePath = System.Web.Hosting.HostingEnvironment.MapPath($"~/Images/{fileName}");
 
-				try //轉換成 byte[]
-				{
-					using (var binaryReader = new System.IO.BinaryReader(model.UploadedEventImg.InputStream))
-					{
-						imageData = binaryReader.ReadBytes(model.UploadedEventImg.ContentLength);
-					}
-				}
-				catch (Exception)
-				{
-					ModelState.AddModelError("UploadedEventImg", "圖片處理失敗，請重試或選擇其他圖片。");
-					ViewBag.Categories = _eventService.GetCategories();
-					return View(model);
-				}
+				// 儲存圖片到伺服器
+				model.UploadedEventImg.SaveAs(savePath);
+
+				// 儲存圖片的路徑到資料庫
+				imagePath = $"/Images/{fileName}";
 			}
 
 
@@ -105,7 +90,7 @@ namespace HeartSpace.Controllers
 			{
 				EventName = model.EventName,
 				MemberId = GetCurrentMemberId(),
-				EventImg = imageData,
+				EventImg = imagePath, // 存路徑而非圖片本身
 				CategoryId = model.CategoryId,
 				Description = model.Description,
 				EventTime = model.EventTime,

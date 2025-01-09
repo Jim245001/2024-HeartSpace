@@ -59,7 +59,7 @@ namespace HeartSpace.DAL
 			{
 				return context.Events
 					.Include(e => e.Category)
-					.Include(e => e.Member) // 預先載入 Member 資料
+					.Include(e => e.EventMembers.Select(em => em.Member)) // 預先載入 Member 資料
 					.FirstOrDefault(e => e.Id == id);
 			}
 		}

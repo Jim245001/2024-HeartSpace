@@ -187,7 +187,7 @@ namespace HeartSpace.BLL
 					MemberId = c.MemberId,
 					MemberName = c.Member?.Name ?? "未知用戶",
 					MemberNickName = c.Member?.NickName ?? "未知用戶",
-					MemberProfileImg = c.Member?.MemberImg,
+					MemberImg = c.Member?.MemberImg,
 					EventCommentContent = c.EventCommentContent,
 					CommentTime = c.CommentTime
 				}).ToList();

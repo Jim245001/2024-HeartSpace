@@ -60,7 +60,7 @@ namespace HeartSpace.Models.ViewModels
 
 		// 圖片相關
 		[Column(TypeName = "image")]
-		public byte[] EventImg { get; set; } // 用於顯示圖片的二進制數據
+		public string EventImg { get; set; } // 用於顯示圖片的二進制數據
 
 		[ValidateImage(5 * 1024 * 1024, "image/jpeg", "image/png", "image/gif", ErrorMessage = "圖片必須為 JPEG、PNG 或 GIF 格式，且大小不能超過 5MB")]
 		public HttpPostedFileBase UploadedEventImg { get; set; } // 用於接收圖片上傳
@@ -101,7 +101,7 @@ namespace HeartSpace.Models.ViewModels
 
 		public string MemberNickName { get; set; } // 顯示發起人暱稱
 
-		public byte[] MemberProfileImg { get; set; } // 顯示發起人大頭照
+		public string MemberImg { get; set; } // 顯示發起人大頭照
 
 		public string Role { get; set; }   // 當前用戶的角色（例如：member 或 admin）
 
@@ -120,7 +120,7 @@ namespace HeartSpace.Models.ViewModels
 		public int MemberId { get; set; }
 		public string MemberName { get; set; }
 		public string MemberNickName { get; set; }
-		public byte[] MemberProfileImg { get; set; }
+		public string MemberImg { get; set; }
 		public string EventCommentContent { get; set; }
 		public DateTime CommentTime { get; set; }
 		public bool IsCommentOwner { get; set; }
