@@ -28,8 +28,9 @@ namespace HeartSpace.Models.DTOs
         public int CategoryId { get; set; }
         public int MemberId { get; set; }
         public string MemberNickName { get; set; }
+        public string MemberImgBase64 { get; set; }
 
-        
+
         public string CategoryName { get; set; }
         public string Comments { get; set; }
 

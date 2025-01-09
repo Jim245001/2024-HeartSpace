@@ -26,13 +26,45 @@ namespace HeartSpace.Controllers
 
         public ActionResult SearchPost(string keyword)
         {
+            // 從服務層獲取搜尋結果與推薦貼文
+            var posts = _postService.FindPostsByKeyword(keyword)
+                .Select(p => new PostCard
+                {
+                    Id = p.Id,
+                    Title = p.Title,
+                    PostContent = p.PostContent,
+                    PublishTime = p.PublishTime,
+                    PostImg = p.PostImg,
+                    MemberNickName = p.MemberNickName,
+                    MemberImg = p.MemberImgBase64,
+                    CategoryName = p.CategoryName
+                })
+                .ToList();
+
+            var recommendedPosts = _postService.GetRandomPosts(6)
+                .Select(p => new PostCard
+                {
+                    Id = p.Id,
+                    Title = p.Title,
+                    PostContent = p.PostContent,
+                    PublishTime = p.PublishTime,
+                    PostImg = p.PostImg,
+                    MemberNickName = p.MemberNickName,
+                    MemberImg = p.MemberImgBase64,
+                    CategoryName = p.CategoryName
+                })
+                .ToList();
+
+            // 建立 ViewModel
             var viewModel = new SearchPostViewModel
             {
-                CreatePostDtos = _postService.FindPostsByKeyword(keyword), // 搜尋結果
-                PostCards = _postService.GetRandomPosts(5) // 隨機顯示的貼文卡片
+                Posts = posts,
+                RecommendedPosts = recommendedPosts
             };
 
-            ViewBag.Keyword = keyword; // 傳遞搜尋關鍵字
+            // 傳遞搜尋關鍵字給前端
+            ViewBag.Keyword = keyword;
+
             return View(viewModel);
         }
 

@@ -26,6 +26,7 @@ public class HomeController : Controller
         // 分頁處理貼文資料
         var postsQuery = _context.Posts
             .Include(p => p.Member)
+
             .OrderByDescending(p => p.PublishTime)
             .Select(p => new PostCard // 將 PostViewModel 直接轉換成 PostCard
             {

@@ -174,8 +174,8 @@
     <Compile Include="Models\EFModels\PostComment.cs" />
     <Compile Include="Models\EFModels\Tag.cs" />
     <Compile Include="Models\HomePageViewModel.cs" />
+    <Compile Include="Models\SearchPostViewModel.cs" />
     <Compile Include="Models\ViewModels\EventStatusViewModel.cs" />
-    <Compile Include="Models\ViewModels\SearchPostViewModel.cs" />
     <Compile Include="Repositories\EventRepository.cs" />
     <Compile Include="Repositories\MemberRepository.cs" />
     <Compile Include="Repositories\ActivityRepository.cs" />

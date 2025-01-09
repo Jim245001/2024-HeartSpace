@@ -35,15 +35,16 @@ namespace HeartSpace.Models.Services
                 .Where(pm =>
                     (pm.post.Title != null && pm.post.Title.ToLower().Contains(keyword)) ||
                     (pm.member.NickName != null && pm.member.NickName.ToLower().Contains(keyword)))
-                 .AsEnumerable()
+                .AsEnumerable()
                 .Select(pm => new CreatePostDto
                 {
                     Id = pm.post.Id,
                     Title = pm.post.Title,
                     PostContent = pm.post.PostContent,
-                    PostImg = pm.post.PostImg.ToBase64String(),
+                    PostImg = pm.post.PostImg != null ? Convert.ToBase64String(pm.post.PostImg) : null,
                     PublishTime = pm.post.PublishTime,
                     MemberNickName = pm.member.NickName,
+                    MemberImgBase64 = pm.member.MemberImg != null ? Convert.ToBase64String(pm.member.MemberImg) : null,
                     CategoryName = _context.Categories
                         .Where(c => c.Id == pm.post.CategoryId)
                         .Select(c => c.CategoryName)
@@ -51,37 +52,68 @@ namespace HeartSpace.Models.Services
                     Disabled = pm.post.Disabled
                 }).ToList();
 
-
             return posts;
         }
        
+
+
+
         public IEnumerable<PostCard> GetRandomPosts(int count)
         {
             return _context.Posts
-                .OrderBy(p => Guid.NewGuid())
-                .Take(count)
-                .Select(post => new PostCard
-                {
-                    Id = post.Id,
-                    Title = post.Title,
-                    PostContent = post.PostContent.Length > 50 ? post.PostContent.Substring(0, 50) + "..." : post.PostContent,
-                    PublishTime = post.PublishTime
-                })
-                .ToList();
+       .Join(_context.Members,
+             post => post.MemberId,
+             member => member.Id,
+             (post, member) => new { post, member })
+       .OrderBy(pm => Guid.NewGuid())
+       .Take(count)
+       .AsEnumerable()
+       .Select(pm => new PostCard
+       {
+           Id = pm.post.Id,
+           Title = pm.post.Title,
+           PostContent = pm.post.PostContent.Length > 50
+               ? pm.post.PostContent.Substring(0, 50) + "..."
+               : pm.post.PostContent,
+           PublishTime = pm.post.PublishTime,
+           PostImg = pm.post.PostImg != null
+               ? $"data:image/png;base64,{Convert.ToBase64String(pm.post.PostImg)}"
+               : null,
+           MemberNickName = pm.member.NickName,
+           MemberImg = pm.member.MemberImg != null
+               ? $"data:image/png;base64,{Convert.ToBase64String(pm.member.MemberImg)}"
+               : null, // 轉換會員圖片為 Base64
+           CategoryName = _context.Categories
+               .Where(c => c.Id == pm.post.CategoryId)
+               .Select(c => c.CategoryName)
+               .FirstOrDefault()
+       })
+       .ToList();
         }
         public IEnumerable<CreatePostDto> GetAllPosts()
         {
-            var posts = _repository.GetAllPosts();
-            return posts.Select(p => new CreatePostDto
-            {
-                Id = p.Id,
-                Title = p.Title,
-                PostContent = p.PostContent,
-                CategoryId = p.CategoryId,
-                MemberId = p.MemberId,
-                PublishTime = p.PublishTime,
-                PostImg = p.PostImg != null ? Convert.ToBase64String(p.PostImg) : null // 將 byte[] 轉為 Base64
-            });
+            var posts = _context.Posts
+       .Join(_context.Members,
+             post => post.MemberId,
+             member => member.Id,
+             (post, member) => new { post, member })
+       .AsEnumerable()
+       .Select(pm => new CreatePostDto
+       {
+           Id = pm.post.Id,
+           Title = pm.post.Title,
+           PostContent = pm.post.PostContent,
+           PublishTime = pm.post.PublishTime,
+           PostImg = pm.post.PostImg != null ? Convert.ToBase64String(pm.post.PostImg) : null,
+           MemberNickName = pm.member.NickName,
+           MemberImgBase64 = pm.member.MemberImg != null ? Convert.ToBase64String(pm.member.MemberImg) : null,
+           CategoryName = _context.Categories
+               .Where(c => c.Id == pm.post.CategoryId)
+               .Select(c => c.CategoryName)
+               .FirstOrDefault()
+       }).ToList();
+
+            return posts;
         }
 
         
@@ -89,18 +121,32 @@ namespace HeartSpace.Models.Services
 
         public CreatePostDto GetPostById(int id)
         {
-            var post = _repository.GetPostById(id);
-            if (post == null) return null;
+            var postWithMember = _context.Posts
+       .Join(_context.Members,
+             post => post.MemberId,
+             member => member.Id,
+             (post, member) => new { Post = post, Member = member })
+       .FirstOrDefault(pm => pm.Post.Id == id);
+
+            if (postWithMember == null) return null;
 
             return new CreatePostDto
             {
-                Id = post.Id,
-                Title = post.Title,
-                PostContent = post.PostContent,
-                CategoryId = post.CategoryId,
-                MemberId = post.MemberId,
-                PublishTime = post.PublishTime,
-                PostImg = post.PostImg != null ? Convert.ToBase64String(post.PostImg) : null, // 將 byte[] 轉為 Base64
+                Id = postWithMember.Post.Id,
+                Title = postWithMember.Post.Title,
+                PostContent = postWithMember.Post.PostContent,
+                PublishTime = postWithMember.Post.PublishTime,
+                PostImg = postWithMember.Post.PostImg != null
+                    ? Convert.ToBase64String(postWithMember.Post.PostImg)
+                    : null,
+                MemberNickName = postWithMember.Member.NickName,
+                MemberImgBase64 = postWithMember.Member.MemberImg != null
+                    ? Convert.ToBase64String(postWithMember.Member.MemberImg)
+                    : null,
+                CategoryName = _context.Categories
+                    .Where(c => c.Id == postWithMember.Post.CategoryId)
+                    .Select(c => c.CategoryName)
+                    .FirstOrDefault()
             };
         }
 
