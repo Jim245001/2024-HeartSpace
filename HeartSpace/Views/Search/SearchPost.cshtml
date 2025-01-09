@@ -1,55 +1,71 @@
-﻿@{
+﻿@model HeartSpace.Models.ViewModels.SearchPostViewModel
+
+@{
     ViewData["Title"] = "搜尋貼文";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="container mt-4">
-    <!-- 搜尋區域 -->
-    <div class="row mb-4">
-        <div class="align-items-center">
-            <div class="input-group">
-                <input type="text" class="form-control" placeholder="請輸入搜尋關鍵字">
-                <button class="btn btn-primary">搜尋</button>
-            </div>
+    <h1 class="mb-4">搜尋貼文</h1>
+
+     搜尋表單 
+    <form action="@Url.Action("SearchPost", "Search")" method="get" class="mb-4">
+        <div class="input-group">
+            <input type="text" id="searchKeyword" class="form-control" name="keyword" placeholder="請輸入搜尋關鍵字" value="@ViewBag.Keyword" required>
+            <button type="submit" class="btn btn-primary">搜尋</button>
         </div>
-    </div>
+    </form>
 
+     搜尋結果 
+    @if (Model.CreatePostDtos != null && Model.CreatePostDtos.Any())
+    {
+        <div class="alert alert-success text-center">
+            搜尋結果：找到符合「<strong>@ViewBag.Keyword</strong>」的貼文！
+        </div>
 
-
-    <!-- 貼文資訊卡 -->
-    @model IEnumerable<HeartSpace.Models.PostCard>
-
-    @{
-        ViewData["Title"] = "搜尋貼文";
+        <div class="row">
+            @foreach (var post in Model.CreatePostDtos)
+            {
+                <div class="col-md-4 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">@post.Title</h5>
+                            <p class="card-text">@post.PostContent</p>
+                            <p class="text-muted">@post.PublishTime.ToString("yyyy-MM-dd")</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning text-center">
+            找不到符合「<strong>@ViewBag.Keyword</strong>」的貼文！
+        </div>
     }
 
-    <div class="container mt-4">
-        <h1 class="mb-4">搜尋貼文</h1>
-
-        <!-- 搜尋表單 -->
-        <form action="@Url.Action("SearchPosts", "Post")" method="get" class="mb-4">
-            <div class="input-group">
-                <input type="text" class="form-control" name="keyword" placeholder="請輸入搜尋關鍵字" value="@ViewBag.Keyword" />
-                <button type="submit" class="btn btn-primary">搜尋</button>
-            </div>
-        </form>
-
-        <!-- 搜尋結果 -->
-        @if (Model != null && Model.Any())
-        {
-            <div class="row">
-                @foreach (var postCard in Model)
-                {
-                    <div class="col-md-4 mb-4">
-                        @Html.Partial("_PostCard", postCard)
+     隨機推薦貼文 
+    <h3 class="mt-5">隨機推薦貼文</h3>
+    @if (Model.PostCards != null && Model.PostCards.Any())
+    {
+        <div class="row">
+            @foreach (var card in Model.PostCards)
+            {
+                <div class="col-md-4 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">@card.Title</h5>
+                            <p class="card-text">@card.Summary</p>
+                            <p class="text-muted">@card.PublishTime.ToString("yyyy-MM-dd")</p>
+                        </div>
                     </div>
-                }
-            </div>
-        }
-        else
-        {
-            <p class="text-muted">目前沒有符合的貼文。</p>
-        }
-    </div>
-
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="text-center text-muted">目前沒有推薦貼文。</p>
+    }
 </div>

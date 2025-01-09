@@ -18,6 +18,8 @@ namespace HeartSpace.Models.DTOs
         [Display(Name = "內文")]
         public string PostContent { get; set; }
         public string PostImg { get; set; } // 圖片的 Base64 編碼
+        //public string Base64Image => PostImg != null ? $"data:image/png;base64,{Convert.ToBase64String(PostImg)}" : null; // 直接轉換為 Base64 字串
+
         public bool Disabled { get; set; }
 
 
@@ -25,6 +27,9 @@ namespace HeartSpace.Models.DTOs
         [Display(Name = "分類")]
         public int CategoryId { get; set; }
         public int MemberId { get; set; }
+        public string MemberNickName { get; set; }
+
+        
         public string CategoryName { get; set; }
         public string Comments { get; set; }
 

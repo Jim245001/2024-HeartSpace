@@ -35,21 +35,13 @@
                             {
                                 <div class="col-6">
                                     <a href="@Url.Action("PostDetails", "Post", new { id = post.Id })" class="text-decoration-none">
-                                        <!-- 使整個卡片成為鏈接 -->
-                                        <div class="card border-0 shadow-sm d-flex align-items-center justify-content-center" style="height: 300px;">
-                                            @Html.Raw(new PostCard(
-                                                post.Title,
-                                                post.MemberNickName,
-                                                post.PostContent,
-                                                post.PublishTime,
-                                                post.PostImg,
-                                                post.MemberImgBase64
-                                            ).RenderHtml())
-                                        </div>
+                                        @Html.Partial("_PostCard", post)
                                     </a>
                                 </div>
                             }
                         </div>
+
+
                     </div>
 
                     <!-- 貼文版分頁導航 -->
