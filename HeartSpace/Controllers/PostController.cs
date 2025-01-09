@@ -255,7 +255,6 @@ namespace HeartSpace.Controllers
                 TempData["ErrorMessage"] = "刪除失敗：" + ex.Message;
             }
 
-            // 返回貼文詳細頁
             return RedirectToAction("PostDetails", new { id = GetPostIdByCommentId(commentId) });
         }
 
