@@ -165,7 +165,7 @@
     <Compile Include="Controllers\PostController.cs" />
     <Compile Include="Controllers\ProfileController.cs" />
     <Compile Include="Controllers\SearchController.cs" />
-    <Compile Include="Helpers\ImageHelper.cs" />
+    <Compile Include="DTOs\Services\Interfaces\IPostService.cs" />
     <Compile Include="Helpers\PaginatedLis.cs" />
     <Compile Include="Models\EFModels\AppDbContext.cs" />
     <Compile Include="Models\EFModels\Category.cs" />
@@ -175,7 +175,9 @@
     <Compile Include="Models\EFModels\Member.cs" />
     <Compile Include="Models\EFModels\Post.cs" />
     <Compile Include="Models\EFModels\PostComment.cs" />
+    <Compile Include="Models\EFModels\Tag.cs" />
     <Compile Include="Models\HomePageViewModel.cs" />
+    <Compile Include="Models\SearchPostViewModel.cs" />
     <Compile Include="Models\ViewModels\EventStatusViewModel.cs" />
     <Compile Include="Repositories\EventRepository.cs" />
     <Compile Include="Repositories\MemberRepository.cs" />
@@ -276,13 +278,20 @@
     <Content Include="Views\Event\CreateEvent.cshtml" />
     <Content Include="Views\Event\EventDetail.cshtml" />
     <Content Include="Views\Event\EditEvent.cshtml" />
-    <Content Include="Views\Post\CreatePost.cshtml" />
+    <Content Include="Views\Post\EditPost.cshtml" />
+    <Content Include="Views\Post\PostDetails.cshtml" />
+    <Content Include="Views\Profile\EditProfile.cshtml" />
     <Content Include="Views\Post\EditPost.cshtml" />
     <Content Include="Views\Post\PostDetails.cshtml" />
     <Content Include="Views\Event\EventStatus.cshtml" />
+    <Content Include="Views\Post\CreatePost.cshtml" />
+    <Content Include="Views\Search\SearchEvent.cshtml" />
+    <Content Include="Views\Search\SearchPost.cshtml" />
+    <Content Include="Views\Shared\_PostCard.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Image\" />
     <Folder Include="Views\Default\" />
     <Folder Include="Views\Image\" />
   </ItemGroup>

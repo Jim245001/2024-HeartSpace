@@ -1,60 +1,85 @@
-﻿@{
+﻿@model HeartSpace.Models.SearchPostViewModel
+
+@{
     ViewData["Title"] = "搜尋貼文";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<style>
+    .container-fluid {
+        max-width: 100%;
+        padding: 0 15px;
+    }
+
+    .row {
+        margin: 0 auto;
+    }
+
+    .card {
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.15);
+        }
+
+</style>
 <div class="container mt-4">
-    <!-- 搜尋區域 -->
-    <div class="row mb-4">
-        <div class="align-items-center">
-            <div class="input-group">
-                <input type="text" class="form-control" placeholder="請輸入搜尋關鍵字">
-                <button class="btn btn-primary">搜尋</button>
-            </div>
-        </div>
-    </div>
+    <h1 class="mb-4">搜尋貼文</h1>
 
-    <!-- 貼文資訊卡 -->
-    <div class="card p-4" style="border: 2px solid purple;">
+    <!-- 搜尋表單 -->
+    <form action="@Url.Action("SearchPost", "Search")" method="get" class="mb-4">
+        <div class="input-group">
+            <input type="text" id="searchKeyword" class="form-control" name="keyword" placeholder="請輸入搜尋關鍵字" value="@ViewBag.Keyword" required>
+            <button type="submit" class="btn btn-primary">搜尋</button>
+        </div>
+    </form>
+
+
+    <!-- 搜尋結果 -->
+    @if (ViewBag.Keyword != null)
+    {
+        if (Model.Posts != null && Model.Posts.Any())
+        {
+            <div class="alert alert-success text-center">
+                搜尋結果：找到符合「<strong>@ViewBag.Keyword</strong>」的貼文！
+            </div>
+
+            <div class="row">
+                @foreach (var post in Model.Posts)
+                {
+                    <div class="col-md-6 mb-4">
+                        @Html.Partial("_PostCard", post)
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning text-center">
+                找不到符合「<strong>@ViewBag.Keyword</strong>」的貼文！
+            </div>
+        }
+    }
+
+
+    <!-- 隨機推薦貼文 -->
+    <h3 class="mt-5">推薦貼文</h3>
+    @if (Model.RecommendedPosts != null && Model.RecommendedPosts.Any())
+    {
         <div class="row">
-            <!-- 左側區塊 -->
-            <div class="col-md-4 text-center">
-                <img src="https://via.placeholder.com/150" alt="貼文圖片" class="img-fluid rounded mb-3">
-                <h5 class="fw-bold">貼文標題</h5>
-                <div class="d-flex align-items-center justify-content-center">
-                    <img src="https://via.placeholder.com/50" alt="原PO頭像" class="rounded-circle me-2">
-                    <span>原PO ID</span>
+            @foreach (var card in Model.RecommendedPosts)
+            {
+                <div class="col-md-4 mb-3">
+                    @Html.Partial("_PostCard", card)
                 </div>
-            </div>
-
-            <!-- 右側區塊 -->
-            <div class="col-md-8">
-                <div class="row mb-2">
-                    <div>
-                        <strong>發布時間：</strong>
-                        <span>2025/01/01 12:00</span>
-                    </div>
-
-                </div>
-                <div class="row mb-2">
-                    <div class="col-6">
-                        <strong>分類：</strong>
-                        <span>技術</span>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <strong>貼文內容：</strong>
-                    <p>這是一篇關於程式設計技巧的分享文章，適合初學者和進階開發者閱讀。這是一篇關於程式設計技巧的分享文章，適合初學者和進階開發者閱讀。這是一篇關於程式設計技巧的分享文章，適合初學者和進階開發者閱讀。這是一篇關於程式設計技巧的分享文章，適合初學者和進階開發者閱讀。這是一篇關於程式設計技巧的分享文章，適合初學者和進階開發者閱讀。</p>
-                </div>
-                <!-- 標籤區域 -->
-                <div>
-                    <strong>標籤：</strong>
-                    <span class="badge bg-secondary me-1">#程式設計</span>
-                    <span class="badge bg-secondary me-1">#技術分享</span>
-                    <span class="badge bg-secondary me-1">#學習</span>
-                    <span class="badge bg-secondary me-1">#生活</span>
-                </div>
-            </div>
+            }
         </div>
-    </div>
+    }
+    else
+    {
+        <p class="text-center text-muted">目前沒有推薦貼文。</p>
+    }
 </div>

@@ -1,53 +1,146 @@
-﻿using HeartSpace.Helpers;
+﻿using HeartSpace.DTOs.Services.Interfaces;
+using HeartSpace.Helpers;
 using HeartSpace.Models.DTOs;
 using HeartSpace.Models.EFModels;
 using HeartSpace.Models.Repositories;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
 namespace HeartSpace.Models.Services
 {
-    public class PostService
+    public class PostService : IPostService
     {
         private readonly PostEFRepository _repository;
 
-        public PostService(PostEFRepository repository)
+        private readonly AppDbContext _context;
+
+        public PostService(PostEFRepository repository, AppDbContext context)
         {
-            _repository = repository;
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
+        public IEnumerable<CreatePostDto> FindPostsByKeyword(string keyword, int pageIndex, int pageSize)
+        {
+            var categoryDictionary = _context.Categories
+        .ToDictionary(c => c.Id, c => c.CategoryName);
+
+            var pagedPosts = _context.Posts
+                .Join(_context.Members,
+                      post => post.MemberId,
+                      member => member.Id,
+                      (post, member) => new { post, member })
+                .Where(pm =>
+                    (pm.post.Title != null && pm.post.Title.ToLower().Contains(keyword)) ||
+                    (pm.member.NickName != null && pm.member.NickName.ToLower().Contains(keyword)))
+                .OrderBy(pm => pm.post.PublishTime)
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            return pagedPosts.Select(pm => new CreatePostDto
+            {
+                Id = pm.post.Id,
+                Title = pm.post.Title,
+                PostContent = pm.post.PostContent,
+                PostImg = pm.post.PostImg,
+                PublishTime = pm.post.PublishTime,
+                MemberNickName = pm.member.NickName,
+                MemberImg = pm.member.MemberImg,
+                CategoryName = categoryDictionary.ContainsKey(pm.post.CategoryId)
+                    ? categoryDictionary[pm.post.CategoryId]
+                    : null,
+                Disabled = pm.post.Disabled
+            }).ToList();
+        }
+
+
+
+
+
+        public IEnumerable<PostCard> GetRandomPosts(int count)
+        {
+            return _context.Posts
+       .Join(_context.Members,
+             post => post.MemberId,
+             member => member.Id,
+             (post, member) => new { post, member })
+       .OrderBy(pm => Guid.NewGuid())
+       .Take(count)
+       .AsEnumerable()
+       .Select(pm => new PostCard
+       {
+           Id = pm.post.Id,
+           Title = pm.post.Title,
+           PostContent = pm.post.PostContent.Length > 50
+               ? pm.post.PostContent.Substring(0, 50) + "..."
+               : pm.post.PostContent,
+           PublishTime = pm.post.PublishTime,
+           PostImg = pm.post.PostImg,
+           MemberNickName = pm.member.NickName,
+           MemberImg = pm.member.MemberImg, 
+           CategoryName = _context.Categories
+               .Where(c => c.Id == pm.post.CategoryId)
+               .Select(c => c.CategoryName)
+               .FirstOrDefault()
+       })
+       .ToList();
+        }
         public IEnumerable<CreatePostDto> GetAllPosts()
         {
-            var posts = _repository.GetAllPosts();
-            return posts.Select(p => new CreatePostDto
-            {
-                Id = p.Id,
-                Title = p.Title,
-                PostContent = p.PostContent,
-                CategoryId = p.CategoryId,
-                MemberId = p.MemberId,
-                PublishTime = p.PublishTime,
-                PostImg = p.PostImg != null ? Convert.ToBase64String(p.PostImg) : null // 將 byte[] 轉為 Base64
-            });
+            var posts = _context.Posts
+       .Join(_context.Members,
+             post => post.MemberId,
+             member => member.Id,
+             (post, member) => new { post, member })
+       .AsEnumerable()
+       .Select(pm => new CreatePostDto
+       {
+           Id = pm.post.Id,
+           Title = pm.post.Title,
+           PostContent = pm.post.PostContent,
+           PublishTime = pm.post.PublishTime,
+           PostImg = pm.post.PostImg,
+           CategoryName = _context.Categories
+               .Where(c => c.Id == pm.post.CategoryId)
+               .Select(c => c.CategoryName)
+               .FirstOrDefault()
+       }).ToList();
+
+            return posts;
         }
+
+        
+
 
         public CreatePostDto GetPostById(int id)
         {
-            var post = _repository.GetPostById(id);
-            if (post == null) return null;
+            var postWithMember = _context.Posts
+       .Join(_context.Members,
+             post => post.MemberId,
+             member => member.Id,
+             (post, member) => new { Post = post, Member = member })
+       .FirstOrDefault(pm => pm.Post.Id == id);
+
+            if (postWithMember == null) return null;
 
             return new CreatePostDto
             {
-                Id = post.Id,
-                Title = post.Title,
-                PostContent = post.PostContent,
-                CategoryId = post.CategoryId,
-                MemberId = post.MemberId,
-                PublishTime = post.PublishTime,
-                PostImg = post.PostImg != null ? Convert.ToBase64String(post.PostImg) : null, // 將 byte[] 轉為 Base64
+                Id = postWithMember.Post.Id,
+                Title = postWithMember.Post.Title,
+                PostContent = postWithMember.Post.PostContent,
+                PublishTime = postWithMember.Post.PublishTime,
+                PostImg = postWithMember.Post.PostImg,
+                MemberNickName = postWithMember.Member.NickName,
+                MemberImg = postWithMember.Member.MemberImg,
+                CategoryName = _context.Categories
+                    .Where(c => c.Id == postWithMember.Post.CategoryId)
+                    .Select(c => c.CategoryName)
+                    .FirstOrDefault()
             };
         }
 
@@ -57,7 +150,7 @@ namespace HeartSpace.Models.Services
             {
                 Title = dto.Title,
                 PostContent = dto.PostContent,
-                PostImg = dto.PostImg != null ? Convert.FromBase64String(dto.PostImg) : null, // 儲存圖片
+                PostImg = dto.PostImg, 
                 PublishTime = dto.PublishTime,
                 CategoryId = dto.CategoryId,
                 MemberId = dto.MemberId
@@ -85,7 +178,7 @@ namespace HeartSpace.Models.Services
             // 如果有新圖片，更新圖片
             if (!string.IsNullOrEmpty(dto.PostImg))
             {
-                post.PostImg = Convert.FromBase64String(dto.PostImg);
+                post.PostImg = dto.PostImg;
             }
 
             _repository.UpdatePost(post);

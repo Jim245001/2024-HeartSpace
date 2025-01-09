@@ -18,7 +18,7 @@ namespace HeartSpace.Models
         [StringLength(500, ErrorMessage = "內文最多 500 字")]
         public string PostContent { get; set; }
 
-        public string PostImg { get; set; } // 貼文封面圖 Base64 格式
+        public string PostImg { get; set; } 
 
         public DateTime PublishTime { get; set; }
         public bool Disabled { get; set; }
@@ -26,9 +26,15 @@ namespace HeartSpace.Models
 
         public int MemberId { get; set; }
 
-        public string MemberName { get; set; } // 原PO名稱
+        public string MemberNickName { get; set; } // 原PO暱稱
 
-        public string MemberImg { get; set; } // 原PO頭像 Base64 格式
+
+        public string MemberImg { get; set; } 
+        
+
+
+
+
 
         [Required(ErrorMessage = "請選擇分類")]
         [Display(Name = "分類")]
@@ -47,11 +53,15 @@ namespace HeartSpace.Models
         public int PostId { get; set; }
         public int CommentId { get; set; }
         public int UserId { get; set; }
-        public string UserName { get; set; }
+        public string UserNickName { get; set; }
+
         public string UserImg { get; set; }
         public string Comment { get; set; }
         public DateTime CommentTime { get; set; }
         public int FloorNumber { get; set; } // 樓層編號
+
+        public bool Disabled { get; set; } // 是否被刪除
+
     }
 
 

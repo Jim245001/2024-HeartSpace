@@ -1,7 +1,11 @@
-﻿using HeartSpace.Models.Repositories;
+﻿using HeartSpace.DTOs.Services.Interfaces;
+using HeartSpace.Models.EFModels;
+using HeartSpace.Models.Repositories;
 using HeartSpace.Models.Services;
+using System.ComponentModel;
 using System.Web.Mvc;
 using Unity;
+using Unity.Injection;
 using Unity.Mvc5;
 
 namespace HeartSpace.App_Start
@@ -13,15 +17,17 @@ namespace HeartSpace.App_Start
 
         public static void RegisterComponents()
         {
+            // 註冊 AppDbContext
+            //Container.RegisterType<AppDbContext>(new InjectionConstructor("name=AppDbContext"));
+
             // 初始化容器
             Container = new UnityContainer();
 
             // 註冊 Repository 和 Service
-            Container.RegisterType<PostEFRepository>();
-            Container.RegisterType<PostService>();
+            Container.RegisterType<IPostService, PostService>();
 
-            // 設定 MVC 的解析器
-            DependencyResolver.SetResolver(new UnityDependencyResolver(Container));
+            // 設置 DependencyResolver
+            System.Web.Mvc.DependencyResolver.SetResolver(new UnityDependencyResolver(Container));
         }
     }
 }

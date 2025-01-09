@@ -17,7 +17,10 @@ namespace HeartSpace.Models.DTOs
         [Required(ErrorMessage = " 請輸入內文！")]
         [Display(Name = "內文")]
         public string PostContent { get; set; }
-        public string PostImg { get; set; } // 圖片的 Base64 編碼
+        public string PostImg { get; set; } 
+        public string OldPostImg { get; set; } // 舊圖片的路徑
+
+
         public bool Disabled { get; set; }
 
 
@@ -25,6 +28,10 @@ namespace HeartSpace.Models.DTOs
         [Display(Name = "分類")]
         public int CategoryId { get; set; }
         public int MemberId { get; set; }
+        public string MemberNickName { get; set; }
+        public string MemberImg { get; set; }
+
+
         public string CategoryName { get; set; }
         public string Comments { get; set; }
 
