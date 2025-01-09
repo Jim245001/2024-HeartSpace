@@ -49,7 +49,7 @@ public class HomeController : Controller
 				Location = e.Location,
 				EventTime = e.EventTime,
 				MemberName = e.Member != null ? e.Member.Name : "未知主辦者",
-				Img = e.EventImg
+				EventImg = e.EventImg
 			});
 
 		var paginatedEvents = PaginatedList<EventViewModel>.Create(eventsQuery, eventPage, pageSize);

@@ -30,12 +30,16 @@ namespace HeartSpace.BLL
 
 		public Event GetEventById(int id)
 		{
-			return _eventRepository.GetEventById(id);
+			var eventResult = _eventRepository.GetEventById(id);
+
+
+			return eventResult;
+
 		}
 
-		public void AddEvent(Event newEvent)
+		public int AddEvent(Event newEvent)
 		{
-			_eventRepository.AddEvent(newEvent);
+			return _eventRepository.AddEvent(newEvent);
 		}
 
 		public void UpdateEvent(Event updatedEvent)
@@ -48,39 +52,12 @@ namespace HeartSpace.BLL
 			_eventRepository.DeleteEvent(id);
 		}
 
-		// ：取得所有分類
+		// 取得所有分類
 		public IEnumerable<Category> GetCategories()
 		{
 			return _eventRepository.GetCategories();
 		}
 
-		// 取得指定活動的所有評論
-		public IEnumerable<EventComment> GetEventComments(int eventId)
-		{
-			//return _eventRepository.GetEventComments(eventId);
-
-			var comments = _eventRepository.GetEventComments(eventId);
-
-			// 加入檢查輸出
-			foreach (var comment in comments)
-			{
-				Console.WriteLine($"CommentId: {comment.Id}, MemberId: {comment.MemberId}, MemberName: {comment.Member?.Name ?? "未加載"}");
-			}
-
-			return comments;
-		}
-
-		// 新增評論
-		public void AddComment(EventComment comment)
-		{
-			_eventRepository.AddComment(comment);
-		}
-
-		// 刪除評論
-		public void RemoveComment(EventComment comment)
-		{
-			_eventRepository.RemoveComment(comment);
-		}
 
 		// 檢查是否為活動擁有者
 		public bool IsEventOwner(int eventId, int memberId)
@@ -112,6 +89,63 @@ namespace HeartSpace.BLL
 			return _eventRepository.GetParticipantCount(eventId);
 		}
 
+
+		// 取得指定活動的所有評論
+		public IEnumerable<EventComment> GetEventComments(int eventId)
+		{
+			var comments = _eventRepository.GetEventComments(eventId);
+			return comments ?? Enumerable.Empty<EventComment>();
+		}
+
+
+		// 新增評論
+		public void AddComment(EventComment comment)
+		{
+			if (comment == null)
+			{
+				throw new ArgumentNullException(nameof(comment), "評論資料不能為空。");
+			}
+
+			if (!_eventRepository.EventExists(comment.EventId))
+			{
+				throw new Exception("指定的活動不存在，無法新增評論。");
+			}
+
+			_eventRepository.AddComment(comment);
+		}
+
+
+		// 刪除評論
+		public void RemoveComment(EventComment comment)
+		{
+			if (comment == null)
+			{
+				throw new ArgumentNullException(nameof(comment), "要刪除的評論不能為空。");
+			}
+
+			_eventRepository.RemoveComment(comment);
+		}
+
+
+		// 檢查是否為留言者本人
+		public bool IsCommentOwner(int commentId, int memberId)
+		{
+			return _eventRepository.IsCommentOwner(commentId, memberId);
+		}
+
+		// 更新評論
+		public void UpdateComment(EventComment updatedComment)
+		{
+			if (updatedComment == null)
+			{
+				throw new ArgumentNullException(nameof(updatedComment), "更新的評論資料不能為空。");
+			}
+
+			_eventRepository.UpdateComment(updatedComment);
+		}
+
+
+		//檢視揪團
 		public EventViewModel GetEventWithDetails(int id)
 		{
 			using (var context = new AppDbContext())
@@ -147,46 +181,6 @@ namespace HeartSpace.BLL
 					CategoryName = eventItem.Category?.CategoryName, // 直接訪問 Category
 					Disabled = eventItem.Disabled
 				};
-			}
-		}
-
-		// 檢查是否為留言者本人
-		public bool IsCommentOwner(int commentId, int memberId)
-		{
-			using (var context = new AppDbContext())
-			{
-				// 從資料庫中查詢指定的留言
-				var comment = context.EventComments.FirstOrDefault(c => c.Id == commentId);
-
-				// 如果留言不存在，返回 false
-				if (comment == null)
-				{
-					return false;
-				}
-
-				// 判斷該留言的 MemberId 是否等於當前用戶的 MemberId
-				return comment.MemberId == memberId;
-			}
-		}
-
-		public void UpdateComment(EventComment updatedComment)
-		{
-			using (var context = new AppDbContext())
-			{
-				// 查找需要更新的留言
-				var existingComment = context.EventComments.FirstOrDefault(c => c.Id == updatedComment.Id);
-				if (existingComment != null)
-				{
-					// 更新內容
-					existingComment.EventCommentContent = updatedComment.EventCommentContent;
-
-					// 保存更改
-					context.SaveChanges();
-				}
-				else
-				{
-					throw new Exception("找不到該留言，無法更新。");
-				}
 			}
 		}
 

@@ -39,7 +39,7 @@ namespace HeartSpace.Models.EFModels
 
 		public bool IsOnline { get; set; }
 
-		public int? ParticipantMax { get; set; }
+		public int ParticipantMax { get; set; }
 
 		public int ParticipantMin { get; set; }
 

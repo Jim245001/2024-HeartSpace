@@ -9,6 +9,7 @@ using HeartSpace.Models;
 using System.Data.Entity;
 using HeartSpace.Models.EFModels;
 using HeartSpace.DTOs;
+using System.Globalization;
 
 namespace HeartSpace.DAL
 {
@@ -30,6 +31,17 @@ namespace HeartSpace.DAL
 			return new SqlConnection(_connectionString);
 		}
 
+		//是否為活動的擁有者
+		public bool IsEventOwner(int eventId, int memberId)
+		{
+			using (var context = new AppDbContext())
+			{
+				// 確認活動是否存在，並且該活動的 MemberId 與傳入的 memberId 相符
+				return context.Events.Any(e => e.Id == eventId && e.MemberId == memberId);
+			}
+		}
+
+
 		// 獲取所有活動
 		public List<Event> GetAllEvents()
 		{
@@ -46,21 +58,45 @@ namespace HeartSpace.DAL
 			using (var connection = CreateConnection())
 			{
 				const string sql = "SELECT * FROM Events WHERE Id = @Id";
-				return connection.QueryFirstOrDefault<Event>(sql, new { Id = id });
+				var eventResult = connection.QueryFirstOrDefault<Event>(sql, new { Id = id });
+
+
+				return eventResult;
+
 			}
 		}
 
 		// 新增活動
-		public void AddEvent(Event newEvent)
+		public int AddEvent(Event newEvent)
 		{
 			using (var connection = CreateConnection())
 			{
 				const string sql = @"
-					INSERT INTO Events (EventName, MemberId, img, CategoryId, Description, EventTime, Location, IsOnline, ParticipantMax, ParticipantMin, Limit, DeadLine, CommentCount, ParticipantNow)
-					VALUES (@EventName, @MemberId, @img, @CategoryId, @Description, @EventTime, @Location, @IsOnline, @ParticipantMax, @ParticipantMin, @Limit, @DeadLine, @CommentCount, @ParticipantNow)";
-				connection.Execute(sql, newEvent);
+INSERT INTO Events (EventName, MemberId, EventImg, CategoryId, Description, EventTime, Location, IsOnline, ParticipantMax, ParticipantMin, Limit, DeadLine, CommentCount, ParticipantNow, Disabled)
+OUTPUT INSERTED.Id
+VALUES (@EventName, @MemberId, @EventImg, @CategoryId, @Description, @EventTime, @Location, @IsOnline, @ParticipantMax, @ParticipantMin, @Limit, @DeadLine, @CommentCount, @ParticipantNow, @Disabled)";
+
+				var parameters = new DynamicParameters();
+				parameters.Add("@EventName", newEvent.EventName, DbType.String);
+				parameters.Add("@MemberId", newEvent.MemberId, DbType.Int32);
+				parameters.Add("@EventImg", newEvent.EventImg ?? (object)DBNull.Value, DbType.Binary); // 確保是二進位資料
+				parameters.Add("@CategoryId", newEvent.CategoryId, DbType.Int32);
+				parameters.Add("@Description", newEvent.Description, DbType.String);
+				parameters.Add("@EventTime", newEvent.EventTime, DbType.DateTime);
+				parameters.Add("@Location", newEvent.Location, DbType.String);
+				parameters.Add("@IsOnline", newEvent.IsOnline, DbType.Boolean);
+				parameters.Add("@ParticipantMax", newEvent.ParticipantMax, DbType.Int32);
+				parameters.Add("@ParticipantMin", newEvent.ParticipantMin, DbType.Int32);
+				parameters.Add("@Limit", newEvent.Limit, DbType.String);
+				parameters.Add("@DeadLine", newEvent.DeadLine, DbType.DateTime);
+				parameters.Add("@CommentCount", newEvent.CommentCount, DbType.Int32);
+				parameters.Add("@ParticipantNow", newEvent.ParticipantNow, DbType.Int32);
+				parameters.Add("@Disabled", newEvent.Disabled, DbType.Boolean);
+
+				return connection.QuerySingle<int>(sql, parameters);
 			}
 		}
+
 
 		// 更新活動
 		public void UpdateEvent(Event updatedEvent)
@@ -69,7 +105,7 @@ namespace HeartSpace.DAL
 			{
 				const string sql = @"
 					UPDATE Events
-					SET EventName = @EventName, MemberId = @MemberId, img = @img, CategoryId = @CategoryId, Description = @Description, EventTime = @EventTime,
+					SET EventName = @EventName, MemberId = @MemberId, EventImg = @EventImg, CategoryId = @CategoryId, Description = @Description, EventTime = @EventTime,
 						Location = @Location, IsOnline = @IsOnline, ParticipantMax = @ParticipantMax, ParticipantMin = @ParticipantMin,
 						Limit = @Limit, DeadLine = @DeadLine, CommentCount = @CommentCount, ParticipantNow = @ParticipantNow
 					WHERE Id = @Id";
@@ -102,44 +138,73 @@ namespace HeartSpace.DAL
 		{
 			using (var context = new AppDbContext())
 			{
+				// 載入指定活動的所有評論，包含 Member 資料
 				return context.EventComments
-					.Include(ec => ec.Member) // 確保加載 Member 資料
+					.Include(ec => ec.Member) // 確保關聯載入
 					.Where(ec => ec.EventId == eventId)
 					.ToList();
 			}
 		}
 
+		public bool EventExists(int eventId)
+		{
+			using (var context = new AppDbContext())
+			{
+				return context.Events.Any(e => e.Id == eventId);
+			}
+		}
+
+
+
 
 		// 新增評論資料到資料庫
 		public void AddComment(EventComment comment)
 		{
-			using (var connection = CreateConnection())
+			using (var context = new AppDbContext())
 			{
-				const string query = @"INSERT INTO EventComments (EventId, MemberId, EventCommentContent, CommentTime)
-										VALUES (@EventId, @MemberId, @EventCommentContent, @CommentTime)";
-				connection.Execute(query, comment);
+				context.EventComments.Add(comment);
+				context.SaveChanges();
 			}
 		}
 
 		// 刪除指定的評論
 		public void RemoveComment(EventComment comment)
 		{
-			using (var connection = CreateConnection())
+			using (var context = new AppDbContext())
 			{
-				const string query = "DELETE FROM EventComments WHERE Id = @Id";
-				connection.Execute(query, new { Id = comment.Id });
+				context.EventComments.Remove(comment);
+				context.SaveChanges();
 			}
 		}
 
+
 		// 確認指定會員是否為活動的擁有者
-		public bool IsEventOwner(int eventId, int memberId)
+		public bool IsCommentOwner(int commentId, int memberId)
 		{
-			using (var connection = CreateConnection())
+			using (var context = new AppDbContext())
 			{
-				const string query = "SELECT COUNT(1) FROM Events WHERE Id = @EventId AND MemberId = @MemberId";
-				return connection.ExecuteScalar<bool>(query, new { EventId = eventId, MemberId = memberId });
+				return context.EventComments.Any(c => c.Id == commentId && c.MemberId == memberId);
 			}
 		}
+
+		// 更新指定的評論
+		public void UpdateComment(EventComment updatedComment)
+		{
+			using (var context = new AppDbContext())
+			{
+				var existingComment = context.EventComments.FirstOrDefault(c => c.Id == updatedComment.Id);
+				if (existingComment != null)
+				{
+					existingComment.EventCommentContent = updatedComment.EventCommentContent;
+					context.SaveChanges();
+				}
+				else
+				{
+					throw new Exception("找不到該留言，無法更新。");
+				}
+			}
+		}
+
 
 		// 檢查會員是否已報名指定活動
 		public bool IsMemberRegistered(int eventId, int memberId)
@@ -172,7 +237,7 @@ namespace HeartSpace.DAL
 			}
 		}
 
-		// 獲取指定活動的參與人數（包含發起人）
+		// 獲取活動的參與人數（包含發起人）
 		public int GetParticipantCount(int eventId)
 		{
 			using (var connection = CreateConnection())
@@ -182,6 +247,7 @@ namespace HeartSpace.DAL
 			}
 		}
 
+		// 報名狀況頁
 		public EventWithParticipantsDto GetEventWithParticipants(int eventId)
 		{
 			using (var connection = new SqlConnection(_connectionString))

@@ -1,39 +1,146 @@
 ﻿@model HeartSpace.Models.ViewModels.EventViewModel
 
-<div class="container mt-5">
-    <div style="font-family: 'Roboto', sans-serif; background-color: #e0e0e0; padding: 15px; border-radius: 10px; text-align: center; font-weight: bold; width: 60%; margin: 20px auto; font-size: 1.5rem;">
-        建立揪團
-    </div>
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="utf-8" />
+    <title>建立揪團</title>
+    <!-- 引入 Bootstrap 和其他資源 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
-    @using (Html.BeginForm("CreateEvent", "Event", FormMethod.Post, new { enctype = "multipart/form-data", @class = "mx-auto", style = "max-width: 600px;" }))
-    {
-        @Html.AntiForgeryToken()
+    <style>
+        .outerbox {
+            width: 80%;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            margin: 0 auto;
+            padding: 30px;
+        }
 
+        .title-style {
+            font-family: 'Roboto', sans-serif;
+            background-color: #FDD9A0;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            width: 90%;
+            margin: 20px auto;
+            font-size: 1.8rem;
+            letter-spacing: 6px;
+            color: #373434;
+        }
+
+        .btn:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background-color: #FDD9A0;
+            border: none;
+            color: black;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            padding: 10px 20px;
+        }
+
+            .btn-primary:hover {
+                background-color: #fbc672;
+                color: black;
+            }
+
+        .btn-secondary {
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            padding: 10px 20px;
+        }
+
+            .btn-secondary .btn:hover {
+                background-color: #808080;
+                color: white;
+                font-weight: bold;
+            }
+
+        .form-label {
+            color: #494949;
+            font-weight: bold;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-control {
+            font-size: 1.2rem;
+            margin-left: 10px;
+        }
+
+        .form-check {
+            font-size: 1.2rem;
+            margin-left: 10px;
+        }
+
+        .form-check-input:checked {
+            background-color: #FDD9A0;
+            border-color: #FDD9A0;
+        }
+
+        .form-check-input {
+            appearance: none;
+            width: 1.2em;
+            height: 1.2em;
+            border: 2px solid #ccc;
+            border-radius: 50%;
+            outline: none;
+            transition: all 0.2s ease-in-out;
+            margin-right: 0.5em;
+        }
+
+            .form-check-input:checked::before {
+                content: "";
+                display: block;
+                width: 0.6em;
+                height: 0.6em;
+                margin: 0.15em auto;
+                border-radius: 50%;
+            }
+
+        .field-validation-error {
+            font-size: 1rem;
+            color: red;
+            margin-top: 10px;
+            margin-left: 10px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="outerbox mt-5">
+        <div class="title-style">
+            <i class="fa-solid fa-user-plus"></i>
+            建立揪團
+        </div>
+
+@using (Html.BeginForm("CreateEvent", "Event", FormMethod.Post, new { enctype = "multipart/form-data", @class = "mx-auto", style = "max-width: 600px;" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="innerbox">
         <!-- 活動名稱 -->
         <div class="mb-3" style="margin-top: 30px;">
-            @Html.LabelFor(m => m.EventName, "活動名稱", new { @class = "form-label" })
+            @Html.LabelFor(m => m.EventName, "揪團名稱", new { @class = "form-label" })
             <span class="text-danger">*</span>
-            @Html.TextBoxFor(m => m.EventName, new { @class = "form-control", placeholder = "請輸入活動名稱" })
+            @Html.TextBoxFor(m => m.EventName, new { @class = "form-control", placeholder = "請輸入揪團名稱" })
             @Html.ValidationMessageFor(m => m.EventName, "", new { @class = "text-danger small" })
         </div>
 
         <!-- 描述 -->
         <div class="mb-3">
-            <label for="Description" class="form-label">描述：</label>
-            @Html.TextAreaFor(m => m.Description, new { @class = "form-control", rows = "3", placeholder = "請輸入活動描述" })
-            @Html.ValidationMessageFor(m => m.Description, "", new { @class = "text-danger small" })
-        </div>
-
-        <!-- 活動分類 -->
-        <div class="mb-3">
-            <label for="CategoryId" class="form-label">活動分類<span class="text-danger">*</span></label>
-            @Html.DropDownListFor(m => m.CategoryId, new SelectList(ViewBag.Categories, "Id", "CategoryName"), "請選擇分類", new { @class = "form-select" })
-            @Html.ValidationMessageFor(m => m.CategoryId, "", new { @class = "text-danger small" })
-        </div>
-
-        <!-- 描述 -->
-        <div class="mb-3">
-            @Html.LabelFor(m => m.Description, "描述", new { @class = "form-label" })
+            @Html.LabelFor(m => m.Description, "揪團描述", new { @class = "form-label" })
             <span class="text-danger">*</span>
             @Html.TextAreaFor(m => m.Description, new
             {
@@ -45,96 +152,117 @@
             @Html.ValidationMessageFor(m => m.Description, "", new { @class = "text-danger small" })
         </div>
 
-        <!-- 活動時間 -->
+        <!-- 活動分類 -->
         <div class="mb-3">
-            @Html.LabelFor(m => m.EventTime, "活動時間", new { @class = "form-label" })
+            @Html.LabelFor(m => m.CategoryId, "揪團分類", new { @class = "form-label" })
             <span class="text-danger">*</span>
-            @Html.TextBoxFor(m => m.EventTime, new { @class = "form-control", type = "datetime-local" })
-            @Html.ValidationMessageFor(m => m.EventTime, "", new { @class = "text-danger small" })
+            @Html.DropDownListFor(m => m.CategoryId, new SelectList(ViewBag.Categories, "Id", "CategoryName"), "請選擇分類", new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.CategoryId, "", new { @class = "text-danger small" })
         </div>
 
+        <div class="row">
+            <!-- 活動時間 -->
+            <div class="col-md-6">
+                <div class="mb-3">
+                    @Html.LabelFor(m => m.EventTime, "活動時間", new { @class = "form-label" })
+                    <span class="text-danger">*</span>
+                    @Html.TextBoxFor(m => m.EventTime, new
+                    {
+                        @class = "form-control",
+                        @id = "EventTimePicker",
+                        @placeholder = "選擇活動時間"
+                    })
+                    @Html.ValidationMessageFor(m => m.EventTime, "", new { @class = "text-danger small" })
+                </div>
+            </div>
+
+            <!-- 報名截止日期 -->
+            <div class="col-md-6">
+                <div class="mb-3">
+                    @Html.LabelFor(m => m.DeadLine, "報名截止日", new { @class = "form-label" })
+                    <span class="text-danger">*</span>
+                    @Html.TextBoxFor(m => m.DeadLine, new
+                    {
+                        @class = "form-control",
+                        @id = "DeadLinePicker",
+                        @placeholder = "選擇截止日期"
+                    })
+                    @Html.ValidationMessageFor(m => m.DeadLine, "", new { @class = "text-danger small" })
+                </div>
+            </div>
+        </div>
+
+
+
+
         <!-- 線上/線下 -->
+
         <div class="mb-3">
             @Html.Label("是否線上", new { @class = "form-label" })
             <span class="text-danger">*</span>
             <div class="d-flex align-items-center">
                 <div class="form-check me-3">
-                @Html.RadioButtonFor(m => m.IsOnline, true, new { @class = "form-check-input", id = "Online" })
+                    @Html.RadioButtonFor(m => m.IsOnline, true, new { @class = "form-check-input", id = "Online" })
                     @Html.Label("線上", new { @for = "Online", @class = "form-check-label" })
-            </div>
-            <div class="form-check">
-                @Html.RadioButtonFor(m => m.IsOnline, false, new { @class = "form-check-input", id = "Offline" })
+                </div>
+                <div class="form-check">
+                    @Html.RadioButtonFor(m => m.IsOnline, false, new { @class = "form-check-input", id = "Offline" })
                     @Html.Label("線下", new { @for = "Offline", @class = "form-check-label" })
                 </div>
             </div>
             @Html.ValidationMessageFor(m => m.IsOnline, "", new { @class = "text-danger small" })
         </div>
 
-        <!-- 報名截止日期 -->
-        <div class="mb-3">
-            @Html.LabelFor(m => m.DeadLine, "報名截止日期", new { @class = "form-label" })
-            <span class="text-danger">*</span>
-            @Html.TextBoxFor(m => m.DeadLine, new { @class = "form-control", type = "datetime-local" })
-            @Html.ValidationMessageFor(m => m.DeadLine, "", new { @class = "text-danger small" })
-        </div>
-
         <!-- 地址 -->
+
         <div class="mb-3">
-            @Html.LabelFor(m => m.Location, "地址", new { @class = "form-label" })
-            @Html.TextBoxFor(m => m.Location, new { @class = "form-control", placeholder = "請輸入地址" })
+            @Html.LabelFor(m => m.Location, "地點", new { @class = "form-label" })
+            @Html.TextBoxFor(m => m.Location, new { @class = "form-control", placeholder = "請輸入活動地點" })
             @Html.ValidationMessageFor(m => m.Location, "", new { @class = "text-danger small" })
         </div>
 
-        <div class="row mb-3">
+
+        <div class="row">
             <!-- 最小參加人數 -->
             <div class="col-md-6">
-                <label for="ParticipantMin" class="form-label">
-                    最小參加人數 <span class="text-danger">*</span>
-                </label>
-                @Html.TextBoxFor(m => m.ParticipantMin, new
-                {
-                    @class = "form-control",
-                    @type = "number",
-                    @min = "1", // 最小值
-                    @step = "1", // 必須是正整數
-                    placeholder = "請輸入最小參加人數",
-                    @oninput = "updateMaxParticipantMinValue(this.value)" // 更新最大人數的最小值
-                })
-                @Html.ValidationMessageFor(m => m.ParticipantMin, "", new { @class = "text-danger small" })
+                <div class="mb-3">
+                    @Html.LabelFor(m => m.ParticipantMin, "最小參加人數", new { @class = "form-label" })
+                    <span class="text-danger">*</span>
+                    @Html.TextBoxFor(m => m.ParticipantMin, new
+                    {
+                        @class = "form-control",
+                        @type = "number",
+                        @min = "1", // 最小值
+                        @step = "1", // 只能輸入正整數
+                        placeholder = "請輸入最小參加人數",
+                    })
+                    @Html.ValidationMessageFor(m => m.ParticipantMin, "", new { @class = "text-danger small" })
+                </div>
             </div>
 
             <!-- 最大參加人數 -->
             <div class="col-md-6">
-                <label for="ParticipantMax" class="form-label">
-                    最大參加人數
-                </label>
-                @Html.TextBoxFor(m => m.ParticipantMax, new
-                {
-                    @class = "form-control",
-                    @type = "number",
-                    @min = "1", // 默認最小值為 1
-                    @step = "1", // 必須是正整數
-                    placeholder = "若無上限請留空",
-                    @id = "ParticipantMax" // 用於 JavaScript 設定
-                })
-            @Html.ValidationMessageFor(m => m.ParticipantMax, "", new { @class = "text-danger small" })
-        </div>
+                <div class="mb-3">
+                    @Html.LabelFor(m => m.ParticipantMax, "最大參加人數", new { @class = "form-label" })
+                    <span class="text-danger">*</span>
+                    @Html.TextBoxFor(m => m.ParticipantMax, new
+                    {
+                        @class = "form-control",
+                        @type = "number",
+                        @min = "1", // 最小值
+                        @step = "1", // 只能輸入正整數
+                        placeholder = "請輸入最大參加人數",
+                        @id = "ParticipantMax" // 用於 JavaScript 更新
+                    })
+                    @Html.ValidationMessageFor(m => m.ParticipantMax, "", new { @class = "text-danger small" })
+                </div>
+            </div>
         </div>
 
-        <script>
-            // 動態更新最大參加人數的最小值
-            function updateMaxParticipantMinValue(minValue) {
-                const maxInput = document.getElementById("ParticipantMax");
-                if (maxInput) {
-                    maxInput.min = minValue || 1; // 更新最大人數的最小值
-                }
-            }
-        </script>
 
         <!-- 參加限制 -->
         <div class="mb-3">
             @Html.LabelFor(m => m.Limit, "參加限制", new { @class = "form-label" })
-            <span class="text-danger"></span>
             @Html.TextAreaFor(m => m.Limit, new
             {
                 @class = "form-control",
@@ -147,21 +275,50 @@
 
         <!-- 照片 -->
         <div class="mb-3">
-            @Html.LabelFor(m => m.UploadedImg, "照片", new { @class = "form-label" })
-            @Html.TextBoxFor(m => m.UploadedImg, new { @class = "form-control", type = "file" })
-            @Html.ValidationMessageFor(m => m.UploadedImg, "", new { @class = "text-danger small" })
+            @Html.LabelFor(m => m.UploadedEventImg, "照片", new { @class = "form-label" })
+            @Html.TextBoxFor(m => m.UploadedEventImg, new { @class = "form-control", type = "file" })
+            @Html.ValidationMessageFor(m => m.UploadedEventImg, "", new { @class = "text-danger small" })
         </div>
+    </div>
+            <!-- 按鈕 -->
+            <div class="d-flex justify-content-center mt-4">
+                <button type="submit" class="btn btn-primary me-3"><i class="fa-solid fa-check"></i> 送出</button>
+                <a href="@Url.Action("Index", "Event")" class="btn btn-secondary"><i class="fa-solid fa-xmark"></i> 取消</a>
+            </div>
 
-        <!-- 按鈕 -->
-        <div class="d-flex justify-content-center">
-            <button type="submit" class="btn btn-primary me-2">確認</button>
-            <a href="@Url.Action("Index", "Event")" class="btn btn-secondary">取消</a>
-        </div>
-    }
-</div>
-
-
-
-@section Scripts {
-    @Scripts.Render("~/bundles/jqueryval")
 }
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.querySelector("form");
+            if (form) {
+                form.addEventListener("submit", function (event) {
+                    console.log("Form submitted");
+                });
+            } else {
+                console.error("Form element not found");
+            }
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            flatpickr("#EventTimePicker", {
+                enableTime: true,
+                dateFormat: "Y-m-d H:i"
+            });
+
+            flatpickr("#DeadLinePicker", {
+                enableTime: false,
+                dateFormat: "Y-m-d"
+            });
+        });
+
+    </script>
+    
+
+
+    @section Scripts {
+        @Scripts.Render("~/bundles/jqueryval")
+    }
+</body>
+</html>

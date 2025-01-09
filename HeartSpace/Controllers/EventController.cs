@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Web.Mvc;
+using System.Web.UI;
 using HeartSpace.BLL;
 using HeartSpace.Models.EFModels;
 using HeartSpace.Models.ViewModels;
@@ -16,10 +17,11 @@ namespace HeartSpace.Controllers
 			_eventService = new EventService();
 		}
 
+		//建立揪團
 		[HttpGet]
 		public ActionResult CreateEvent()
 		{
-			ViewBag.Categories = _eventService.GetCategories(); // 使用服務層取得分類
+			ViewBag.Categories = _eventService.GetCategories(); 
 			return View();
 		}
 
@@ -27,50 +29,207 @@ namespace HeartSpace.Controllers
 		[ValidateAntiForgeryToken]
 		public ActionResult CreateEvent(EventViewModel model)
 		{
-			if (ModelState.IsValid)
+			if (!ModelState.IsValid)
 			{
-				if (model.ParticipantMax.HasValue && model.ParticipantMax < model.ParticipantMin)
+				ViewBag.Categories = _eventService.GetCategories();
+				return View(model);
+			}
+			// 驗證人數
+			if ( model.ParticipantMax < model.ParticipantMin)
+			{
+				ModelState.AddModelError(nameof(model.ParticipantMax), $"最大參加人數必須大於或等於最小參加人數（{model.ParticipantMin}）");
+				ViewBag.Categories = _eventService.GetCategories(); // 重新填充分類資料
+				return View(model);
+			}
+
+			// 去除空白後再驗證
+			if (string.IsNullOrWhiteSpace(model.Description))
+			{
+				ModelState.AddModelError("Description", "描述必填且不能只包含空白字元");
+				ViewBag.Categories = _eventService.GetCategories();
+				return View(model);
+			}
+
+			// 圖片處理
+			byte[] imageData = null;
+			//不為 null 且檔案大小大於 0 時，進行圖片處理
+			if (model.UploadedEventImg != null && model.UploadedEventImg.ContentLength > 0)
+			{
+				var allowedFileTypes = new[] { "image/jpeg", "image/png", "image/gif" };
+				if (!allowedFileTypes.Contains(model.UploadedEventImg.ContentType))
 				{
-					ModelState.AddModelError(nameof(model.ParticipantMax), $"最大參加人數必須大於或等於最小參加人數（{model.ParticipantMin}）");
+					ModelState.AddModelError("UploadedImg", "只允許上傳 JPEG、PNG 或 GIF 格式的圖片。");
+					ViewBag.Categories = _eventService.GetCategories();
 					return View(model);
 				}
 
-				byte[] imageData = null;
-				if (model.UploadedImg != null && model.UploadedImg.ContentLength > 0)
+				if (model.UploadedEventImg.ContentLength > 5 * 1024 * 1024) // 限制大小為 5MB
 				{
-					using (var binaryReader = new System.IO.BinaryReader(model.UploadedImg.InputStream))
-					{
-						imageData = binaryReader.ReadBytes(model.UploadedImg.ContentLength);
-					}
+					ModelState.AddModelError("UploadedEventImg", "圖片大小不能超過 5MB。");
+					ViewBag.Categories = _eventService.GetCategories();
+					return View(model);
 				}
 
-				var newEvent = new Event
+				try //轉換成 byte[]
 				{
+					using (var binaryReader = new System.IO.BinaryReader(model.UploadedEventImg.InputStream))
+					{
+						imageData = binaryReader.ReadBytes(model.UploadedEventImg.ContentLength);
+					}
+				}
+				catch (Exception)
+				{
+					ModelState.AddModelError("UploadedEventImg", "圖片處理失敗，請重試或選擇其他圖片。");
+					ViewBag.Categories = _eventService.GetCategories();
+					return View(model);
+				}
+			}
+
+
+			// 建立 Event 物件
+			var newEvent = new Event
+			{
+				EventName = model.EventName,
+				MemberId = GetCurrentMemberId(),
+				EventImg = imageData,
+				CategoryId = model.CategoryId,
+				Description = model.Description,
+				EventTime = model.EventTime,
+				Location = model.Location,
+				IsOnline = model.IsOnline,
+				ParticipantMax = model.ParticipantMax, // 若為 null，設定為 int.MaxValue
+				ParticipantMin = model.ParticipantMin,
+				Limit = model.Limit,
+				DeadLine = model.DeadLine,
+				CommentCount = 0, // 預設評論數量為 0
+				ParticipantNow = 0, // 預設參與人數為 0
+				Disabled = false,
+			};
+
+			try
+			{
+				// 儲存活動
+				//_eventService.AddEvent(newEvent);
+				var newEventId = _eventService.AddEvent(newEvent);
+				newEvent.Id = newEventId; // 將返回的 Id 賦值給 newEvent.Id
+			}
+			catch (Exception ex)
+			{
+				ModelState.AddModelError("", "儲存活動時發生錯誤，請稍後再試。");
+				ViewBag.Categories = _eventService.GetCategories(); // 重新填充分類資料
+				return View(model);
+			}
+
+			// 導向到活動詳細頁
+			return RedirectToAction("EventDetail", new { id = newEvent.Id });
+		}
+
+		//關閉揪團
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public ActionResult CloseEvent(int id)
+		{
+			try
+			{
+				_eventService.DeleteEvent(id);
+
+				// 重定向到活動列表頁或其他頁面
+				return RedirectToAction("Index");
+			}
+			catch (Exception ex)
+			{
+				return new HttpStatusCodeResult(500, $"關閉活動時發生錯誤：{ex.Message}");
+			}
+		}
+
+		//修改揪團
+		[HttpGet]
+		public ActionResult EditEvent(int id)
+		{
+			// 從 Service 層獲取活動資料
+			var eventEntity = _eventService.GetEventById(id);
+			if (eventEntity == null)
+			{
+				return HttpNotFound("找不到該活動。");
+			}
+			// 獲取所有分類
+			var categories = _eventService.GetCategories();
+			ViewBag.Categories = categories.Select(c => new SelectListItem
+			{
+				Value = c.Id.ToString(),
+				Text = c.CategoryName
+			});
+			
+
+			// 將 Event 轉換為 EventViewModel
+			var eventViewModel = new EventViewModel
+			{
+				Id = eventEntity.Id,
+				EventName = eventEntity.EventName,
+				MemberId = eventEntity.MemberId,
+				EventImg = eventEntity.EventImg,
+				CategoryId = eventEntity.CategoryId,
+				Description = eventEntity.Description,
+				EventTime = eventEntity.EventTime,
+				Location = eventEntity.Location,
+				IsOnline = eventEntity.IsOnline,
+				ParticipantMax = eventEntity.ParticipantMax,
+				ParticipantMin = eventEntity.ParticipantMin,
+				Limit = eventEntity.Limit,
+				DeadLine = eventEntity.DeadLine,
+				CommentCount = eventEntity.CommentCount,
+				ParticipantNow = eventEntity.ParticipantNow,
+				
+			};
+
+			// 返回視圖，並將 ViewModel 傳遞給視圖
+			return View(eventViewModel);
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public ActionResult EditEvent(EventViewModel model)
+		{
+			if (!ModelState.IsValid)
+			{
+				return View(model); // 如果資料驗證失敗，返回編輯頁
+			}
+
+			try
+			{
+				// 將 EventViewModel 轉換為 Event
+				var updatedEvent = new Event
+				{
+					Id = model.Id,
 					EventName = model.EventName,
-					MemberId = GetCurrentMemberId(),
-					EventImg = imageData,
+					MemberId = model.MemberId,
+					EventImg = model.EventImg,
 					CategoryId = model.CategoryId,
 					Description = model.Description,
 					EventTime = model.EventTime,
 					Location = model.Location,
 					IsOnline = model.IsOnline,
-					ParticipantMax = model.ParticipantMax ?? int.MaxValue,
+					ParticipantMax = model.ParticipantMax,
 					ParticipantMin = model.ParticipantMin,
 					Limit = model.Limit,
 					DeadLine = model.DeadLine,
-					CommentCount = 0,
-					ParticipantNow = 0
+					CommentCount = model.CommentCount,
+					ParticipantNow = model.ParticipantNow
 				};
 
-				_eventService.AddEvent(newEvent);
+				// 更新活動
+				_eventService.UpdateEvent(updatedEvent);
 
-				return RedirectToAction("EventDetail", new { id = newEvent.Id });
+				// 更新成功後跳轉到活動詳情頁
+				return RedirectToAction("EventDetail", new { id = model.Id });
 			}
-
-			ViewBag.Categories = _eventService.GetCategories(); // 重新填充分類資料
-			return View(model);
+			catch (Exception ex)
+			{
+				return new HttpStatusCodeResult(500, $"修改活動時發生錯誤：{ex.Message}");
+			}
 		}
 
+		//檢視揪團
 		public ActionResult EventDetail(int id)
 		{
 			var model = _eventService.GetEventWithDetails(id);
@@ -121,7 +280,6 @@ namespace HeartSpace.Controllers
 		{
 			try
 			{
-				// 根據活動 ID 獲取留言
 				var comment = _eventService.GetEventComments(eventId)
 					.FirstOrDefault(c => c.Id == commentId);
 
@@ -130,30 +288,25 @@ namespace HeartSpace.Controllers
 					return HttpNotFound("找不到該留言。");
 				}
 
-				// 確認當前用戶是否有權刪除該留言
 				int currentMemberId = GetCurrentMemberId(); // 假設有此方法
 				if (!_eventService.IsCommentOwner(commentId, currentMemberId))
 				{
 					return new HttpStatusCodeResult(403, "無權刪除此留言。");
 				}
 
-				// 執行刪除操作
 				_eventService.RemoveComment(comment);
 
-				// 刪除成功後返回活動詳情頁
 				return RedirectToAction("EventDetail", new { id = eventId });
 			}
 			catch (Exception ex)
 			{
-				// 返回錯誤訊息
 				return new HttpStatusCodeResult(500, $"刪除留言時發生錯誤：{ex.Message}");
 			}
 		}
 
 		public ActionResult EditComment(int commentId)
 		{
-			// 查詢留言
-			var comment = _eventService.GetEventComments(commentId) // 請傳入正確的活動 ID
+			var comment = _eventService.GetEventComments(commentId)
 				.FirstOrDefault(c => c.Id == commentId);
 
 			if (comment == null)
@@ -161,14 +314,12 @@ namespace HeartSpace.Controllers
 				return HttpNotFound("找不到該留言。");
 			}
 
-			// 確認當前用戶是否為留言所有者
 			int currentMemberId = GetCurrentMemberId(); // 假設有此方法
 			if (!_eventService.IsCommentOwner(commentId, currentMemberId))
 			{
 				return new HttpStatusCodeResult(403, "無權編輯此留言。");
 			}
 
-			// 返回編輯視圖，傳遞現有資料
 			return View(comment);
 		}
 
@@ -178,28 +329,24 @@ namespace HeartSpace.Controllers
 		{
 			try
 			{
-				// 使用傳入的活動 ID 獲取留言
 				var comment = _eventService.GetEventComments(eventId)
-							.FirstOrDefault(c => c.Id == commentId);
+					.FirstOrDefault(c => c.Id == commentId);
 
 				if (comment == null)
 				{
 					return HttpNotFound("找不到該留言。");
 				}
 
-				// 確認當前用戶是否為留言所有者
 				int currentMemberId = GetCurrentMemberId();
 				if (!_eventService.IsCommentOwner(commentId, currentMemberId))
 				{
 					return new HttpStatusCodeResult(403, "無權編輯此留言。");
 				}
 
-				// 更新留言內容
 				comment.EventCommentContent = updatedContent;
-				_eventService.UpdateComment(comment); // 假設有 UpdateComment 方法
+				_eventService.UpdateComment(comment);
 
-				// 返回活動詳情頁
-				return RedirectToAction("EventDetail", new { id = comment.EventId });
+				return RedirectToAction("EventDetail", new { id = eventId });
 			}
 			catch (Exception ex)
 			{
@@ -213,16 +360,13 @@ namespace HeartSpace.Controllers
 		{
 			try
 			{
-				// 驗證留言內容是否有效
 				if (string.IsNullOrWhiteSpace(commentContent))
 				{
 					return new HttpStatusCodeResult(400, "留言內容不得為空。");
 				}
 
-				// 獲取當前用戶 ID
-				int currentMemberId = GetCurrentMemberId(); // 假設有這個方法
+				int currentMemberId = GetCurrentMemberId(); // 假設有此方法
 
-				// 建立新的留言物件
 				var newComment = new EventComment
 				{
 					EventId = eventId,
@@ -231,31 +375,14 @@ namespace HeartSpace.Controllers
 					CommentTime = DateTime.Now
 				};
 
-				// 呼叫服務層新增留言
 				_eventService.AddComment(newComment);
 
-				// 新增成功後重導回活動詳情頁
 				return RedirectToAction("EventDetail", new { id = eventId });
 			}
 			catch (Exception ex)
 			{
-				// 返回錯誤訊息
 				return new HttpStatusCodeResult(500, $"新增留言時發生錯誤：{ex.Message}");
 			}
-		}
-
-
-		// GET: Event/EventStatus/{id}
-		public ActionResult EventStatus(int id)
-		{
-			var model = _eventService.GetEventStatus(id);
-
-			if (model == null)
-			{
-				return HttpNotFound();
-			}
-
-			return View(model);
 		}
 
 		[HttpPost]
