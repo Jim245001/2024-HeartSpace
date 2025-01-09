@@ -26,7 +26,22 @@ namespace HeartSpace.Models
 
 		public int MemberId { get; set; }
 
-		public string MemberName { get; set; } // 原PO名稱
+        public string MemberNickName { get; set; } // 原PO暱稱
+
+
+        public byte[] MemberImg { get; set; } // 原PO頭像 Base64 格式
+        public string MemberImgBase64
+        {
+            get
+            {
+                return MemberImg != null
+                    ? "data:image/png;base64," + Convert.ToBase64String(MemberImg)
+                    : null;
+            }
+        }
+
+
+
 
 		public string MemberImg { get; set; } // 原PO頭像 Base64 格式
 
@@ -47,15 +62,19 @@ namespace HeartSpace.Models
 	public class CommentViewModel
 	{
 
-		public int PostId { get; set; }
-		public int CommentId { get; set; }
-		public int UserId { get; set; }
-		public string UserName { get; set; }
-		public string UserImg { get; set; }
-		public string Comment { get; set; }
-		public DateTime CommentTime { get; set; }
-		public int FloorNumber { get; set; } // 樓層編號
-	}
+        public int PostId { get; set; }
+        public int CommentId { get; set; }
+        public int UserId { get; set; }
+        public string UserNickName { get; set; }
+
+        public string UserImg { get; set; }
+        public string Comment { get; set; }
+        public DateTime CommentTime { get; set; }
+        public int FloorNumber { get; set; } // 樓層編號
+
+        public bool Disabled { get; set; } // 是否被刪除
+
+    }
 
 
 }

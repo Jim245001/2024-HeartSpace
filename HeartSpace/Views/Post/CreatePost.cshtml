@@ -135,7 +135,7 @@
                     titleError.textContent = "標題為必填";
                     titleInput.classList.add("is-invalid");
                 } else if (value.length > maxTitleLength) {
-                    titleError.textContent = `標題不可超過 ${maxTitleLength} 字`;
+                    titleError.textContent = 標題不可超過 ${maxTitleLength} 字;
                     titleInput.classList.add("is-invalid");
                 } else {
                     titleError.textContent = "";
@@ -149,13 +149,13 @@
                     contentError.textContent = "內文為必填";
                     contentInput.classList.add("is-invalid");
                 } else if (value.length > maxContentLength) {
-                    contentError.textContent = `內文不可超過 ${maxContentLength} 字`;
+                    contentError.textContent = 內文不可超過 ${maxContentLength} 字;
                     contentInput.classList.add("is-invalid");
                 } else {
                     contentError.textContent = "";
                     contentInput.classList.remove("is-invalid");
                 }
-                contentCharCount.innerText = `${value.length}/${maxContentLength}`;
+                contentCharCount.innerText = ${value.length}/${maxContentLength};
             }
 
             titleInput.addEventListener("blur", validateTitle);
@@ -166,4 +166,4 @@
         });
     </script>
 </body>
-</html>
+</html>  

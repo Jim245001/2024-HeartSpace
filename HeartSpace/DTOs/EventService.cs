@@ -5,16 +5,22 @@ using HeartSpace.Models.ViewModels;
 using System.Linq;
 using System.Data.Entity;
 using HeartSpace.Models.EFModels;
+using HeartSpace.Models;
 
 namespace HeartSpace.BLL
 {
-	public class EventService
+	public interface IEventService
 	{
-		private readonly EventRepository _eventRepository;
+		EventStatusViewModel GetEventStatus(int eventId); // 獲取活動報名狀況
+	}
+
+	public class EventService : IEventService
+	{
+		private readonly DAL.EventRepository _eventRepository;
 
 		public EventService()
 		{
-			_eventRepository = new EventRepository();
+			_eventRepository = new DAL.EventRepository();
 		}
 
 		public List<Event> GetAllEvents()
@@ -184,5 +190,50 @@ namespace HeartSpace.BLL
 			}
 		}
 
+		public EventStatusViewModel GetEventStatus(int eventId)
+		{
+			var eventDetails = _eventRepository.GetEventWithParticipants(eventId);
+
+			if (eventDetails == null)
+			{
+				return null; // 如果活動不存在
+			}
+
+			return new EventStatusViewModel
+			{
+				Id = eventDetails.EventId,
+				EventName = eventDetails.EventName,
+				EventOwner = new ParticipantViewModel
+				{
+					MemberId = eventDetails.MemberId,
+					NickName = eventDetails.NickName,
+					FullName = eventDetails.MemberName,
+					Email = eventDetails.Email,
+					ProfileImage = eventDetails.MemberImg
+				},
+				Participants = eventDetails.Participants.Select(p => new ParticipantViewModel
+				{
+					MemberId = p.MemberId,
+					NickName = p.NickName,
+					FullName = p.MemberName,
+					Email = p.Email,
+					ProfileImage = p.MemberImg
+				}).ToList(),
+
+				CategoryName = eventDetails.CategoryName,
+				EventTime = eventDetails.EventTime,
+				IsOnline = eventDetails.IsOnline,
+				Location = eventDetails.Location,
+				ParticipantMin = eventDetails.ParticipantMin,
+				ParticipantMax = eventDetails.ParticipantMax,
+				Description = eventDetails.Description,
+				DeadLine = eventDetails.DeadLine,
+				ParticipantNow = eventDetails.ParticipantNow
+			};
+		}
+
+
 	}
+
+
 }

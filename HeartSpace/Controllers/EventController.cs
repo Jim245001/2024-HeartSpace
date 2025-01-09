@@ -244,6 +244,20 @@ namespace HeartSpace.Controllers
 			}
 		}
 
+
+		// GET: Event/EventStatus/{id}
+		public ActionResult EventStatus(int id)
+		{
+			var model = _eventService.GetEventStatus(id);
+
+			if (model == null)
+			{
+				return HttpNotFound();
+			}
+
+			return View(model);
+		}
+
 		[HttpPost]
 		public ActionResult ToggleRegistration(int eventId, string actionType)
 		{

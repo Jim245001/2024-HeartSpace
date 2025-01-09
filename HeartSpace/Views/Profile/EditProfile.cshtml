@@ -1,0 +1,95 @@
+﻿@model HeartSpace.Models.ProfileViewModel
+
+@{
+    ViewBag.Title = "會員資料";
+}
+
+<div class="container" style="max-width: 600px; margin-top: 20px; font-family: 'Microsoft JhengHei', sans-serif;">
+    <h2 class="text-center" style="margin-bottom: 30px; color: #fd7e14; font-weight: bold;">會員資料</h2>
+
+    <!-- 成功訊息顯示區 -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success text-center" role="alert">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @using (Html.BeginForm("EditProfile", "Profile", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(model => model.Id)
+
+
+
+
+
+        <!-- 頭像 -->
+<div class="d-flex justify-content-center align-items-center" style="flex-direction: column; margin-bottom: 20px;">
+    <label for="MemberImgFile" style="font-weight: bold; color: #495057;">會員頭像</label>
+    <img src="@Model.MemberImgBase64" alt="會員頭像"
+         style="width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 5px solid #fd7e14;" />
+    <input type="file" id="MemberImgFile" name="MemberImgFile" class="form-control-file"
+           style="max-width: 300px; margin-top: 10px;" />
+</div>
+
+        <!-- 會員名稱 -->
+        <div class="form-group">
+            <label for="Name" style="font-weight: bold; color: #495057;">會員名稱</label>
+            @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", placeholder = "輸入會員名稱" } })
+            @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="form-group">
+            <label for="NickName" style="font-weight: bold; color: #495057;">會員暱稱</label>
+            @Html.EditorFor(model => model.NickName, new { htmlAttributes = new { @class = "form-control", placeholder = "輸入會員暱稱" } })
+            @Html.ValidationMessageFor(model => model.NickName, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="form-group">
+            <label for="Account" style="font-weight: bold; color: #495057;">會員帳號</label>
+            <input type="text" class="form-control" value="@Model.Account" readonly
+                   style="background-color: #e9ecef; cursor: not-allowed;" />
+            @Html.HiddenFor(model => model.Account)
+        </div>
+
+        <!-- 信箱 (唯讀) -->
+        <div class="form-group">
+            <label for="Email" style="font-weight: bold; color: #495057;">信箱</label>
+            <input type="text" class="form-control" value="@Model.Email" readonly
+                   style="background-color: #e9ecef; cursor: not-allowed;" />
+            @Html.HiddenFor(model => model.Email)
+
+        </div>
+
+        <!-- 修改按鈕 -->
+        <div class="text-center" style="margin-top: 30px;">
+            <button type="submit" class="btn btn-primary" style="padding: 10px 30px; font-size: 16px;">修改/儲存資料</button>
+            <a href="@Url.Action("Index", "Home")" class="btn btn-secondary" style="padding: 10px 30px; font-size: 16px; margin-left: 10px;">返回</a>
+        </div>
+    }
+
+    <!-- 放入鴿子的記錄 -->
+    <div class="container" style="margin-top: 40px;">
+        <h3 style="color: #fd7e14; font-weight: bold; border-bottom: 2px solid #28a745; padding-bottom: 5px;">放入鴿子的記錄 🐦</h3>
+        @*<div class="row text-center" style="margin-top: 20px;">
+            <div class="col-md-4">
+                <img src="data:image/png;base64,@(Model.Record1 ?? "")" alt="鴿子記錄"
+                     style="width: 100px; height: 100px; border-radius: 10px; object-fit: cover; border: 2px solid #ccc;" />
+            </div>
+            <div class="col-md-4">
+                <img src="data:image/png;base64,@(Model.Record2 ?? "")" alt="鴿子記錄"
+                     style="width: 100px; height: 100px; border-radius: 10px; object-fit: cover; border: 2px solid #ccc;" />
+            </div>
+            <div class="col-md-4">
+                <img src="data:image/png;base64,@(Model.Record3 ?? "")" alt="鴿子記錄"
+                     style="width: 100px; height: 100px; border-radius: 10px; object-fit: cover; border: 2px solid #ccc;" />
+            </div>*@
+    </div>
+    <p style="color: red; text-align: center; margin-top: 10px;">警告：放 3 次鴿子將會被停權！請在活動報名前取消報名。</p>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

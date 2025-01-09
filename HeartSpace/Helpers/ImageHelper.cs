@@ -27,5 +27,10 @@ namespace HeartSpace.Helpers
             }
             return Convert.FromBase64String(base64String);
         }
+
+        public static string ToBase64String(this byte[] imageBytes)
+        {
+            return imageBytes != null ? Convert.ToBase64String(imageBytes) : null;
+        }
     }
 }

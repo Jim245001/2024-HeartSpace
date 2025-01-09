@@ -1,0 +1,329 @@
+﻿@model HeartSpace.Models.ViewModels.EventStatusViewModel
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>@Model.EventName 報名人員清單</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+        .event {
+            background-color: #ffffff; /* 活動資訊背景色 */
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+            .event-detail {
+                margin-bottom: 20px;
+            
+            }
+
+            .event-detail .info {
+                display: flex;
+                gap: 20px;
+                flex-wrap: wrap;
+            }
+
+            .event-detail .info-item {
+                display: flex;
+                align-items: center;
+                font-size: 1rem;
+                color: #555;
+            }
+
+        .event-description {
+          
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .event-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1rem;
+            color: #555;
+        }
+
+        .outerbox {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .header {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+            background-color: #FDD9A0;
+            padding: 10px;
+            border-radius: 10px;
+            width: 80%;
+            margin: 0 auto;
+ 
+        }
+
+        .person {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .avatar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100px;
+            margin-right: 20px;
+        }
+
+            .avatar img {
+                width: 80px;
+                height: 80px;
+                border-radius: 50%;
+                object-fit: cover;
+            }
+
+            .avatar i {
+                font-size: 60px;
+                color: #ccc;
+            }
+
+        .nickname {
+            margin-top: 8px;
+            text-align: center;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .person-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .role {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .participants-block {
+            margin-top: 20px;
+            
+        }
+
+            .participants-block .header-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+            }
+
+                .participants-block .header-row .title {
+                    font-weight: bold;
+                    font-size: 18px; /* 與所有參與者標題大小一致 */
+                    color: #333;
+                }
+
+                .participants-block .header-row .participant-count {
+                    font-size: 1rem;
+                    color: #555;
+                }
+
+        .participants-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+            .participants-list li {
+                margin-bottom: 20px;
+                display: flex;
+                align-items: center;
+            }
+
+            .participants-list .avatar {
+                margin-right: 15px;
+            }
+
+            .participants-list .info {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+        .send-email {
+            display: flex;
+            justify-content: center; /* 讓按鈕區塊居中 */
+            align-items: center; /* 垂直居中 */
+            gap: 20px; /* 按鈕之間的間距 */
+            margin-top: 20px; /* 與上方內容的間距 */
+        }
+
+            .send-email .btn {
+                display: inline-block;
+                padding: 10px 20px;
+                background-color: #b7cbd8;
+                color: black;
+                text-decoration: none;
+                border: none;
+                border-radius: 5px;
+                font-size: 16px;
+                cursor: pointer; /* 滑鼠移上時顯示點擊手勢 */
+            }
+
+                .send-email .btn:hover {
+                    background-color: #8f9da5;
+                }
+        .btn-secondary {
+            background-color: #b7cbd8; /* 列印按鈕的背景色 */
+        }
+
+            .btn-secondary:hover {
+                background-color: #8f9da5; /* 列印按鈕懸停時顏色 */
+            }
+    </style>
+</head>
+<body>
+    <div class="outerbox">
+        <div class="header">
+            @Model.EventName 報名人員清單
+        </div>
+
+        <!-- 活動資訊-->
+        <div class="event info-block border-start border-4 ps-3 mb-4" style="margin:20px">
+            <!-- Event Details -->
+            <div class="event-detail">
+                <div class="info">
+                    <div class="info-item">
+                        <i class="bi bi-tag" style="margin-right: 5px;"></i>類別：@Model.CategoryName
+                    </div>
+                    <div class="info-item">
+                        <i class="bi bi-calendar" style="margin-right: 5px;"></i>時間：@Model.EventTime.ToString("yyyy-MM-dd HH:mm")
+                    </div>
+                    <div class="info-item">
+                        <i class="bi @(Model.IsOnline ? "bi-globe" : "bi-geo-alt")" style="margin-right: 5px;"></i>
+                        @(Model.IsOnline ? "線上" : "線下") | @Model.Location
+                    </div>
+                    <div class="info-item">
+                        <i class="bi bi-people-fill" style="margin-right: 5px;"></i>人數限制：@Model.ParticipantMin ~ @Model.ParticipantMax
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Description -->
+            <div class="event-description">
+                @Model.Description
+            </div>
+
+            <!-- Footer -->
+            <div class="event-footer">
+                <div>報名截止日：@Model.DeadLine.ToString("yyyy-MM-dd HH:mm")</div>
+            </div>
+        </div>
+
+        <hr style="border: 1px solid #555; margin: 20px 0;" />
+
+        <!-- 參加人員資訊 -->
+        <div class=" ">
+            <!-- 發起人資訊 -->
+            <div class="participants-block">
+                <div class="header-row">
+                    <div class="title">發起人</div>
+                </div>
+                <ul class="participants-list">
+                    <li>
+                        <div class="avatar">
+                            @if (!string.IsNullOrEmpty(Model.EventOwner.ProfileImage))
+                            {
+                                <img src="@Model.EventOwner.ProfileImage" alt="發起人頭像" />
+                            }
+                            else
+                            {
+                                <i class="fa-regular fa-circle-user"></i>
+                            }
+                            <div class="nickname">@Model.EventOwner.NickName</div>
+                        </div>
+                        <div class="info">
+                            <div>姓名：@Model.EventOwner.FullName</div>
+                            <div>信箱：@Model.EventOwner.Email</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 所有參與者區塊 -->
+            @if (Model.Participants != null && Model.Participants.Any())
+            {
+                <div class="participants-block">
+                    <div class="header-row">
+                        <div class="title">所有參與者</div>
+                        <div class="participant-count">目前報名人數：@Model.ParticipantNow</div>
+                    </div>
+                    <ul class="participants-list">
+                        @foreach (var participant in Model.Participants.GroupBy(p => p.MemberId).Select(g => g.First()))
+                        {
+                            <li>
+                                <div class="avatar">
+                                    @if (!string.IsNullOrEmpty(participant.ProfileImage))
+                                    {
+                                        <img src="@participant.ProfileImage" alt="參與者頭像" />
+                                    }
+                                    else
+                                    {
+                                        <i class="fa-regular fa-circle-user"></i>
+                                    }
+                                    <div class="nickname">@participant.NickName</div>
+                                </div>
+                                <div class="info">
+                                    <div>姓名：@participant.FullName</div>
+                                    <div>信箱：@participant.Email</div>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+            else
+            {
+                <p>目前尚無參與者報名。</p>
+            }
+        </div>
+
+    </div>
+        <!-- 底部按鈕 -->
+    <div class="send-email">
+        <a href="@Url.Action("EventDetail", "Event", new { id = Model.Id })" class="btn btn-primary">
+            返回揪團頁面
+        </a>
+        <!-- 發送信件按鈕 -->
+        <a href="mailto:@string.Join(",", Model.Participants.Select(p => p.Email))"
+           class="btn btn-primary">
+            發送信件給報名人員
+        </a>
+        <!-- 列印按鈕 -->
+        <button class="btn btn-secondary" onclick="printParticipantList()">
+            列印參加人員名冊
+        </button>
+    </div>
+</body>
+</html>
+
+
+<script>
+    function printParticipantList() {
+        window.print(); // 呼叫瀏覽器的列印功能
+    }
+</script>

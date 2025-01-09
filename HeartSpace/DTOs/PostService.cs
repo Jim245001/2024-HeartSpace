@@ -1,4 +1,5 @@
-﻿using HeartSpace.Helpers;
+﻿using HeartSpace.DTOs.Services.Interfaces;
+using HeartSpace.Helpers;
 using HeartSpace.Models.DTOs;
 using HeartSpace.Models.EFModels;
 using HeartSpace.Models.Repositories;
@@ -10,15 +11,64 @@ using System.Web.Mvc;
 
 namespace HeartSpace.Models.Services
 {
-    public class PostService
+    public class PostService : IPostService
     {
         private readonly PostEFRepository _repository;
 
-        public PostService(PostEFRepository repository)
+        private readonly AppDbContext _context;
+
+        public PostService(PostEFRepository repository, AppDbContext context)
         {
-            _repository = repository;
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
+        public IEnumerable<CreatePostDto> FindPostsByKeyword(string keyword)
+        {
+            keyword = keyword?.Trim().ToLower();
+
+            var posts = _context.Posts
+                .Join(_context.Members,
+                      post => post.MemberId,
+                      member => member.Id,
+                      (post, member) => new { post, member })
+                .Where(pm =>
+                    (pm.post.Title != null && pm.post.Title.ToLower().Contains(keyword)) ||
+                    (pm.member.NickName != null && pm.member.NickName.ToLower().Contains(keyword)))
+                 .AsEnumerable()
+                .Select(pm => new CreatePostDto
+                {
+                    Id = pm.post.Id,
+                    Title = pm.post.Title,
+                    PostContent = pm.post.PostContent,
+                    PostImg = pm.post.PostImg.ToBase64String(),
+                    PublishTime = pm.post.PublishTime,
+                    MemberNickName = pm.member.NickName,
+                    CategoryName = _context.Categories
+                        .Where(c => c.Id == pm.post.CategoryId)
+                        .Select(c => c.CategoryName)
+                        .FirstOrDefault(),
+                    Disabled = pm.post.Disabled
+                }).ToList();
+
+
+            return posts;
+        }
+       
+        public IEnumerable<PostCard> GetRandomPosts(int count)
+        {
+            return _context.Posts
+                .OrderBy(p => Guid.NewGuid())
+                .Take(count)
+                .Select(post => new PostCard
+                {
+                    Id = post.Id,
+                    Title = post.Title,
+                    PostContent = post.PostContent.Length > 50 ? post.PostContent.Substring(0, 50) + "..." : post.PostContent,
+                    PublishTime = post.PublishTime
+                })
+                .ToList();
+        }
         public IEnumerable<CreatePostDto> GetAllPosts()
         {
             var posts = _repository.GetAllPosts();
@@ -33,6 +83,9 @@ namespace HeartSpace.Models.Services
                 PostImg = p.PostImg != null ? Convert.ToBase64String(p.PostImg) : null // 將 byte[] 轉為 Base64
             });
         }
+
+        
+
 
         public CreatePostDto GetPostById(int id)
         {
