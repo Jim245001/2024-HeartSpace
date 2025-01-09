@@ -35,9 +35,6 @@ namespace HeartSpace.Models.EFModels
         [StringLength(50)]
         public string Email { get; set; }
 
-        [Column(TypeName = "image")]
-        public byte[] MemberImg { get; set; }
-
         [StringLength(50)]
         public string ConfirmCode { get; set; }
 
@@ -54,6 +51,8 @@ namespace HeartSpace.Models.EFModels
         public string Role { get; set; }
 
         public int? AbsenceCount { get; set; }
+
+        public string MemberImg { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<EventComment> EventComments { get; set; }

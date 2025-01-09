@@ -175,7 +175,6 @@
     <Compile Include="Models\EFModels\Member.cs" />
     <Compile Include="Models\EFModels\Post.cs" />
     <Compile Include="Models\EFModels\PostComment.cs" />
-    <Compile Include="Models\EFModels\Tag.cs" />
     <Compile Include="Models\HomePageViewModel.cs" />
     <Compile Include="Models\ViewModels\EventStatusViewModel.cs" />
     <Compile Include="Repositories\EventRepository.cs" />

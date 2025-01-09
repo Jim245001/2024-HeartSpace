@@ -26,9 +26,6 @@ namespace HeartSpace.Models.EFModels
         [StringLength(500)]
         public string PostContent { get; set; }
 
-        [Column(TypeName = "image")]
-        public byte[] PostImg { get; set; }
-
         public DateTime PublishTime { get; set; }
 
         public int CategoryId { get; set; }
@@ -36,6 +33,8 @@ namespace HeartSpace.Models.EFModels
         public int? CommentCount { get; set; }
 
         public bool Disabled { get; set; }
+
+        public string PostImg { get; set; }
 
         public virtual Member Member { get; set; }
 

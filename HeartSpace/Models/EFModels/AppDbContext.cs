@@ -19,7 +19,6 @@ namespace HeartSpace.Models.EFModels
 		public virtual DbSet<Member> Members { get; set; }
 		public virtual DbSet<PostComment> PostComments { get; set; }
 		public virtual DbSet<Post> Posts { get; set; }
-		public virtual DbSet<Tag> Tags { get; set; }
 
 		protected override void OnModelCreating(DbModelBuilder modelBuilder)
 		{
