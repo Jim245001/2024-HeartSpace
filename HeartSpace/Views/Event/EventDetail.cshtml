@@ -25,7 +25,7 @@
             padding: 20px;
             margin-bottom: 20px;
         }
-
+       
         #dropdownMenuButton {
             color: #555; /* 修改按鈕顏色 */
             font-size: 1.3rem;
@@ -67,11 +67,11 @@
 
         .registerbtn .btn {
             background-color: #FDD9A0;
-            color: black;
+            color: #5A4E2B;
             border: none;
             border-radius: 8px;
             padding: 10px 20px;
-            font-weight: normal;
+            font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
             font-size: 20px;
@@ -211,137 +211,158 @@
             <!-- 下方功能按鈕 -->
             <div class="btnpart">
                 <!-- 報名按鈕 -->
-                <div class="registerbtn text-center mb-4" style="width: 100%; margin: 0 auto; ">
-                    @if (Model.IsEventOwner || Model.Role == "admin")
+                <div class="registerbtn text-center mb-4" style="width: 100%; margin: 0 auto;">
+                    @if (Model.EventTime < DateTime.Now) // 活動時間已過去
                     {
-                        <!-- 查看報名狀況按鈕 -->
-                        <a href="@Url.Action("EventStatus", "Event", new { id = Model.Id })"
-                           class="btn w-100 py-2">
-                            查看報名狀況
-                        </a>
-                    }
-                    else if (Model.IsRegistered)
-                    {
-                        <!-- 取消報名按鈕 -->
-                        <button class="btn w-100 py-2"
-                                data-bs-toggle="modal" data-bs-target="#confirmCancelModal">
-                            取消報名
-                        </button>
-                    }
-                    else if (Model.IsFull)
-                    {
-                        <!-- 報名已滿 -->
-                        <button class="btn w-100 py-2" disabled>
-                            報名人數已滿
-                        </button>
+                        <!-- 活動已結束提示 -->
+                        <p style="color:#dc3545e0; font-size: 20px; font-weight: bold; padding: 10px; text-align: center;">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            此活動已結束
+                        </p>
+
+                        if (Model.IsEventOwner || Model.Role == "admin")
+                        {
+                            <!-- 查看報名狀況按鈕 -->
+                            <a href="@Url.Action("EventStatus", "Event", new { id = Model.Id })"
+                               class="btn w-100 py-2">
+                                查看報名狀況
+                            </a>
+                        }
+
                     }
                     else
                     {
-                        <!-- 報名活動按鈕 -->
-                        <button class="btn w-100 py-2" data-bs-toggle="modal" data-bs-target="#confirmRegisterModal">
-                            報名活動
-                        </button>
+                        if (Model.IsEventOwner || Model.Role == "admin")
+                        {
+                            <!-- 查看報名狀況按鈕 -->
+                            <a href="@Url.Action("EventStatus", "Event", new { id = Model.Id })"
+                               class="btn w-100 py-2">
+                                查看報名狀況
+                            </a>
+                        }
+                        else if (Model.IsRegistered)
+                        {
+                            <!-- 取消報名按鈕 -->
+                            <button class="btn w-100 py-2"
+                                    data-bs-toggle="modal" data-bs-target="#confirmCancelModal">
+                                取消報名
+                            </button>
+                        }
+                        else if (Model.IsFull)
+                        {
+                            <!-- 報名已滿 -->
+                            <button class="btn w-100 py-2" disabled>
+                                報名人數已滿
+                            </button>
+                        }
+                        else
+                        {
+                            <!-- 報名活動按鈕 -->
+                            <button class="btn w-100 py-2" data-bs-toggle="modal" data-bs-target="#confirmRegisterModal">
+                                報名活動
+                            </button>
+                        }
                     }
                 </div>
 
-                <!-- 取消報名確認視窗 -->
-                <div class="modal fade" id="confirmCancelModal" tabindex="-1" aria-labelledby="confirmCancelModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="confirmCancelModalLabel">心聚點 HeartSpace</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                您確定要取消報名此活動嗎？
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                                <form action="@Url.Action("ToggleRegistration", "Event")" method="post">
-                                    <input type="hidden" name="eventId" value="@Model.Id" />
-                                    <input type="hidden" name="actionType" value="cancel" />
-                                    <button type="submit" class="btn btn-danger">確定取消</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 報名活動確認視窗 -->
-                <div class="modal fade" id="confirmRegisterModal" tabindex="-1" aria-labelledby="confirmRegisterModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="confirmRegisterModalLabel">心聚點 HeartSpace</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                您確定要報名此活動嗎？
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                                <form action="@Url.Action("ToggleRegistration", "Event")" method="post">
-                                    <input type="hidden" name="eventId" value="@Model.Id" />
-                                    <input type="hidden" name="actionType" value="register" />
-                                    <button type="submit" class="btn btn-success">確定報名</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- 關閉、修改 -->
-                <div class="closeoredit text-center mb-2" style=" margin: 0 auto; ">
-                    @if (Model.IsEventOwner || Model.Role == "admin")
+                <div class="closeoredit text-center mb-2" style="margin: 0 auto;">
+                    @if (Model.EventTime >= DateTime.Now) // 活動時間未過去
                     {
                         <div class="d-flex justify-content-between" style="gap: 20px; margin: 0 auto;">
                             @if (Model.IsEventOwner || Model.Role == "admin")
                             {
                                 <!-- 關閉按鈕 -->
-                            <button class="btn btn-warning w-100 py-2"
-                                    data-bs-toggle="modal" data-bs-target="#confirmCloseModal">
-                                <i class="fa-solid fa-trash"></i>
-                                關閉揪團
-                            </button>
+                                <button class="btn btn-warning w-100 py-2"
+                                        data-bs-toggle="modal" data-bs-target="#confirmCloseModal">
+                                    <i class="fa-solid fa-trash"></i>
+                                    關閉揪團
+                                </button>
                             }
 
                             @if (Model.IsEventOwner)
                             {
                                 <!-- 修改按鈕 -->
-                        <a href="@Url.Action("EditEvent", "Event", new { id = Model.Id })"
-                           class="btn btn-warning w-100 py-2">
-                            <i class="fa-solid fa-pen-to-square"></i>
-                            修改揪團
-                        </a>
+                                <a href="@Url.Action("EditEvent", "Event", new { id = Model.Id })"
+                                   class="btn btn-warning w-100 py-2">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                    修改揪團
+                                </a>
                             }
                         </div>
                     }
-                </div>
+                    
+
+                    <!-- 取消報名確認視窗 -->
+                    <div class="modal fade" id="confirmCancelModal" tabindex="-1" aria-labelledby="confirmCancelModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="confirmCancelModalLabel">心聚點 HeartSpace</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    您確定要取消報名此活動嗎？
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                    <form action="@Url.Action("ToggleRegistration", "Event")" method="post">
+                                        <input type="hidden" name="eventId" value="@Model.Id" />
+                                        <input type="hidden" name="actionType" value="cancel" />
+                                        <button type="submit" class="btn btn-danger">確定取消</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 報名活動確認視窗 -->
+                    <div class="modal fade" id="confirmRegisterModal" tabindex="-1" aria-labelledby="confirmRegisterModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="confirmRegisterModalLabel">心聚點 HeartSpace</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    您確定要報名此活動嗎？
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                    <form action="@Url.Action("ToggleRegistration", "Event")" method="post">
+                                        <input type="hidden" name="eventId" value="@Model.Id" />
+                                        <input type="hidden" name="actionType" value="register" />
+                                        <button type="submit" class="btn btn-success">確定報名</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
 
-                <!-- 關閉活動確認彈窗 -->
-                <div class="modal fade" id="confirmCloseModal" tabindex="-1" aria-labelledby="confirmCloseModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="confirmCloseModalLabel">心聚點 HeartSpace</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                您確定要關閉這個活動嗎？關閉後將無法恢復。
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                                <form action="@Url.Action("CloseEvent", "Event")" method="post">
-                                    <input type="hidden" name="id" value="@Model.Id" />
-                                    <button type="submit" class="btn btn-danger">確認關閉</button>
-                                </form>
+                    <!-- 關閉活動確認彈窗 -->
+                    <div class="modal fade" id="confirmCloseModal" tabindex="-1" aria-labelledby="confirmCloseModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="confirmCloseModalLabel">心聚點 HeartSpace</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    您確定要關閉這個活動嗎？關閉後將無法恢復。
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                    <form action="@Url.Action("CloseEvent", "Event")" method="post">
+                                        <input type="hidden" name="id" value="@Model.Id" />
+                                        <button type="submit" class="btn btn-danger">確認關閉</button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
         <hr style="border: 1px solid #ccc; margin: 30px 0;" />
 
@@ -432,8 +453,6 @@
 
                                 </ul>
                             </div>
-
-
 
                         }
                     </div>

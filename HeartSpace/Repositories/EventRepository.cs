@@ -186,7 +186,7 @@ VALUES (@EventName, @MemberId, @EventImg, @CategoryId, @Description, @EventTime,
 		}
 
 
-		// 確認指定會員是否為活動的擁有者
+		// 確認指定會員是否為評論的擁有者
 		public bool IsCommentOwner(int commentId, int memberId)
 		{
 			using (var context = new AppDbContext())
