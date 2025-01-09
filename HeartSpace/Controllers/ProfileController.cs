@@ -84,7 +84,7 @@ namespace HeartSpace.Controllers
                     {
                         using (var binaryReader = new System.IO.BinaryReader(model.MemberImgFile.InputStream))
                         {
-                            member.MemberImg = binaryReader.ReadBytes(model.MemberImgFile.ContentLength); // 將圖片轉為 byte[] 並儲存
+                            member.MemberImg = model.MemberImg; 
                         }
                     }
                     catch (Exception ex)

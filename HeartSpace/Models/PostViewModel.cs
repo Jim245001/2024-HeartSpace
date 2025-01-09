@@ -18,7 +18,7 @@ namespace HeartSpace.Models
         [StringLength(500, ErrorMessage = "內文最多 500 字")]
         public string PostContent { get; set; }
 
-        public string PostImg { get; set; } // 貼文封面圖 Base64 格式
+        public string PostImg { get; set; } 
 
         public DateTime PublishTime { get; set; }
         public bool Disabled { get; set; }
@@ -29,16 +29,8 @@ namespace HeartSpace.Models
         public string MemberNickName { get; set; } // 原PO暱稱
 
 
-        public byte[] MemberImg { get; set; } // 原PO頭像 Base64 格式
-        public string MemberImgBase64
-        {
-            get
-            {
-                return MemberImg != null
-                    ? "data:image/png;base64," + Convert.ToBase64String(MemberImg)
-                    : null;
-            }
-        }
+        public string MemberImg { get; set; } 
+        
 
 
 

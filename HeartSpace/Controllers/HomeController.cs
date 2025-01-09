@@ -35,7 +35,7 @@ public class HomeController : Controller
                 PostContent = p.PostContent,
                 PublishTime = p.PublishTime,
                 MemberNickName = p.Member != null ? p.Member.NickName : "未知作者",
-                PostImg = p.PostImg != null ? Convert.ToBase64String(p.PostImg) : null, // 如果有圖片，轉換為 Base64
+                PostImg = p.PostImg,
                 CategoryName = categoryDict.ContainsKey(p.CategoryId) ? categoryDict[p.CategoryId] : "未分類" // 從字典中查找分類名稱
             });
 
@@ -43,23 +43,25 @@ public class HomeController : Controller
 
         // 揪團活動資料分頁
         var eventsQuery = _context.Events
-			.Include(e => e.Member)
-			.OrderByDescending(e => e.EventTime)
-			.Select(e => new EventViewModel
-			{
-				Id = e.Id, // 確保選取了 Id
-				EventName = e.EventName,
-				Description = e.Description,
-				Location = e.Location,
-				EventTime = e.EventTime,
-				MemberName = e.Member != null ? e.Member.Name : "未知主辦者",
-				Img = e.EventImg
-			});
+    .OrderByDescending(e => e.EventTime)
+    .Select(e => new EventViewModel
+    {
+        Id = e.Id,
+        EventName = e.EventName,
+        Description = e.Description,
+        Location = e.Location,
+        EventTime = e.EventTime,
+        MemberName = _context.Members
+            .Where(m => m.Id == e.MemberId)
+            .Select(m => m.Name)
+            .FirstOrDefault() ?? "未知主辦者", // 根據 MemberId 抓取 Name
+        Img = e.EventImg,
+    });
 
-		var paginatedEvents = PaginatedList<EventViewModel>.Create(eventsQuery, eventPage, pageSize);
+        var paginatedEvents = PaginatedList<EventViewModel>.Create(eventsQuery, eventPage, pageSize);
 
-		// 建立 ViewModel
-		var viewModel = new HomePageViewModel
+        // 建立 ViewModel
+        var viewModel = new HomePageViewModel
 		{
             Posts = paginatedPosts,
 

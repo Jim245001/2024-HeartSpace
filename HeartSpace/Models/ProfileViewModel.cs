@@ -33,18 +33,8 @@ namespace HeartSpace.Models
 
         public bool Disabled { get; set; } // 停用狀態
 
-        public byte[] MemberImg { get; set; } // 會員頭像（已存在的圖片，作為顯示用）
+        public string MemberImg { get; set; } // 會員頭像（已存在的圖片，作為顯示用）
 
         public HttpPostedFileBase MemberImgFile { get; set; } // 用於上傳新圖片
-        // 用於前端顯示的 Base64 字串
-        public string MemberImgBase64
-        {
-            get
-            {
-                return MemberImg != null
-                    ? "data:image/png;base64," + Convert.ToBase64String(MemberImg)
-                    : null;
-            }
-        }
     }
 }

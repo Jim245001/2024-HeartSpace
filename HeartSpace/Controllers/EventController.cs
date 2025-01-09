@@ -35,21 +35,30 @@ namespace HeartSpace.Controllers
 					return View(model);
 				}
 
-				byte[] imageData = null;
-				if (model.UploadedImg != null && model.UploadedImg.ContentLength > 0)
-				{
-					using (var binaryReader = new System.IO.BinaryReader(model.UploadedImg.InputStream))
-					{
-						imageData = binaryReader.ReadBytes(model.UploadedImg.ContentLength);
-					}
-				}
+                string imagePath = null;
 
-				var newEvent = new Event
-				{
-					EventName = model.EventName,
-					MemberId = GetCurrentMemberId(),
-					EventImg = imageData,
-					CategoryId = model.CategoryId,
+                // 如果有上傳圖片，處理圖片儲存並獲取路徑
+                if (model.UploadedImg != null && model.UploadedImg.ContentLength > 0)
+                {
+                    // 生成唯一檔名，避免覆蓋
+                    string fileName = $"{Guid.NewGuid()}{System.IO.Path.GetExtension(model.UploadedImg.FileName)}";
+
+                    // 設定圖片儲存的相對路徑
+                    string savePath = System.Web.Hosting.HostingEnvironment.MapPath($"~/Images/{fileName}");
+
+                    // 儲存圖片到伺服器
+                    model.UploadedImg.SaveAs(savePath);
+
+                    // 儲存圖片的路徑到資料庫
+                    imagePath = $"/Images/{fileName}";
+                }
+
+                var newEvent = new Event
+                {
+                    EventName = model.EventName,
+                    MemberId = GetCurrentMemberId(),
+                    EventImg = imagePath, // 存路徑而非圖片本身
+                    CategoryId = model.CategoryId,
 					Description = model.Description,
 					EventTime = model.EventTime,
 					Location = model.Location,
@@ -96,7 +105,7 @@ namespace HeartSpace.Controllers
 					MemberId = c.MemberId,
 					MemberName = c.Member?.Name ?? "未知用戶", 
 					MemberNickName = c.Member?.NickName ?? "未知用戶", 
-					MemberProfileImg = c.Member?.MemberImg,
+					MemberImg = c.Member?.MemberImg,
 					EventCommentContent = c.EventCommentContent,
 					CommentTime = c.CommentTime,
 					IsCommentOwner = _eventService.IsCommentOwner(c.Id, currentMemberId)  

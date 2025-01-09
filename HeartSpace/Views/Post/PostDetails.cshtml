@@ -9,10 +9,10 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h1 class="mb-0" style="font-size: 1.8rem; font-weight: bold; color: #fd7e14;">@Model.Title</h1>
             <div class="d-flex align-items-center">
-                @if (!string.IsNullOrEmpty(Model.MemberImgBase64))
+                @if (!string.IsNullOrEmpty(Model.MemberImg))
                 {
-                    <img src="@Model.MemberImgBase64" alt="原PO頭像" class="rounded-circle me-3"
-                         style="width: 50px; height: 50px; object-fit: cover;" />
+                    <img src="@Model.MemberImg" alt="User Image" onerror="this.src='/Images/default-user.png';" />
+
                 }
                 else
                 {
@@ -27,7 +27,7 @@
         </div>
         @if (!string.IsNullOrEmpty(Model.PostImg))
         {
-            <img src="data:image/png;base64,@Model.PostImg" alt="貼文圖片" class="img-fluid rounded mb-3" />
+            <img src="@Model.PostImg" alt="Post Image" style="max-width: 300px; max-height: 300px;" />
         }
         <p style="color: #212529; font-size: 1.1rem;">@Model.PostContent</p>
 

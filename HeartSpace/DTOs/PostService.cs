@@ -47,10 +47,10 @@ namespace HeartSpace.Models.Services
                 Id = pm.post.Id,
                 Title = pm.post.Title,
                 PostContent = pm.post.PostContent,
-                PostImg = ImageHelper.ToBase64String(pm.post.PostImg),
+                PostImg = pm.post.PostImg,
                 PublishTime = pm.post.PublishTime,
                 MemberNickName = pm.member.NickName,
-                MemberImgBase64 = ImageHelper.ToBase64String(pm.member.MemberImg),
+                MemberImg = pm.member.MemberImg,
                 CategoryName = categoryDictionary.ContainsKey(pm.post.CategoryId)
                     ? categoryDictionary[pm.post.CategoryId]
                     : null,
@@ -80,13 +80,9 @@ namespace HeartSpace.Models.Services
                ? pm.post.PostContent.Substring(0, 50) + "..."
                : pm.post.PostContent,
            PublishTime = pm.post.PublishTime,
-           PostImg = pm.post.PostImg != null
-               ? $"data:image/png;base64,{Convert.ToBase64String(pm.post.PostImg)}"
-               : null,
+           PostImg = pm.post.PostImg,
            MemberNickName = pm.member.NickName,
-           MemberImgBase64 = pm.member.MemberImg != null
-               ? $"data:image/png;base64,{Convert.ToBase64String(pm.member.MemberImg)}"
-               : null, // 轉換會員圖片為 Base64
+           MemberImg = pm.member.MemberImg, 
            CategoryName = _context.Categories
                .Where(c => c.Id == pm.post.CategoryId)
                .Select(c => c.CategoryName)
@@ -108,9 +104,7 @@ namespace HeartSpace.Models.Services
            Title = pm.post.Title,
            PostContent = pm.post.PostContent,
            PublishTime = pm.post.PublishTime,
-           PostImg = pm.post.PostImg != null ? Convert.ToBase64String(pm.post.PostImg) : null,
-           MemberNickName = pm.member.NickName,
-           //MemberImgBase64 = pm.member.MemberImg != null ? Convert.ToBase64String(pm.member.MemberImg) : null,
+           PostImg = pm.post.PostImg,
            CategoryName = _context.Categories
                .Where(c => c.Id == pm.post.CategoryId)
                .Select(c => c.CategoryName)
@@ -140,13 +134,9 @@ namespace HeartSpace.Models.Services
                 Title = postWithMember.Post.Title,
                 PostContent = postWithMember.Post.PostContent,
                 PublishTime = postWithMember.Post.PublishTime,
-                PostImg = postWithMember.Post.PostImg != null
-                    ? Convert.ToBase64String(postWithMember.Post.PostImg)
-                    : null,
+                PostImg = postWithMember.Post.PostImg,
                 MemberNickName = postWithMember.Member.NickName,
-                MemberImgBase64 = postWithMember.Member.MemberImg != null
-                    ? Convert.ToBase64String(postWithMember.Member.MemberImg)
-                    : null,
+                MemberImg = postWithMember.Member.MemberImg,
                 CategoryName = _context.Categories
                     .Where(c => c.Id == postWithMember.Post.CategoryId)
                     .Select(c => c.CategoryName)
@@ -160,7 +150,7 @@ namespace HeartSpace.Models.Services
             {
                 Title = dto.Title,
                 PostContent = dto.PostContent,
-                PostImg = dto.PostImg != null ? Convert.FromBase64String(dto.PostImg) : null, // 儲存圖片
+                PostImg = dto.PostImg, 
                 PublishTime = dto.PublishTime,
                 CategoryId = dto.CategoryId,
                 MemberId = dto.MemberId
@@ -188,7 +178,7 @@ namespace HeartSpace.Models.Services
             // 如果有新圖片，更新圖片
             if (!string.IsNullOrEmpty(dto.PostImg))
             {
-                post.PostImg = Convert.FromBase64String(dto.PostImg);
+                post.PostImg = dto.PostImg;
             }
 
             _repository.UpdatePost(post);

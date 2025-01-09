@@ -30,15 +30,15 @@
     <div class="outerbox">
         <!-- 照片 -->
         <div class="text-center mb-4">
-            @if (Model.Img != null)
+            @if (!string.IsNullOrEmpty(Model.Img))
             {
-                <img src="data:image/png;base64,@Convert.ToBase64String(Model.Img)"
-                     style=" aspect-ratio: 3 / 1; border-radius: 10px; object-fit: cover; display: block; margin: 0 auto;" />
+                <img src="@Url.Content(Model.Img)"
+                     style="aspect-ratio: 3 / 1; border-radius: 10px; object-fit: cover; display: block; margin: 0 auto;" />
             }
             else
             {
                 <div class="d-flex justify-content-center align-items-center"
-                     style="background-color: #f2f2f2;  aspect-ratio: 3 / 1; border-radius: 10px; display: block; margin: 0 auto;">
+                     style="background-color: #f2f2f2; aspect-ratio: 3 / 1; border-radius: 10px; display: block; margin: 0 auto;">
                     <i class="fa-regular fa-image"
                        style="font-size: 80px; color: #aaa;"></i>
                 </div>
@@ -56,13 +56,15 @@
             <!-- 發起人資訊 -->
             <div class="d-flex flex-column align-items-center">
                 <div class="mb-1">
-                    @if (Model.MemberProfileImg != null)
+                    @if (!string.IsNullOrEmpty(Model.MemberImg))
                     {
-                        <img src="data:image/png;base64,@Convert.ToBase64String(Model.MemberProfileImg)"
+                        // 顯示圖片，使用路徑
+                        <img src="@Url.Content(Model.MemberImg)"
                              style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #ccc;" />
                     }
                     else
                     {
+                        // 顯示預設的 Font Awesome 圖標
                         <i class="fa-regular fa-circle-user" style="font-size: 50px; color: #ccc;"></i>
                     }
                 </div>
@@ -284,9 +286,9 @@
                 {
                     <div class="d-flex align-items-start mb-3">
                         <!-- 留言者大頭照 -->
-                        @if (comment.MemberProfileImg != null)
+                        @if (!string.IsNullOrEmpty(comment.MemberImg))
                         {
-                            <img src="data:image/png;base64,@Convert.ToBase64String(comment.MemberProfileImg)"
+                            <img src="@comment.MemberImg"
                                  class="rounded-circle me-3" alt="Avatar"
                                  style="width: 50px; height: 50px; object-fit: cover;" />
                         }

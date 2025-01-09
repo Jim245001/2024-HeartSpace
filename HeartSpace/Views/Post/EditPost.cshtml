@@ -1,17 +1,13 @@
 ﻿@model HeartSpace.Models.DTOs.CreatePostDto
 
-
 @{
     ViewBag.Title = "修改貼文";
 }
 
 <h2>修改貼文</h2>
 
-
 @using (Html.BeginForm("EditPost", "Post", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
-
-  
     @Html.AntiForgeryToken()
 
     <div class="form-group">
@@ -29,21 +25,26 @@
         @Html.ValidationMessageFor(m => m.CategoryId, "", new { @class = "text-danger" })
     </div>
 
-    <div class="post-content">
-        @if (!string.IsNullOrEmpty(Model.PostImg))
+    <div>
+        <label>舊圖片：</label>
+        @if (!string.IsNullOrEmpty(Model.OldPostImg))
         {
-            <img src="data:image/png;base64,@Model.PostImg" alt="貼文圖片" style="max-width: 100%; height: auto;" />
+            <img src="@Model.OldPostImg" alt="Old Image" style="max-width: 300px; max-height: 300px;" />
+            <div>
+                <input type="checkbox" name="deleteOldImage" value="true" id="deleteOldImage" />
+                <label for="deleteOldImage">刪除舊圖片</label>
+            </div>
         }
-        @*<p>@Model.PostContent</p>*@
+        else
+        {
+            <p>目前沒有圖片</p>
+        }
     </div>
 
-    <div class="form-section">
-        <label for="Image" class="form-label">更新圖片：</label>
-        <input type="file" name="Image" id="Image" class="form-control" />
+    <div class="form-group">
+        <label for="Image">上傳新圖片：</label>
+        <input type="file" id="Image" name="Image" class="form-control" />
     </div>
-
-
-
 
     <div class="form-group">
         @Html.LabelFor(model => model.PostContent, "內文：")
@@ -52,4 +53,11 @@
     </div>
 
     <button type="submit" class="btn btn-primary">修改貼文</button>
+}
+
+@if (TempData["ConfirmationMessage"] != null)
+{
+    <div class="alert alert-warning">
+        @TempData["ConfirmationMessage"]
+    </div>
 }

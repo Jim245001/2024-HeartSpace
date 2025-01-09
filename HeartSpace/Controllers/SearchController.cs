@@ -43,13 +43,9 @@ namespace HeartSpace.Controllers
                 Title = dto.Title,
                 PostContent = dto.PostContent,
                 PublishTime = dto.PublishTime,
-                PostImg = dto.PostImg != null
-                    ? $"data:image/png;base64,{dto.PostImg}"
-                    : null,
+                PostImg = dto.PostImg,
                 MemberNickName = dto.MemberNickName,
-                MemberImgBase64 = dto.MemberImgBase64 != null
-                    ? $"data:image/png;base64,{dto.MemberImgBase64}"
-                    : null,
+                MemberImg = dto.MemberImg,
                 CategoryName = dto.CategoryName
             }).ToList();
 

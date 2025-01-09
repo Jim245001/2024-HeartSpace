@@ -133,7 +133,7 @@ namespace HeartSpace.BLL
 					MemberId = eventItem.MemberId,
 					MemberName = member?.Name, // 查詢得到的 Member.Name
 					MemberNickName = member?.NickName,
-					MemberProfileImg = member?.MemberImg, // 查詢得到的 Member.Img
+					MemberImg = member?.MemberImg, // 查詢得到的 Member.Img
 					Description = eventItem.Description,
 					EventTime = eventItem.EventTime,
 					Location = eventItem.Location,

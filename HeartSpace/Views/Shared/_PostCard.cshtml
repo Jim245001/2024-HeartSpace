@@ -33,9 +33,9 @@
 
             <!-- 發文者 -->
             <div class="d-flex align-items-center mb-3">
-                @if (!string.IsNullOrEmpty(Model.MemberImgBase64))
+                @if (!string.IsNullOrEmpty(Model.MemberImg))
                 {
-                    <img src="@Model.MemberImgBase64" alt="會員圖片" style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover; margin-right: 10px;" />
+                    <img src="@Model.MemberImg" alt="會員圖片" style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover; margin-right: 10px;" />
                 }
                 else
                 {
