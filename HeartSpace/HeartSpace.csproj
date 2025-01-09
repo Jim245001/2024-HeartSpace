@@ -149,11 +149,11 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\UnityConfig.cs" />
     <Compile Include="App_Start\UnityMvcActivator.cs" />
-    <Compile Include="DTOs\CreatePostDto.cs" />
-    <Compile Include="DTOs\EventService.cs" />
-    <Compile Include="DTOs\EventWithParticipantsDto.cs" />
-    <Compile Include="DTOs\PostService.cs" />
-    <Compile Include="DTOs\ProfileService.cs" />
+    <Compile Include="Models\ViewModels\DTOs\CreatePostDto.cs" />
+    <Compile Include="Models\ViewModels\DTOs\Services\EventService.cs" />
+    <Compile Include="Models\ViewModels\DTOs\EventWithParticipantsDto.cs" />
+    <Compile Include="Models\ViewModels\DTOs\Services\PostService.cs" />
+    <Compile Include="Models\ViewModels\DTOs\Services\ProfileService.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AdminControllerController.cs" />
     <Compile Include="Controllers\EventController.cs" />
@@ -161,7 +161,7 @@
     <Compile Include="Controllers\PostController.cs" />
     <Compile Include="Controllers\ProfileController.cs" />
     <Compile Include="Controllers\SearchController.cs" />
-    <Compile Include="DTOs\Services\Interfaces\IPostService.cs" />
+    <Compile Include="Models\ViewModels\DTOs\Services\Interfaces\IPostService.cs" />
     <Compile Include="Helpers\ImageHelper.cs" />
     <Compile Include="Helpers\PaginatedLis.cs" />
     <Compile Include="Helpers\PasswordHelper.cs" />
@@ -174,8 +174,8 @@
     <Compile Include="Models\EFModels\Post.cs" />
     <Compile Include="Models\EFModels\PostComment.cs" />
     <Compile Include="Models\EFModels\Tag.cs" />
-    <Compile Include="Models\HomePageViewModel.cs" />
-    <Compile Include="Models\SearchPostViewModel.cs" />
+    <Compile Include="Models\ViewModels\HomePageViewModel.cs" />
+    <Compile Include="Models\ViewModels\SearchPostViewModel.cs" />
     <Compile Include="Models\ViewModels\EventStatusViewModel.cs" />
     <Compile Include="Models\ViewModels\PostViewModel.cs" />
     <Compile Include="Repositories\EventRepository.cs" />
@@ -185,11 +185,11 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\EventCard.cs" />
-    <Compile Include="Models\ForgotPasswordViewModel.cs" />
+    <Compile Include="Models\ViewModels\ForgotPasswordViewModel.cs" />
     <Compile Include="Models\LoginViewModel.cs" />
     <Compile Include="Models\PostCard.cs" />
-    <Compile Include="Models\ProfileViewModel.cs" />
-    <Compile Include="Models\RegisterViewModel.cs" />
+    <Compile Include="Models\ViewModels\ProfileViewModel.cs" />
+    <Compile Include="Models\ViewModels\RegisterViewModel.cs" />
     <Compile Include="Models\ViewModels\EventViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\PostEFRepository.cs" />
