@@ -80,7 +80,8 @@ namespace HeartSpace.Controllers.Account
 				NickName = model.NickName,
 				Role = "User", // 設定默認角色
 				IsConfirmed = false, // 初始為未驗證
-				Disabled = false // 初始為未禁用
+				Disabled = false, // 初始為未禁用
+				AbsenceCount = 0
 			};
 
 			try

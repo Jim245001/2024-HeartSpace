@@ -18,106 +18,108 @@
     }
 </style>
 
-<div class="container-fluid px-0">
-    <div class="row mx-0">
-        <!-- 貼文版 -->
-        <div class="col-md-6 px-1">
-            <div class="card">
-                <div class="card-header text-center">貼文版</div>
-                <div class="card-body">
-                    <!-- 按鈕組 -->
-                    <div class="btn-group mb-3 w-100">
-                        <button class="btn btn-secondary btn-sm w-50">最新</button>
-                        <div class="dropdown w-50">
-                            <button class="btn btn-secondary btn-sm w-100 dropdown-toggle" type="button" id="postCategoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                @(Model.SelectedCategoryId.HasValue
-                                    ? Model.Categories.FirstOrDefault(c => c.Id == Model.SelectedCategoryId)?.CategoryName ?? "分類"
-                                    : "分類")
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="postCategoryDropdown">
-                                <li>
-                                    <a class="dropdown-item" href="javascript:void(0);" onclick="loadPosts(1, null)">全部</a>
-                                </li>
-                                @foreach (var category in Model.Categories)
-                                {
+@*
+    <div class="container-fluid px-0">
+        <div class="row mx-0">
+            <!-- 貼文版 -->
+            <div class="col-md-6 px-1">
+                <div class="card">
+                    <div class="card-header text-center">貼文版</div>
+                    <div class="card-body">
+                        <!-- 按鈕組 -->
+                        <div class="btn-group mb-3 w-100">
+                            <button class="btn btn-secondary btn-sm w-50">最新</button>
+                            <div class="dropdown w-50">
+                                <button class="btn btn-secondary btn-sm w-100 dropdown-toggle" type="button" id="postCategoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    @(Model.SelectedCategoryId.HasValue
+                                        ? Model.Categories.FirstOrDefault(c => c.Id == Model.SelectedCategoryId)?.CategoryName ?? "分類"
+                                        : "分類")
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="postCategoryDropdown">
                                     <li>
-                                        <a class="dropdown-item" href="javascript:void(0);" onclick="loadPosts(1, @category.Id)">
-                                            @category.CategoryName
-                                        </a>
+                                        <a class="dropdown-item" href="javascript:void(0);" onclick="loadPosts(1, null)">全部</a>
                                     </li>
-                                }
-                            </ul>
+                                    @foreach (var category in Model.Categories)
+                                    {
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);" onclick="loadPosts(1, @category.Id)">
+                                                @category.CategoryName
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+
+
                         </div>
 
-
-                    </div>
-
-                    <!-- 貼文內容 -->
-                    <div id="postsContainer">
-                        @Html.Partial("_PostsPartial", new PaginatedList<HeartSpace.Models.PostViewModel>(new List<HeartSpace.Models.PostViewModel>(), 0, 1, 6))
+                        <!-- 貼文內容 -->
+                        <div id="postsContainer">
+                            @Html.Partial("_PostsPartial", new PaginatedList<HeartSpace.Models.PostViewModel>(new List<HeartSpace.Models.PostViewModel>(), 0, 1, 6))
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- 揪團版 -->
-        <div class="col-md-6 px-1">
-            <div class="card">
-                <div class="card-header text-center">揪團版</div>
-                <div class="card-body">
-                    <div class="btn-group mb-3 w-100">
-                        <button class="btn btn-secondary btn-sm w-50">最新</button>
-                        <div class="dropdown w-50">
-                            <button class="btn btn-secondary btn-sm w-100 dropdown-toggle" type="button" id="eventCategoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                @(Model.SelectedCategoryId.HasValue
-                                            ? Model.Categories.FirstOrDefault(c => c.Id == Model.SelectedCategoryId)?.CategoryName ?? "分類"
-                                            : "分類")
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="eventCategoryDropdown">
-                                <li>
-                                    <a class="dropdown-item" href="javascript:void(0);" onclick="loadEvents(1, null)">全部</a>
-                                </li>
-                                @foreach (var category in Model.Categories)
-                                {
+            <!-- 揪團版 -->
+            <div class="col-md-6 px-1">
+                <div class="card">
+                    <div class="card-header text-center">揪團版</div>
+                    <div class="card-body">
+                        <div class="btn-group mb-3 w-100">
+                            <button class="btn btn-secondary btn-sm w-50">最新</button>
+                            <div class="dropdown w-50">
+                                <button class="btn btn-secondary btn-sm w-100 dropdown-toggle" type="button" id="eventCategoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    @(Model.SelectedCategoryId.HasValue
+                                                ? Model.Categories.FirstOrDefault(c => c.Id == Model.SelectedCategoryId)?.CategoryName ?? "分類"
+                                                : "分類")
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="eventCategoryDropdown">
                                     <li>
-                                        <a class="dropdown-item" href="javascript:void(0);" onclick="loadEvents(1, @category.Id)">
-                                            @category.CategoryName
-                                        </a>
+                                        <a class="dropdown-item" href="javascript:void(0);" onclick="loadEvents(1, null)">全部</a>
                                     </li>
-                                }
-                            </ul>
+                                    @foreach (var category in Model.Categories)
+                                    {
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);" onclick="loadEvents(1, @category.Id)">
+                                                @category.CategoryName
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+
+
                         </div>
 
-
-                    </div>
-
-                    <div id="eventsContainer">
-                        @Html.Partial("_EventsPartial", new PaginatedList<HeartSpace.Models.ViewModels.EventViewModel>(new List<HeartSpace.Models.ViewModels.EventViewModel>(), 0, 1, 6))
+                        <div id="eventsContainer">
+                            @Html.Partial("_EventsPartial", new PaginatedList<HeartSpace.Models.ViewModels.EventViewModel>(new List<HeartSpace.Models.ViewModels.EventViewModel>(), 0, 1, 6))
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    $(document).ready(function () {
-        loadPosts(1);
-        loadEvents(1, null);
-    });
-
-    function loadPosts(page, categoryId) {
-        $.get('@Url.Action("GetPosts", "Home")', { postPage: page, categoryId: categoryId }, function (data) {
-            $('#postsContainer').html(data);
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            loadPosts(1);
+            loadEvents(1, null);
         });
-    }
 
-    function loadEvents(page, categoryId) {
-        $.get('@Url.Action("GetEvents", "Home")', { eventPage: page, categoryId: categoryId }, function (data) {
-            $('#eventsContainer').html(data);
-        });
-    }
-</script>
+        function loadPosts(page, categoryId) {
+            $.get('@Url.Action("GetPosts", "Home")', { postPage: page, categoryId: categoryId }, function (data) {
+                $('#postsContainer').html(data);
+            });
+        }
+
+        function loadEvents(page, categoryId) {
+            $.get('@Url.Action("GetEvents", "Home")', { eventPage: page, categoryId: categoryId }, function (data) {
+                $('#eventsContainer').html(data);
+            });
+        }
+    </script>
+*@

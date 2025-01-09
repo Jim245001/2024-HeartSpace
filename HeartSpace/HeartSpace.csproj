@@ -177,6 +177,7 @@
     <Compile Include="Models\HomePageViewModel.cs" />
     <Compile Include="Models\SearchPostViewModel.cs" />
     <Compile Include="Models\ViewModels\EventStatusViewModel.cs" />
+    <Compile Include="Models\ViewModels\PostViewModel.cs" />
     <Compile Include="Repositories\EventRepository.cs" />
     <Compile Include="Repositories\MemberRepository.cs" />
     <Compile Include="Repositories\ActivityRepository.cs" />

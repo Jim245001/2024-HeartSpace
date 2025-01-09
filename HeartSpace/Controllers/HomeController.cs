@@ -49,7 +49,7 @@ public class HomeController : Controller
 				Title = p.Title,
 				PostContent = p.PostContent,
 				PublishTime = p.PublishTime,
-				MemberName = p.Member != null ? p.Member.Name : "未知作者",
+				MemberNickName = p.Member != null ? p.Member.Name : "未知作者",
 				CategoryId = p.CategoryId // 加入 CategoryId 用於前端顯示
 			});
 

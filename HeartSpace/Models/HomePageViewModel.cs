@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using HeartSpace.Helpers; // 替換為 PaginatedList 所在的命名空間
 using HeartSpace.Models.ViewModels; // 替換為 PostViewModel 和 EventViewModel 所在的命名空間
+using HeartSpace.Models; // 替換為 PostViewModel 和 EventViewModel 所在的命名空間
 
 namespace HeartSpace.Models
 {
