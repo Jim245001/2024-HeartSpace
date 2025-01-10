@@ -264,42 +264,42 @@ VALUES (@EventName, @MemberId, @EventImg, @CategoryId, @Description, @EventTime,
 
 				// 查詢活動的基本資訊和發起人資訊（包括類別名稱）
 				var eventQuery = @"
-        SELECT 
-            e.Id AS EventId,
-            e.EventName,
-            c.CategoryName AS CategoryName, -- 從 Category 表中取得類別名稱
-            e.EventTime,
-            e.IsOnline,
-            e.Location,
-            e.ParticipantMin,
-            e.ParticipantMax,
-            e.Description,
-            e.DeadLine,
-            m.Id AS MemberId,
-            m.Name AS MemberName, -- 發起人姓名
-            m.NickName,
-            m.Email,
-            m.MemberImg,
-            (SELECT COUNT(*) FROM EventMembers em WHERE em.EventId = e.Id) AS ParticipantNow
-        FROM Events e
-        INNER JOIN Members m ON e.MemberId = m.Id
-        LEFT JOIN Categories c ON e.CategoryId = c.Id -- 連接 Categories 表
-        WHERE e.Id = @EventId";
+		SELECT 
+			e.Id AS EventId,
+			e.EventName,
+			c.CategoryName AS CategoryName, -- 從 Category 表中取得類別名稱
+			e.EventTime,
+			e.IsOnline,
+			e.Location,
+			e.ParticipantMin,
+			e.ParticipantMax,
+			e.Description,
+			e.DeadLine,
+			m.Id AS MemberId,
+			m.Name AS MemberName, -- 發起人姓名
+			m.NickName,
+			m.Email,
+			m.MemberImg,
+			(SELECT COUNT(*) FROM EventMembers em WHERE em.EventId = e.Id) AS ParticipantNow
+		FROM Events e
+		INNER JOIN Members m ON e.MemberId = m.Id
+		LEFT JOIN Categories c ON e.CategoryId = c.Id -- 連接 Categories 表
+		WHERE e.Id = @EventId";
 
 				// 查詢活動參與者清單
 				var participantsQuery = @"
-        SELECT 
-            em.Id AS EventMemberId,
-            em.EventId,
-            em.MemberId,
+		SELECT 
+			em.Id AS EventMemberId,
+			em.EventId,
+			em.MemberId,
 			em.IsAttend,
-            m.Name AS MemberName,
-            m.NickName,
-            m.Email,
-            m.MemberImg
-        FROM EventMembers em
-        INNER JOIN Members m ON em.MemberId = m.Id
-        WHERE em.EventId = @EventId";
+			m.Name AS MemberName,
+			m.NickName,
+			m.Email,
+			m.MemberImg
+		FROM EventMembers em
+		INNER JOIN Members m ON em.MemberId = m.Id
+		WHERE em.EventId = @EventId";
 
 				// 查詢活動和發起人資訊
 				var eventResult = connection.QueryFirstOrDefault<EventWithParticipantsDto>(

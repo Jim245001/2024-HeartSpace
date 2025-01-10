@@ -11,17 +11,22 @@ namespace HeartSpace.Helpers
         public int PageIndex { get; private set; }
         public int TotalPages { get; private set; }
 
-        // Constructor for IQueryable<T>
-        public PaginatedList(IQueryable<T> source, int pageIndex, int pageSize)
-        {
-            PageIndex = pageIndex;
-            TotalPages = (int)Math.Ceiling(source.Count() / (double)pageSize);
+		// Constructor for IQueryable<T>
+		public PaginatedList(IQueryable<T> source, int pageIndex, int pageSize)
+		{
+			PageIndex = pageIndex;
 
-            this.AddRange(source.Skip((PageIndex - 1) * pageSize).Take(pageSize));
-        }
+			// 計算總數並儲存
+			var totalCount = source.Count();
+			TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
-        // Constructor for IEnumerable<T>
-        public PaginatedList(IEnumerable<T> source, int pageIndex, int pageSize)
+			// 取出分頁資料
+			this.AddRange(source.Skip((PageIndex - 1) * pageSize).Take(pageSize));
+		}
+
+
+		// Constructor for IEnumerable<T>
+		public PaginatedList(IEnumerable<T> source, int pageIndex, int pageSize)
         {
             PageIndex = pageIndex;
             TotalPages = (int)Math.Ceiling(source.Count() / (double)pageSize);
