@@ -15,6 +15,8 @@ namespace HeartSpace.DTOs.Services.Interfaces
         IEnumerable<CreatePostDto> FindPostsByKeyword(string keyword, int pageIndex, int pageSize);
 
         IEnumerable<PostCard> GetRandomPosts(int count);
+        IQueryable<PostCard> SearchPosts(string keyword);
+
 
     }
 }

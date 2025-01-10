@@ -7,44 +7,47 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<style>
+    .index-post-card-container .post-card-wrapper {
+        width: 100%;
+        height: 300px;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 
-
+        .index-post-card-container .post-card-wrapper > * {
+            transform: scale(0.75);
+            transform-origin: center;
+        }
+</style>
 
 <div class="container-fluid px-0">
-    <!-- 使用 container-fluid 並移除 padding -->
     <div class="row mx-0">
-        <!-- 移除 row 的 margin -->
         <!-- 貼文版 -->
         <div class="col-md-6 px-1">
-            <!-- 調整列間距 -->
             <div class="card">
                 <div class="card-header text-center">貼文版</div>
                 <div class="card-body">
-                    <!-- 按鈕組 -->
                     <div class="btn-group mb-3 w-100">
                         <button class="btn btn-secondary btn-sm">最新</button>
                         <button class="btn btn-secondary btn-sm">分類</button>
                     </div>
 
-                    <!-- 貼文內容-->
-                    <div class="row gx-1 gy-2">
-
-                        <!-- 貼文卡片 -->
-                        <div class="row gx-1 gy-2">
-                            @foreach (var post in Model.Posts)
-                            {
-                                <div class="col-6">
-                                    <a href="@Url.Action("PostDetails", "Post", new { id = post.Id })" class="text-decoration-none">
+                    <div class="row gx-1 gy-2 index-post-card-container">
+                        @foreach (var post in Model.Posts)
+                        {
+                            <div class="col-6">
+                                <a href="@Url.Action("PostDetails", "Post", new { id = post.Id })" class="text-decoration-none">
+                                    <div class="post-card-wrapper">
                                         @Html.Partial("_PostCard", post)
-                                    </a>
-                                </div>
-                            }
-                        </div>
-
-
+                                    </div>
+                                </a>
+                            </div>
+                        }
                     </div>
 
-                    <!-- 貼文版分頁導航 -->
                     <nav>
                         <ul class="pagination justify-content-center mt-3">
                             @if (Model.Posts.HasPreviousPage)
@@ -69,31 +72,25 @@
                             }
                         </ul>
                     </nav>
-
                 </div>
             </div>
         </div>
 
         <!-- 揪團版 -->
         <div class="col-md-6 px-1">
-            <!-- 調整列間距 -->
             <div class="card">
                 <div class="card-header text-center">揪團版</div>
                 <div class="card-body">
-                    <!-- 按鈕組 -->
                     <div class="btn-group mb-3 w-100">
                         <button class="btn btn-secondary btn-sm">最新</button>
                         <button class="btn btn-secondary btn-sm">分類</button>
                     </div>
 
-
-                    <!-- 揪團卡片 -->
                     <div class="row gx-1 gy-2">
                         @foreach (var events in Model.Events)
                         {
                             <div class="col-6">
                                 <a href="@Url.Action("EventDetail", "Event", new { id = events.Id })" class="text-decoration-none">
-                                    <!-- 使整個卡片成為鏈接 -->
                                     <div class="card border-0 shadow-sm d-flex align-items-center justify-content-center" style="height: 300px;">
                                         @Html.Raw(new EventCard(
                                             events.EventName,
@@ -110,10 +107,6 @@
                         }
                     </div>
 
-
-
-
-                    <!-- 揪團版分頁導航 -->
                     <nav>
                         <ul class="pagination justify-content-center mt-3">
                             @if (Model.Events.HasPreviousPage)
@@ -130,16 +123,14 @@
                                 </li>
                             }
 
-                            @if (Model.Events.HasNextPage)
+                            @if (Model.Events.HasNextPage)  
                             {
                                 <li class="page-item">
                                     <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex, eventPage = Model.Events.PageIndex + 1 })">Next</a>
                                 </li>
-                            }
+                            } 
                         </ul>
                     </nav>
-
-
                 </div>
             </div>
         </div>

@@ -284,6 +284,7 @@
     <Content Include="Views\Search\SearchEvent.cshtml" />
     <Content Include="Views\Search\SearchPost.cshtml" />
     <Content Include="Views\Shared\_PostCard.cshtml" />
+    <Content Include="Views\Shared\_EventCard.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

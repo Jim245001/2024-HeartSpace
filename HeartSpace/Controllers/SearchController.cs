@@ -27,36 +27,46 @@ namespace HeartSpace.Controllers
             _postService = postService ?? throw new ArgumentNullException(nameof(postService));
           
         }
-        
+
 
 
         public ActionResult SearchPost(string keyword, int pageIndex = 1, int pageSize = 10)
         {
 
-            // 從服務層獲取 CreatePostDto
-            var postDtos = _postService.FindPostsByKeyword(keyword, pageIndex, pageSize);
+            // 從服務層獲取搜尋結果與推薦貼文
+            var posts = _postService.FindPostsByKeyword(keyword, pageIndex, pageSize)
+                .Select(p => new PostCard
+                {
+                    Id = p.Id,
+                    Title = p.Title,
+                    PostContent = p.PostContent,
+                    PublishTime = p.PublishTime,
+                    PostImg = p.PostImg,
+                    MemberNickName = p.MemberNickName,
+                    MemberImg = p.MemberImg,
+                    CategoryName = p.CategoryName
+                })
+                .ToList();
 
-            // 將 CreatePostDto 轉換為 PostCard
-            var posts = postDtos.Select(dto => new PostCard
-            {
-                Id = dto.Id,
-                Title = dto.Title,
-                PostContent = dto.PostContent,
-                PublishTime = dto.PublishTime,
-                PostImg = dto.PostImg,
-                MemberNickName = dto.MemberNickName,
-                MemberImg = dto.MemberImg,
-                CategoryName = dto.CategoryName
-            }).ToList();
-
-            // 獲取推薦貼文
-            var recommendedPosts = _postService.GetRandomPosts(6);
+            var recommendedPosts = _postService.GetRandomPosts(6)
+                .Select(p => new PostCard
+                {
+                    Id = p.Id,
+                    Title = p.Title,
+                    PostContent = p.PostContent,
+                    PublishTime = p.PublishTime,
+                    PostImg = p.PostImg,
+                    MemberNickName = p.MemberNickName,
+                    MemberImg = p.MemberImg,
+                    CategoryName = p.CategoryName
+                })
+                .ToList();
 
             // 建立 ViewModel
             var viewModel = new SearchPostViewModel
             {
-                Posts = PaginatedList<PostCard>.Create(posts, pageIndex, pageSize),
-                RecommendedPosts = recommendedPosts.ToList()
+                Posts = posts,
+                RecommendedPosts = recommendedPosts
             };
 
             // 傳遞搜尋關鍵字給前端
@@ -64,6 +74,8 @@ namespace HeartSpace.Controllers
 
             return View(viewModel);
         }
+
+
 
     }
 }

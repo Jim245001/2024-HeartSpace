@@ -10,38 +10,24 @@ namespace HeartSpace.Helpers
     {
         public int PageIndex { get; private set; }
         public int TotalPages { get; private set; }
+        public int TotalItemCount { get; private set; }
 
-        // Constructor for IQueryable<T>
-        public PaginatedList(IQueryable<T> source, int pageIndex, int pageSize)
+        public PaginatedList(IEnumerable<T> items, int totalItemCount, int pageIndex, int pageSize)
         {
             PageIndex = pageIndex;
-            TotalPages = (int)Math.Ceiling(source.Count() / (double)pageSize);
+            TotalItemCount = totalItemCount;
+            TotalPages = (int)Math.Ceiling(totalItemCount / (double)pageSize);
 
-            this.AddRange(source.Skip((PageIndex - 1) * pageSize).Take(pageSize));
-        }
-
-        // Constructor for IEnumerable<T>
-        public PaginatedList(IEnumerable<T> source, int pageIndex, int pageSize)
-        {
-            PageIndex = pageIndex;
-            TotalPages = (int)Math.Ceiling(source.Count() / (double)pageSize);
-
-            this.AddRange(source.Skip((PageIndex - 1) * pageSize).Take(pageSize));
+            // 加入資料（不需要轉換 List）
+            this.AddRange(items);
         }
 
         public bool HasPreviousPage => PageIndex > 1;
         public bool HasNextPage => PageIndex < TotalPages;
 
-        // Factory method for IQueryable<T>
-        public static PaginatedList<T> Create(IQueryable<T> source, int pageIndex, int pageSize)
+        public static PaginatedList<T> Create(IEnumerable<T> items, int totalItemCount, int pageIndex, int pageSize)
         {
-            return new PaginatedList<T>(source, pageIndex, pageSize);
-        }
-
-        // Factory method for IEnumerable<T>
-        public static PaginatedList<T> Create(IEnumerable<T> source, int pageIndex, int pageSize)
-        {
-            return new PaginatedList<T>(source, pageIndex, pageSize);
+            return new PaginatedList<T>(items, totalItemCount, pageIndex, pageSize);
         }
     }
 }
