@@ -4,6 +4,7 @@ using HeartSpace.Models.EFModels;
 using HeartSpace.Models.Services;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -37,7 +38,12 @@ namespace HeartSpace.Controllers
 		public ActionResult CreatePost(CreatePostDto model, HttpPostedFileBase Image)
 		{
 			model.MemberId = GetCurrentUserId();
-			if (!ModelState.IsValid)
+
+            if (model.CategoryId <= 0)
+            {
+                ModelState.AddModelError("CategoryId", "請選擇一個有效的分類！");
+            }
+            if (!ModelState.IsValid)
 			{
 				ViewBag.Categories = _postService.GetCategories();
 				return View(model);
@@ -69,13 +75,21 @@ namespace HeartSpace.Controllers
 		}
 
 		[HttpGet]
-		public ActionResult PostDetails(int id)
+		public ActionResult PostDetails(CreatePostDto model, int id)
 		{
             var post = _postService.GetPostById(id);
+            Debug.WriteLine($"CategoryName: {post.CategoryName}");
+
+
 
             if (post == null)
             {
                 return HttpNotFound("找不到該貼文！");
+            }
+
+            if (post.Disabled && post.MemberId != GetCurrentUserId())
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.Forbidden, "此貼文已關閉，您無權查看！");
             }
 
             using (var db = new AppDbContext())
@@ -84,7 +98,8 @@ namespace HeartSpace.Controllers
                     .Where(c => c.PostId == id)
                     .OrderBy(c => c.CommentTime)
                     .ToList();
-                ViewBag.CurrentUserId = 1; //測試
+
+                ViewBag.CurrentUserId = GetCurrentUserId();
 
                 var viewModel = new PostViewModel
                 {
@@ -92,17 +107,18 @@ namespace HeartSpace.Controllers
                     Title = post.Title,
                     PostContent = post.PostContent,
                     PostImg = post.PostImg,
-                    CategoryName = _postService.GetCategoryNameById(post.CategoryId),
-                    MemberNickName = db.Members.FirstOrDefault(m => m.Id == post.MemberId)?.NickName, // 改為 NickName
+                    CategoryName = post.CategoryName,
+                    MemberNickName = db.Members.FirstOrDefault(m => m.Id == post.MemberId)?.NickName,
                     PublishTime = post.PublishTime,
                     MemberId = post.MemberId,
+                    Disabled = post.Disabled,
                     Comments = comments.Select((c, index) => new CommentViewModel
                     {
                         PostId = c.PostId,
                         CommentId = c.Id,
                         UserId = c.UserId,
                         UserNickName = db.Members.FirstOrDefault(m => m.Id == c.UserId)?.NickName,
-                        UserImg = db.Members.FirstOrDefault(m => m.Id == c.UserId)?.MemberImg ?? null,
+                        UserImg = db.Members.FirstOrDefault(m => m.Id == c.UserId)?.MemberImg,
                         Comment = c.Comment,
                         CommentTime = c.CommentTime,
                         Disabled = c.Disabled ?? false,
@@ -225,30 +241,33 @@ namespace HeartSpace.Controllers
 		[ValidateAntiForgeryToken]
 		public ActionResult TogglePostStatus(int postId)
 		{
-			var post = _postService.GetPostById(postId);
-			if (post == null)
-			{
-				return HttpNotFound("找不到該貼文！");
-			}
+            var post = _postService.GetPostById(postId);
+            if (post == null)
+            {
+                TempData["ErrorMessage"] = "找不到該貼文！";
+                return RedirectToAction("PostDetails", new { id = postId });
+            }
 
-			if (post.MemberId != GetCurrentUserId())
-			{
-				return new HttpStatusCodeResult(HttpStatusCode.Forbidden, "您無權限執行此操作");
-			}
+            if (post.MemberId != GetCurrentUserId())
+            {
+                TempData["ErrorMessage"] = "您無權限執行此操作！";
+                return RedirectToAction("PostDetails", new { id = postId });
+            }
 
-			try
-			{
-				post.Disabled = !post.Disabled;
-				_postService.UpdatePost(post);
-				TempData["SuccessMessage"] = post.Disabled ? "貼文已關閉！" : "貼文已重新開啟！";
-			}
-			catch (Exception ex)
-			{
-				TempData["ErrorMessage"] = "操作失敗：" + ex.Message;
-			}
+            try
+            {
+                post.Disabled = true; // 永遠關閉
+                _postService.UpdatePost(post); // 更新資料庫
 
-			return RedirectToAction("PostDetails", new { id = postId });
-		}
+                TempData["SuccessMessage"] = "貼文已成功關閉！";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "操作失敗：" + ex.Message;
+            }
+
+            return RedirectToAction("PostDetails", new { id = postId });
+        }
 
 
 
@@ -268,7 +287,8 @@ namespace HeartSpace.Controllers
                         PostId = postId,
                         UserId = userId,
                         Comment = content,
-                        CommentTime = DateTime.Now
+                        CommentTime = DateTime.Now,
+                         Disabled = false
                     };
                     db.PostComments.Add(newComment);
                     db.SaveChanges();
@@ -289,9 +309,18 @@ namespace HeartSpace.Controllers
         {
             try
             {
-                if (!DeletedCommentIds.Contains(commentId))
+                using (var db = new AppDbContext())
                 {
-                    DeletedCommentIds.Add(commentId); // 將刪除的留言 ID 加入暫存列表
+                    var comment = db.PostComments.FirstOrDefault(c => c.Id == commentId);
+                    if (comment == null)
+                    {
+                        TempData["ErrorMessage"] = "找不到該留言！";
+                        return RedirectToAction("PostDetails", new { id = comment.PostId });
+                    }
+
+                    // 將 Disabled 狀態設為 1
+                    comment.Disabled = true;
+                    db.SaveChanges();
                 }
 
                 TempData["SuccessMessage"] = "留言已成功刪除！";
@@ -309,7 +338,10 @@ namespace HeartSpace.Controllers
         {
             using (var db = new AppDbContext())
             {
-                return db.PostComments.Where(c => c.Id == commentId).Select(c => c.PostId).FirstOrDefault();
+                return db.PostComments
+                         .Where(c => c.Id == commentId)
+                         .Select(c => c.PostId)
+                         .FirstOrDefault();
             }
         }
 
