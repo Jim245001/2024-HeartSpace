@@ -165,6 +165,7 @@
     <Compile Include="Controllers\PostController.cs" />
     <Compile Include="Controllers\ProfileController.cs" />
     <Compile Include="Controllers\SearchController.cs" />
+    <Compile Include="DTOs\Services\Interfaces\IEventService.cs" />
     <Compile Include="DTOs\Services\Interfaces\IPostService.cs" />
     <Compile Include="Helpers\PaginatedLis.cs" />
     <Compile Include="Models\EFModels\AppDbContext.cs" />
@@ -177,6 +178,7 @@
     <Compile Include="Models\EFModels\PostComment.cs" />
     <Compile Include="Models\EFModels\Tag.cs" />
     <Compile Include="Models\HomePageViewModel.cs" />
+    <Compile Include="Models\SearchEventViewModel.cs" />
     <Compile Include="Models\SearchPostViewModel.cs" />
     <Compile Include="Models\ViewModels\EventStatusViewModel.cs" />
     <Compile Include="Repositories\EventRepository.cs" />

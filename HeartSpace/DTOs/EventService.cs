@@ -5,14 +5,15 @@ using HeartSpace.Models.ViewModels;
 using System.Linq;
 using System.Data.Entity;
 using HeartSpace.Models.EFModels;
+using HeartSpace.DTOs.Services.Interfaces;
 
 
 namespace HeartSpace.BLL
 {
-	public interface IEventService
-	{
-		EventStatusViewModel GetEventStatus(int eventId); // 獲取活動報名狀況
-	}
+	//public interface IEventService
+	//{
+	//	EventStatusViewModel GetEventStatus(int eventId); // 獲取活動報名狀況
+	//}
 
 	public class EventService : IEventService
 	{
