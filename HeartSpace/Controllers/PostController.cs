@@ -4,6 +4,7 @@ using HeartSpace.Models.EFModels;
 using HeartSpace.Models.Services;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -37,7 +38,12 @@ namespace HeartSpace.Controllers
 		public ActionResult CreatePost(CreatePostDto model, HttpPostedFileBase Image)
 		{
 			model.MemberId = GetCurrentUserId();
-			if (!ModelState.IsValid)
+
+            if (model.CategoryId <= 0)
+            {
+                ModelState.AddModelError("CategoryId", "請選擇一個有效的分類！");
+            }
+            if (!ModelState.IsValid)
 			{
 				ViewBag.Categories = _postService.GetCategories();
 				return View(model);
@@ -69,13 +75,21 @@ namespace HeartSpace.Controllers
 		}
 
 		[HttpGet]
-		public ActionResult PostDetails(int id)
+		public ActionResult PostDetails(CreatePostDto model, int id)
 		{
             var post = _postService.GetPostById(id);
+            Debug.WriteLine($"CategoryName: {post.CategoryName}");
+
+
 
             if (post == null)
             {
                 return HttpNotFound("找不到該貼文！");
+            }
+
+            if (post.Disabled && post.MemberId != GetCurrentUserId())
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.Forbidden, "此貼文已關閉，您無權查看！");
             }
 
             using (var db = new AppDbContext())
@@ -84,7 +98,8 @@ namespace HeartSpace.Controllers
                     .Where(c => c.PostId == id)
                     .OrderBy(c => c.CommentTime)
                     .ToList();
-                ViewBag.CurrentUserId = 1; //測試
+
+                ViewBag.CurrentUserId = GetCurrentUserId();
 
                 var viewModel = new PostViewModel
                 {
@@ -92,17 +107,18 @@ namespace HeartSpace.Controllers
                     Title = post.Title,
                     PostContent = post.PostContent,
                     PostImg = post.PostImg,
-                    CategoryName = _postService.GetCategoryNameById(post.CategoryId),
-                    MemberNickName = db.Members.FirstOrDefault(m => m.Id == post.MemberId)?.NickName, // 改為 NickName
+                    CategoryName = post.CategoryName,
+                    MemberNickName = db.Members.FirstOrDefault(m => m.Id == post.MemberId)?.NickName,
                     PublishTime = post.PublishTime,
                     MemberId = post.MemberId,
+                    Disabled = post.Disabled,
                     Comments = comments.Select((c, index) => new CommentViewModel
                     {
                         PostId = c.PostId,
                         CommentId = c.Id,
                         UserId = c.UserId,
                         UserNickName = db.Members.FirstOrDefault(m => m.Id == c.UserId)?.NickName,
-                        UserImg = db.Members.FirstOrDefault(m => m.Id == c.UserId)?.MemberImg ?? null,
+                        UserImg = db.Members.FirstOrDefault(m => m.Id == c.UserId)?.MemberImg,
                         Comment = c.Comment,
                         CommentTime = c.CommentTime,
                         Disabled = c.Disabled ?? false,
@@ -117,20 +133,20 @@ namespace HeartSpace.Controllers
 		[HttpGet]
 		public ActionResult EditPost(int id)
 		{
-			var post = _postService.GetPostById(id);
+            var post = _postService.GetPostById(id); // 取得貼文資訊
+            if (post == null)
+            {
+                return HttpNotFound("找不到該貼文！");
+            }
 
-			if (post == null)
-			{
-				return HttpNotFound("找不到該貼文！");
-			}
-
-			post.CategoryList = _postService.GetCategories();
-			return View(post);
-		}
+            post.CategoryList = _postService.GetCategories(); // 初始化類別清單
+            post.OldPostImg = post.PostImg; // 初始化舊圖片路徑
+            return View(post);
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EditPost(CreatePostDto model, HttpPostedFileBase Image, bool deleteOldImage)
+        public ActionResult EditPost(CreatePostDto model, HttpPostedFileBase Image, bool? deleteOldImage)
         {
             if (!ModelState.IsValid)
             {
@@ -140,36 +156,50 @@ namespace HeartSpace.Controllers
 
             try
             {
-                // 刪除舊圖片的邏輯
-                if (deleteOldImage && !string.IsNullOrEmpty(model.OldPostImg))
-                {
-                    var oldImagePath = Server.MapPath(model.OldPostImg);
-                    if (System.IO.File.Exists(oldImagePath))
-                    {
-                        System.IO.File.Delete(oldImagePath); // 刪除舊圖片文件
-                    }
-                    model.PostImg = null; // 清空圖片路徑
-                }
-
                 // 如果上傳了新圖片
                 if (Image != null && Image.ContentLength > 0)
                 {
-                    if (!deleteOldImage && !string.IsNullOrEmpty(model.OldPostImg))
-                    {
-                        // 如果沒勾選刪除舊圖片但上傳新圖片，詢問用戶確認
-                        TempData["ConfirmationMessage"] = "您已上傳新圖片，是否要替換舊圖片？";
-                        model.CategoryList = _postService.GetCategories();
-                        return View(model);
-                    }
-
-                    // 保存新圖片
+                    // 生成新圖片名稱並保存
                     string fileName = GenerateFileName();
                     string savePath = Path.Combine(Server.MapPath("~/Images"), fileName);
                     Image.SaveAs(savePath);
+
+                    // 更新資料庫圖片路徑
                     model.PostImg = $"/Images/{fileName}";
+
+                    // 如果需要刪除舊圖片
+                    if (!string.IsNullOrEmpty(model.OldPostImg))
+                    {
+                        var oldImagePath = Server.MapPath(model.OldPostImg);
+                        if (System.IO.File.Exists(oldImagePath))
+                        {
+                            System.IO.File.Delete(oldImagePath);
+                        }
+                    }
+                }
+                else if (deleteOldImage == true) // 如果勾選刪除舊圖片但未上傳新圖片
+                {
+                    // 檢查舊圖片路徑是否存在
+                    if (!string.IsNullOrEmpty(model.OldPostImg))
+                    {
+                        var oldImagePath = Server.MapPath(model.OldPostImg);
+                        if (System.IO.File.Exists(oldImagePath))
+                        {
+                            try
+                            {
+                                System.IO.File.Delete(oldImagePath); // 刪除實體檔案
+                            }
+                            catch (Exception ex)
+                            {
+                                // Log 錯誤訊息以便調試
+                                Console.WriteLine($"無法刪除檔案: {ex.Message}");
+                            }
+                        }
+                    }
+                    model.PostImg = null; // 將資料庫中的圖片路徑設為 null
                 }
 
-                // 更新貼文
+                // 更新資料庫
                 _postService.UpdatePost(model);
 
                 TempData["SuccessMessage"] = "貼文已成功更新！";
@@ -181,19 +211,35 @@ namespace HeartSpace.Controllers
                 model.CategoryList = _postService.GetCategories();
                 return View(model);
             }
+
+
         }
 
 
         private string GenerateFileName()
         {
-            using (var db = new AppDbContext())
+            var directoryPath = Server.MapPath("~/Images");
+
+            // 檢查目錄是否存在，若不存在則建立
+            if (!Directory.Exists(directoryPath))
             {
-                int nextId = db.Posts.Max(p => (int?)p.Id) ?? 0 + 1; // 找出目前最大 ID 並加 1
-                return $"{nextId}.jpg";
+                Directory.CreateDirectory(directoryPath);
             }
+
+            // 找出現有檔案中最大的數字
+            var existingFiles = Directory.GetFiles(directoryPath)
+                                         .Select(Path.GetFileNameWithoutExtension)
+                                         .Where(name => int.TryParse(name, out _))
+                                         .Select(int.Parse)
+                                         .OrderByDescending(x => x);
+
+            int nextNumber = existingFiles.Any() ? existingFiles.First() + 1 : 1;
+
+            // 回傳新檔案名稱
+            return $"{nextNumber}.jpg";
         }
 
-            [HttpPost]
+        [HttpPost]
 		public ActionResult DeletePost(int id)
 		{
             try
@@ -225,30 +271,33 @@ namespace HeartSpace.Controllers
 		[ValidateAntiForgeryToken]
 		public ActionResult TogglePostStatus(int postId)
 		{
-			var post = _postService.GetPostById(postId);
-			if (post == null)
-			{
-				return HttpNotFound("找不到該貼文！");
-			}
+            var post = _postService.GetPostById(postId);
+            if (post == null)
+            {
+                TempData["ErrorMessage"] = "找不到該貼文！";
+                return RedirectToAction("PostDetails", new { id = postId });
+            }
 
-			if (post.MemberId != GetCurrentUserId())
-			{
-				return new HttpStatusCodeResult(HttpStatusCode.Forbidden, "您無權限執行此操作");
-			}
+            if (post.MemberId != GetCurrentUserId())
+            {
+                TempData["ErrorMessage"] = "您無權限執行此操作！";
+                return RedirectToAction("PostDetails", new { id = postId });
+            }
 
-			try
-			{
-				post.Disabled = !post.Disabled;
-				_postService.UpdatePost(post);
-				TempData["SuccessMessage"] = post.Disabled ? "貼文已關閉！" : "貼文已重新開啟！";
-			}
-			catch (Exception ex)
-			{
-				TempData["ErrorMessage"] = "操作失敗：" + ex.Message;
-			}
+            try
+            {
+                post.Disabled = true; // 永遠關閉
+                _postService.UpdatePost(post); // 更新資料庫
 
-			return RedirectToAction("PostDetails", new { id = postId });
-		}
+                TempData["SuccessMessage"] = "貼文已成功關閉！";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "操作失敗：" + ex.Message;
+            }
+
+            return RedirectToAction("PostDetails", new { id = postId });
+        }
 
 
 
@@ -268,7 +317,8 @@ namespace HeartSpace.Controllers
                         PostId = postId,
                         UserId = userId,
                         Comment = content,
-                        CommentTime = DateTime.Now
+                        CommentTime = DateTime.Now,
+                         Disabled = false
                     };
                     db.PostComments.Add(newComment);
                     db.SaveChanges();
@@ -289,9 +339,18 @@ namespace HeartSpace.Controllers
         {
             try
             {
-                if (!DeletedCommentIds.Contains(commentId))
+                using (var db = new AppDbContext())
                 {
-                    DeletedCommentIds.Add(commentId); // 將刪除的留言 ID 加入暫存列表
+                    var comment = db.PostComments.FirstOrDefault(c => c.Id == commentId);
+                    if (comment == null)
+                    {
+                        TempData["ErrorMessage"] = "找不到該留言！";
+                        return RedirectToAction("PostDetails", new { id = comment.PostId });
+                    }
+
+                    // 將 Disabled 狀態設為 1
+                    comment.Disabled = true;
+                    db.SaveChanges();
                 }
 
                 TempData["SuccessMessage"] = "留言已成功刪除！";
@@ -309,7 +368,10 @@ namespace HeartSpace.Controllers
         {
             using (var db = new AppDbContext())
             {
-                return db.PostComments.Where(c => c.Id == commentId).Select(c => c.PostId).FirstOrDefault();
+                return db.PostComments
+                         .Where(c => c.Id == commentId)
+                         .Select(c => c.PostId)
+                         .FirstOrDefault();
             }
         }
 

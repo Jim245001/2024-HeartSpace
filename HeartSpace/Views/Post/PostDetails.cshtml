@@ -2,8 +2,23 @@
 @using System.Text.RegularExpressions;
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-
 <div class="container" style="margin-top: 20px; font-family: 'Microsoft JhengHei', sans-serif;">
+
+    <!-- 顯示 TempData 訊息 -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success mt-3">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger mt-3">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
     <!-- 貼文內容 -->
     <div class="post-section rounded shadow-sm bg-light p-4 mb-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -11,43 +26,56 @@
             <div class="d-flex align-items-center">
                 @if (!string.IsNullOrEmpty(Model.MemberImg))
                 {
-                    <img src="@Model.MemberImg" alt="User Image" onerror="this.src='/Images/default-user.png';" />
-
+                    <img src="@Model.PostImg?cache=@DateTime.Now.Ticks" alt="Post Image" style="max-width: 300px; max-height: 300px;" />
                 }
                 else
                 {
-                    <i class="fa-regular fa-circle-user me-3" style="font-size: 50px; color: #ccc;"></i>
+                    <i class="fa-regular fa-circle-user me-3" style="font-size: 40px; color: #ccc;"></i>
                 }
+
                 <span style="font-weight: bold; color: #495057;">@Model.MemberNickName</span>
             </div>
         </div>
+
         <div class="d-flex justify-content-start align-items-center text-muted mb-3" style="font-size: 1rem;">
             <span class="me-4"><i class="fa-solid fa-tag me-1"></i>@Model.CategoryName</span>
             <span class="me-4"><i class="fa-solid fa-clock me-1"></i>@Model.PublishTime.ToString("yyyy-MM-dd HH:mm")</span>
         </div>
+
         @if (!string.IsNullOrEmpty(Model.PostImg))
         {
             <img src="@Model.PostImg" alt="Post Image" style="max-width: 300px; max-height: 300px;" />
         }
         <p style="color: #212529; font-size: 1.1rem;">@Model.PostContent</p>
 
-        @if (ViewBag.CurrentUserId == Model.MemberId)
+        <!-- 編輯與關閉貼文按鈕 -->
+        @if (Model.Disabled)
         {
-            <div class="text-end">
-                <form action="@Url.Action("TogglePostStatus", "Post")" method="post" style="display:inline;">
+            <div class="alert alert-danger mt-3">此貼文現為關閉狀態！</div>
+        }
+
+        @if (ViewBag.CurrentUserId == Model.MemberId && !Model.Disabled)
+        {
+            <div class="d-flex justify-content-end">
+                <form action="@Url.Action("TogglePostStatus", "Post")" method="post" style="display:inline;" onsubmit="return confirmClosePost();">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="postId" value="@Model.Id" />
-                    <button type="submit" class="btn btn-danger me-2">
-                        @(Model.Disabled ? "重新開啟" : "關閉")
+                    <button type="submit" class="btn btn-danger">
+                        關閉貼文
                     </button>
                 </form>
-                <a class="btn btn-primary" href="@Url.Action("EditPost", "Post", new { id = Model.Id })">修改</a>
+                <a href="@Url.Action("EditPost", "Post", new { id = Model.Id })" class="btn btn-primary ms-2">
+                    修改
+                </a>
             </div>
         }
     </div>
 
+
+
     <!-- 留言板 -->
     <div class="comments-section mt-4">
+      
         <h3 class="border-bottom pb-2 mb-4" style="font-size: 1.5rem; font-weight: bold; color: #6a7888;">
             <i class="fa-solid fa-comments me-2"></i>留言板
         </h3>
@@ -56,7 +84,7 @@
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="postId" value="@Model.Id" />
                 <textarea id="commentContent" name="content" class="form-control mb-2" rows="3" placeholder="輸入您的留言..." required></textarea>
-                <button type="submit" class="btn btn-success" id="submitComment" style="background-color: #FDD9A0; border: none;" disabled>送出留言</button>
+                <button type="submit" class="btn btn-success" id="submitComment" style="background-color: #FDD9A0; border: none;color:black;font-weight:bolder;" disabled>送出留言</button>
             </form>
         </div>
         @if (Model.Comments != null && Model.Comments.Any())
@@ -66,41 +94,48 @@
                 {
                     <div class="list-group-item rounded mb-3 shadow-sm">
                         <div class="d-flex flex-column">
-                            <!-- 樓層號碼 -->
-                            <span class="text-primary fw-bold" style="margin-bottom: 5px; cursor: pointer;" onclick="mentionUser('#B@(comment.FloorNumber)')">
-                                #B@(comment.FloorNumber)
-                            </span>
-                            <div class="d-flex align-items-start">
-                                <!-- 留言者頭像 -->
-                                @if (!string.IsNullOrEmpty(comment.UserImg) && comment.UserImg.StartsWith("data:image"))
-                                {
-                                    <img src="@comment.UserImg" alt="留言者頭像" class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover;" />
-                                }
-                                else
-                                {
-                                    <i class="fa-regular fa-circle-user me-3" style="font-size: 50px; color: #ccc;"></i>
-                                }
-                                <div class="flex-grow-1">
-                                    <!-- 留言者資訊 -->
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <strong style="margin-bottom: 5px; display: block;">@comment.UserNickName</strong>
-                                        <small class="text-muted">@comment.CommentTime.ToString("MM-dd HH:mm")</small>
-                                    </div>
-                                    <!-- 留言內容 -->
-                                    <p class="mb-0" style="color: #212529; font-size: 1rem;">
-                                        @Html.Raw(Regex.Replace(comment.Comment, @"#B\d+", match => $"<a href='#' style='color: #007bff; text-decoration: underline;' onclick='mentionUser(\"{match.Value}\"); return false;'>{match.Value}</a>"))
-                                    </p>
-                                </div>
-                            </div>
-                            @if (ViewBag.CurrentUserId == comment.UserId)
+                            @if (comment.Disabled)
                             {
-                                <div class="text-end mt-2">
-                                    <form action="@Url.Action("DeleteComment", "Post")" method="post" style="display:inline;">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="commentId" value="@comment.CommentId" />
-                                        <button type="submit" class="btn btn-danger btn-sm">刪除</button>
-                                    </form>
+                                <!-- 已刪除留言顯示灰框 -->
+                                <div class="alert alert-secondary">
+                                    <i class="fa-solid fa-trash"></i> 此留言已被刪除
                                 </div>
+                            }
+                            else
+                            {
+                                <!-- 正常留言顯示 -->
+                                <span class="text-primary fw-bold" style="margin-bottom: 5px; cursor: pointer;" onclick="mentionUser('#B@(comment.FloorNumber)')">
+                                    #B@(comment.FloorNumber)
+                                </span>
+                                <div class="d-flex align-items-start">
+                                    @if (!string.IsNullOrEmpty(comment.UserImg) && comment.UserImg.StartsWith("data:image"))
+                                    {
+                                        <img src="@comment.UserImg" alt="留言者頭像" class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover;" />
+                                    }
+                                    else
+                                    {
+                                        <i class="fa-regular fa-circle-user me-3" style="font-size: 50px; color: #ccc;"></i>
+                                    }
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <strong style="margin-bottom: 5px; display: block;">@comment.UserNickName</strong>
+                                            <small class="text-muted">@comment.CommentTime.ToString("MM-dd HH:mm")</small>
+                                        </div>
+                                        <p class="mb-0" style="color: #212529; font-size: 1rem;">
+                                            @Html.Raw(Regex.Replace(comment.Comment, @"#B\d+", match => $"<a href='#' style='color: #007bff; text-decoration: underline;' onclick='mentionUser(\"{match.Value}\"); return false;'>{match.Value}</a>"))
+                                        </p>
+                                    </div>
+                                </div>
+                                if (ViewBag.CurrentUserId == comment.UserId)
+                                {
+                                    <div class="text-end mt-2">
+                                        <form action="@Url.Action("DeleteComment", "Post")" method="post" style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="commentId" value="@comment.CommentId" />
+                                            <button type="submit" class="btn btn-danger btn-sm">刪除</button>
+                                        </form>
+                                    </div>
+                                }
                             }
                         </div>
                     </div>
@@ -112,9 +147,17 @@
             <p class="text-muted">目前沒有留言，快來搶沙發！</p>
         }
     </div>
+
 </div>
 
+
 @section Scripts {
+    <script>
+        function confirmClosePost() {
+            return confirm("是否確定關閉貼文？");
+        }
+    </script>
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const commentBox = document.getElementById("commentContent");

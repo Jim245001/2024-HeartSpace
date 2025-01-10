@@ -56,6 +56,11 @@
             color: red;
             font-size: 14px;
         }
+
+        .is-invalid {
+            border-color: red !important;
+            background-color: #ffe6e6;
+        }
     </style>
 </head>
 <body>
@@ -83,14 +88,12 @@
             <div class="form-section">
                 <label for="Title" class="form-label">標題 <span class="text-danger">*</span>：</label>
                 @Html.TextBoxFor(m => m.Title, new { @class = "form-control", placeholder = "請輸入貼文標題", @id = "Title" })
-                @Html.ValidationMessageFor(m => m.Title, "", new { @class = "text-danger" })
-
                 <span class="text-danger" id="TitleError"></span>
             </div>
 
             <div class="form-section">
                 <label for="Image" class="form-label">上傳圖片：</label>
-                <input type="file" name="Image" id="Image" class="form-control" />
+                <input type="file" name="Image" id="Image" class="form-control" accept="image/*" />
             </div>
 
             <div class="form-section">
@@ -99,16 +102,18 @@
                     m => m.CategoryId,
                     ViewBag.Categories as IEnumerable<SelectListItem>,
                     "請選擇分類",
-                    new { @class = "form-control" })
-                @Html.ValidationMessageFor(m => m.CategoryId, "", new { @class = "text-danger" })
+                    new { @class = "form-control", @id = "CategoryId" })
+                <span class="text-danger" id="CategoryError"></span>
             </div>
+
+            
+
 
             <div class="form-section">
                 <label for="PostContent" class="form-label">內文 <span class="text-danger">*</span>：</label>
-                @Html.TextAreaFor(m => m.PostContent, new { @id = "Content", @class = "form-control", rows = 5, placeholder = "請輸入貼文內文" })
-                @Html.ValidationMessageFor(m => m.PostContent, "", new { @class = "text-danger" })
+                @Html.TextAreaFor(m => m.PostContent, new { @class = "form-control", rows = 5, placeholder = "請輸入貼文內文", @id = "PostContent" })
                 <span class="text-danger" id="ContentError"></span>
-                <div class="text-muted" id="contentCharCount">0/500</div>
+                <div class="text-muted" id="ContentCharCount">0/500</div>
             </div>
 
             <div class="text-center">
@@ -120,22 +125,26 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            // 取得輸入框元素
             const titleInput = document.getElementById("Title");
-            const titleError = document.getElementById("TitleError");
-            const maxTitleLength = 20;
-
-            const contentInput = document.getElementById("Content");
-            const contentError = document.getElementById("ContentError");
+            const categoryInput = document.getElementById("CategoryId");
+            const contentInput = document.getElementById("PostContent");
             const maxContentLength = 500;
-            const contentCharCount = document.getElementById("contentCharCount");
 
+            // 錯誤訊息元素
+            const titleError = document.getElementById("TitleError");
+            const categoryError = document.getElementById("CategoryError");
+            const contentError = document.getElementById("ContentError");
+            const contentCharCount = document.getElementById("ContentCharCount");
+
+            // 驗證標題
             function validateTitle() {
                 const value = titleInput.value.trim();
-                if (value === "") {
+                if (!value) {
                     titleError.textContent = "標題為必填";
                     titleInput.classList.add("is-invalid");
-                } else if (value.length > maxTitleLength) {
-                    titleError.textContent = 標題不可超過 ${maxTitleLength} 字;
+                } else if (value.length > 20) {
+                    titleError.textContent = "標題不可超過 20 字";
                     titleInput.classList.add("is-invalid");
                 } else {
                     titleError.textContent = "";
@@ -143,27 +152,42 @@
                 }
             }
 
+            // 驗證分類
+            function validateCategory() {
+                if (!categoryInput.value) {
+                    categoryError.textContent = "請選擇分類";
+                    categoryInput.classList.add("is-invalid");
+                } else {
+                    categoryError.textContent = "";
+                    categoryInput.classList.remove("is-invalid");
+                }
+            }
+
+            // 驗證內文
             function validateContent() {
                 const value = contentInput.value.trim();
-                if (value === "") {
+                contentCharCount.textContent = `${value.length}/${maxContentLength}`;
+                if (!value) {
                     contentError.textContent = "內文為必填";
                     contentInput.classList.add("is-invalid");
                 } else if (value.length > maxContentLength) {
-                    contentError.textContent = 內文不可超過 ${maxContentLength} 字;
+                    contentError.textContent = `內文不可超過 ${maxContentLength} 字`;
                     contentInput.classList.add("is-invalid");
                 } else {
                     contentError.textContent = "";
                     contentInput.classList.remove("is-invalid");
                 }
-                contentCharCount.innerText = ${value.length}/${maxContentLength};
             }
 
+            // 監聽事件
             titleInput.addEventListener("blur", validateTitle);
             titleInput.addEventListener("input", validateTitle);
+
+            categoryInput.addEventListener("blur", validateCategory);
 
             contentInput.addEventListener("blur", validateContent);
             contentInput.addEventListener("input", validateContent);
         });
     </script>
 </body>
-</html>  
+</html>
