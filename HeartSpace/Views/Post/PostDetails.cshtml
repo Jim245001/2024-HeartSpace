@@ -26,7 +26,7 @@
             <div class="d-flex align-items-center">
                 @if (!string.IsNullOrEmpty(Model.MemberImg))
                 {
-                    <img src="@Model.MemberImg" alt="User Image" style="width: 40px; height: 40px; border-radius: 50%;" onerror="this.src='/Images/default-user.png';" />
+                    <img src="@Model.PostImg?cache=@DateTime.Now.Ticks" alt="Post Image" style="max-width: 300px; max-height: 300px;" />
                 }
                 else
                 {

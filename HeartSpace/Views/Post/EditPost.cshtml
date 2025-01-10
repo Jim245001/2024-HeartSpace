@@ -2,57 +2,57 @@
 
 @{
     ViewBag.Title = "修改貼文";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>修改貼文</h2>
+<style>
+    .section-title {
+        background-color: #FDD9A0;
+        text-align: center;
+        padding: 10px;
+        font-size: 24px;
+        font-weight: bold;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
 
-@using (Html.BeginForm("EditPost", "Post", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    .form-section {
+        background-color: #ffffff;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+
+    .btn-submit {
+        background-color: #FDD9A0;
+        color: black;
+        font-weight: bold;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+    }
+
+        .btn-submit:hover {
+            background-color: #FCB874;
+        }
+
+    .text-danger {
+        color: red;
+        font-size: 14px;
+    }
+
+    .is-invalid {
+        border-color: red !important;
+        background-color: #FFE6E6;
+    }
+</style>
+
+@if (TempData["ConfirmationMessage"] != null)
 {
-    @Html.AntiForgeryToken()
-
-    <div class="form-group">
-        @Html.LabelFor(model => model.Title, "標題：")
-        @Html.TextBoxFor(model => model.Title, new { @class = "form-control", placeholder = "請輸入標題" })
-        @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+    <div class="alert alert-warning">
+        @TempData["ConfirmationMessage"]
     </div>
-
-    <div class="form-section">
-        <label for="CategoryId" class="form-label">分類：</label>
-        @Html.DropDownListFor(m => m.CategoryId,
-                                   Model.CategoryList,
-                                   "請選擇分類",
-                                   new { @class = "form-control" })
-        @Html.ValidationMessageFor(m => m.CategoryId, "", new { @class = "text-danger" })
-    </div>
-
-    <div>
-        <label>舊圖片：</label>
-        @if (!string.IsNullOrEmpty(Model.OldPostImg))
-        {
-            <img src="@Model.OldPostImg" alt="Old Image" style="max-width: 300px; max-height: 300px;" />
-            <div>
-                <input type="checkbox" name="deleteOldImage" value="true" id="deleteOldImage" />
-                <label for="deleteOldImage">刪除舊圖片</label>
-            </div>
-        }
-        else
-        {
-            <p>目前沒有圖片</p>
-        }
-    </div>
-
-    <div class="form-group">
-        <label for="Image">上傳新圖片：</label>
-        <input type="file" id="Image" name="Image" class="form-control" />
-    </div>
-
-    <div class="form-group">
-        @Html.LabelFor(model => model.PostContent, "內文：")
-        @Html.TextAreaFor(model => model.PostContent, new { @class = "form-control", placeholder = "請輸入內文", rows = 5 })
-        @Html.ValidationMessageFor(model => model.PostContent, "", new { @class = "text-danger" })
-    </div>
-
-    <button type="submit" class="btn btn-primary">修改貼文</button>
 }
 
 @if (TempData["ConfirmationMessage"] != null)
@@ -61,3 +61,204 @@
         @TempData["ConfirmationMessage"]
     </div>
 }
+
+
+<div class="container mt-5">
+    <div class="section-title">修改貼文</div>
+
+    <!-- 成功或錯誤訊息 -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">修改失敗，請檢查輸入內容！</div>
+    }
+
+    <!-- 表單 -->
+    @using (Html.BeginForm("EditPost", "Post", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <!-- 標題 -->
+        <div class="form-section">
+            <label for="Title" class="form-label">標題 <span class="text-danger">*</span>：</label>
+            @Html.TextBoxFor(m => m.Title, new { @class = "form-control", placeholder = "請輸入貼文標題", @id = "Title" })
+            <span class="text-danger" id="TitleError"></span>
+        </div>
+
+        <!-- 分類 -->
+        <div class="form-section">
+            <label for="CategoryId" class="form-label">分類 <span class="text-danger">*</span>：</label>
+            @Html.DropDownListFor(
+                m => m.CategoryId,
+                Model.CategoryList,
+                "請選擇分類",
+                new { @class = "form-control", @id = "CategoryId" })
+            <span class="text-danger" id="CategoryError"></span>
+        </div>
+
+        <!-- 舊圖片 -->
+        <div class="form-section">
+            <div style="display: flex; align-items: center; gap: 20px;">
+                @if (!string.IsNullOrEmpty(Model.OldPostImg))
+                {
+                    <div style="width: 150px; height: 150px; border: 1px solid #ddd; border-radius: 5px; overflow: hidden;">
+                        <img src="@Model.OldPostImg" alt="Old Image" style="width: 100%; height: 100%; object-fit: contain;" />
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-solid fa-right-long"></i>
+                        <input type="checkbox" id="deleteOldImage" name="deleteOldImage" value="true" />
+                        <label for="deleteOldImage">刪除舊圖片？</label>
+                    </div>
+                }
+                else
+                {
+                    <p>目前沒有圖片</p>
+                }
+            </div>
+        </div>
+
+
+        <!-- 上傳新圖片 -->
+        <div class="form-section">
+            <label for="Image" class="form-label">上傳新圖片：</label>
+            <input type="file" id="Image" name="Image" class="form-control" accept="image/*" />
+        </div>
+
+        <!-- 內文 -->
+        <div class="form-section">
+            <label for="PostContent" class="form-label">內文 <span class="text-danger">*</span>：</label>
+            @Html.TextAreaFor(m => m.PostContent, new { @class = "form-control", rows = 5, placeholder = "請輸入貼文內文", @id = "PostContent" })
+            <span class="text-danger" id="ContentError"></span>
+            <div class="text-muted" id="ContentCharCount">0/500</div>
+        </div>
+
+        <!-- 按鈕 -->
+        <div class="text-center">
+            <button type="submit" class="btn btn-submit">確認修改貼文</button>
+        </div>
+    }
+</div>
+
+<style>
+    .form-section img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .form-section div {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .form-section {
+        margin-bottom: 20px;
+    }
+</style>
+
+
+<!-- 驗證與字數計數 -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // 取得輸入框元素
+        const titleInput = document.getElementById("Title");
+        const categoryInput = document.getElementById("CategoryId");
+        const contentInput = document.getElementById("PostContent");
+        const maxContentLength = 500;
+
+        // 錯誤訊息元素
+        const titleError = document.getElementById("TitleError");
+        const categoryError = document.getElementById("CategoryError");
+        const contentError = document.getElementById("ContentError");
+        const contentCharCount = document.getElementById("ContentCharCount");
+
+        // 驗證標題
+        function validateTitle() {
+            const value = titleInput.value.trim();
+            if (!value) {
+                titleError.textContent = "標題為必填";
+                titleInput.classList.add("is-invalid");
+            } else if (value.length > 20) {
+                titleError.textContent = "標題不可超過 20 字";
+                titleInput.classList.add("is-invalid");
+            } else {
+                titleError.textContent = "";
+                titleInput.classList.remove("is-invalid");
+            }
+        }
+
+        // 驗證分類
+        function validateCategory() {
+            if (!categoryInput.value) {
+                categoryError.textContent = "請選擇分類";
+                categoryInput.classList.add("is-invalid");
+            } else {
+                categoryError.textContent = "";
+                categoryInput.classList.remove("is-invalid");
+            }
+        }
+
+        // 驗證內文
+        function validateContent() {
+            const value = contentInput.value.trim();
+            contentCharCount.textContent = `${value.length}/${maxContentLength}`;
+            if (!value) {
+                contentError.textContent = "內文為必填";
+                contentInput.classList.add("is-invalid");
+            } else if (value.length > maxContentLength) {
+                contentError.textContent = `內文不可超過 ${maxContentLength} 字`;
+                contentInput.classList.add("is-invalid");
+            } else {
+                contentError.textContent = "";
+                contentInput.classList.remove("is-invalid");
+            }
+        }
+
+        // 監聽事件
+        titleInput.addEventListener("blur", validateTitle);
+        titleInput.addEventListener("input", validateTitle);
+
+        categoryInput.addEventListener("blur", validateCategory);
+
+        contentInput.addEventListener("blur", validateContent);
+        contentInput.addEventListener("input", validateContent);
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.querySelector("form");
+        const deleteOldImageCheckbox = document.getElementById("deleteOldImage");
+        const imageInput = document.getElementById("Image");
+
+        // 當有舊圖片且上傳新圖片時，強制要求勾選刪除舊圖片
+        imageInput.addEventListener("change", function () {
+            if (this.files.length > 0 && deleteOldImageCheckbox && !deleteOldImageCheckbox.checked) {
+                alert("您上傳了新圖片，請勾選 '刪除舊圖片' 以確認替換！");
+                deleteOldImageCheckbox.focus();
+            }
+        });
+
+        // 提交表單時的檢查邏輯
+        form.addEventListener("submit", function (event) {
+            if (deleteOldImageCheckbox.checked && !imageInput.value) {
+                // 如果勾選了刪除舊圖片但未上傳新圖片，確認是否刪除
+                const confirmation = confirm("未更新新圖片，是否確認刪除舊圖片？");
+                if (!confirmation) {
+                    event.preventDefault(); // 停止提交
+                }
+            }
+
+            if (!deleteOldImageCheckbox.checked && imageInput.value) {
+                // 如果上傳了新圖片但未勾選刪除舊圖片，警告並停止提交
+                alert("您上傳了新圖片但未勾選 '刪除舊圖片'，請確認操作！");
+                deleteOldImageCheckbox.focus();
+                event.preventDefault(); // 停止提交
+            }
+        });
+    });
+
+
+</script>

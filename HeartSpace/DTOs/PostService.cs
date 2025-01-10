@@ -151,6 +151,7 @@ namespace HeartSpace.Models.Services
                 MemberImg = postWithMember.Member.MemberImg,
                 Disabled = postWithMember.Post.Disabled,
                 CategoryName = categoryName,
+                CategoryId = postWithMember.Post.CategoryId,
                 MemberId = postWithMember.Post.MemberId != 0
             ? postWithMember.Post.MemberId // 如果有正確的 MemberId 就用它
             : 1 // 
@@ -180,22 +181,21 @@ namespace HeartSpace.Models.Services
 
         public void UpdatePost(CreatePostDto dto)
         {
+
             var post = _repository.GetPostById(dto.Id);
             if (post == null)
             {
                 throw new Exception("找不到該貼文！");
             }
 
+            // 更新基本資料
             post.Title = dto.Title;
             post.PostContent = dto.PostContent;
             post.CategoryId = dto.CategoryId;
             post.Disabled = dto.Disabled;
 
-            // 如果有新圖片，更新圖片
-            if (!string.IsNullOrEmpty(dto.PostImg))
-            {
-                post.PostImg = dto.PostImg;
-            }
+            // 更新圖片路徑（無論是新圖片還是清空圖片）
+            post.PostImg = dto.PostImg;
 
             _repository.UpdatePost(post);
         }
