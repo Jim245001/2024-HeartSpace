@@ -278,6 +278,7 @@
             @Html.LabelFor(m => m.UploadedEventImg, "照片", new { @class = "form-label" })
             @Html.TextBoxFor(m => m.UploadedEventImg, new { @class = "form-control", type = "file" })
             @Html.ValidationMessageFor(m => m.UploadedEventImg, "", new { @class = "text-danger small" })
+            <small class="form-text text-muted" style="margin-left:10px">可上傳圖片檔案（jpg、jpeg、png、gif），大小限制 5MB。</small>
         </div>
     </div>
             <!-- 按鈕 -->

@@ -114,6 +114,18 @@
             font-size: 1.4rem;
             margin-bottom: 1rem;
         }
+        .deletecheck {
+            display: flex;
+            justify-content: center; /* 水平置中 */
+            align-items: center; /* 垂直置中 */
+        }
+
+        .form-check-input[type=checkbox] {
+            border-radius: 2em;
+            width: 1.4em;
+            height: 1.4em;
+        }
+    
     </style>
 </head>
 <body>
@@ -126,6 +138,24 @@
         @using (Html.BeginForm("EditEvent", "Event", FormMethod.Post, new { enctype = "multipart/form-data", @class = "mx-auto", style = "max-width: 600px;" }))
         {
             @Html.AntiForgeryToken()
+
+            <!-- 活動照片 -->
+            <div class="text-center mb-4">
+                @if (!string.IsNullOrEmpty(Model.EventImg))
+                {
+                    <img src="@Url.Content("~/" + Model.EventImg)" alt="活動圖片" class="img-fluid"
+                         style=" aspect-ratio: 3 / 2; border-radius: 10px; object-fit: cover; display: block; margin: 0 auto;" />
+                    <div class="form-check deletecheck">
+                        <!-- 隱藏欄位，確保未勾選時傳遞 false -->
+                        @*<input type="hidden" name="removePhoto" value="false" />*@
+                        <!-- 勾選時，傳遞 true -->
+                        <input type="checkbox" name="removePhoto" id="removePhoto" value="true" class="form-check-input">
+                        <label for="removePhoto" class="form-check-label deletechecktext">刪除目前活動照片</label>
+                    
+                    </div>
+                }
+
+            </div>
 
             <div class="innerbox">
                 <!-- 活動名稱 -->
@@ -146,7 +176,14 @@
                 <!-- 活動分類 -->
                 <div class="mb-3">
                     <label for="CategoryId" class="form-label">揪團分類</label><span class="text-danger"> *</span>
-                    @Html.DropDownListFor(m => m.CategoryId, new SelectList(ViewBag.Categories, "Value", "Text"), "請選擇分類", new { @class = "form-control" })
+                    @Html.DropDownListFor(
+    m => m.CategoryId,
+    Model.Categories, // 直接使用 IEnumerable<SelectListItem>
+    "請選擇分類",
+    new { @class = "form-control" }
+)
+
+
                     @Html.ValidationMessageFor(m => m.CategoryId, "", new { @class = "text-danger small" })
                 </div>
 
@@ -265,10 +302,12 @@
 
                 <!-- 照片 -->
                 <div class="mb-3">
-                    @Html.LabelFor(m => m.UploadedEventImg, "照片", new { @class = "form-label" })
+                    @Html.LabelFor(m => m.UploadedEventImg, "新照片", new { @class = "form-label" })
                     @Html.TextBoxFor(m => m.UploadedEventImg, new { @class = "form-control", type = "file" })
                     @Html.ValidationMessageFor(m => m.UploadedEventImg, "", new { @class = "text-danger small" })
+                    <small class="form-text text-muted" style="margin-left:10px">可上傳圖片檔案（jpg、jpeg、png、gif），大小限制 5MB。</small>
                 </div>
+
             </div>
 
             <!-- 按鈕 -->

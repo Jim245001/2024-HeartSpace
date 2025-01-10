@@ -68,47 +68,44 @@ namespace HeartSpace.DAL
 		// 新增活動
 		public int AddEvent(Event newEvent)
 		{
-			using (var connection = CreateConnection())
+			using (var context = new AppDbContext())
 			{
-				const string sql = @"
-INSERT INTO Events (EventName, MemberId, EventImg, CategoryId, Description, EventTime, Location, IsOnline, ParticipantMax, ParticipantMin, Limit, DeadLine, CommentCount, ParticipantNow, Disabled)
-OUTPUT INSERTED.Id
-VALUES (@EventName, @MemberId, @EventImg, @CategoryId, @Description, @EventTime, @Location, @IsOnline, @ParticipantMax, @ParticipantMin, @Limit, @DeadLine, @CommentCount, @ParticipantNow, @Disabled)";
-
-				var parameters = new DynamicParameters();
-				parameters.Add("@EventName", newEvent.EventName, DbType.String);
-				parameters.Add("@MemberId", newEvent.MemberId, DbType.Int32);
-				parameters.Add("@EventImg", newEvent.EventImg ?? (object)DBNull.Value, DbType.Binary); // 確保是二進位資料
-				parameters.Add("@CategoryId", newEvent.CategoryId, DbType.Int32);
-				parameters.Add("@Description", newEvent.Description, DbType.String);
-				parameters.Add("@EventTime", newEvent.EventTime, DbType.DateTime);
-				parameters.Add("@Location", newEvent.Location, DbType.String);
-				parameters.Add("@IsOnline", newEvent.IsOnline, DbType.Boolean);
-				parameters.Add("@ParticipantMax", newEvent.ParticipantMax, DbType.Int32);
-				parameters.Add("@ParticipantMin", newEvent.ParticipantMin, DbType.Int32);
-				parameters.Add("@Limit", newEvent.Limit, DbType.String);
-				parameters.Add("@DeadLine", newEvent.DeadLine, DbType.DateTime);
-				parameters.Add("@CommentCount", newEvent.CommentCount, DbType.Int32);
-				parameters.Add("@ParticipantNow", newEvent.ParticipantNow, DbType.Int32);
-				parameters.Add("@Disabled", newEvent.Disabled, DbType.Boolean);
-
-				return connection.QuerySingle<int>(sql, parameters);
+				context.Events.Add(newEvent); // 新增活動
+				context.SaveChanges(); // 儲存變更
+				return newEvent.Id; // 返回生成的 Id
 			}
 		}
-
 
 		// 更新活動
 		public void UpdateEvent(Event updatedEvent)
 		{
-			using (var connection = CreateConnection())
+			using (var context = new AppDbContext())
 			{
-				const string sql = @"
-					UPDATE Events
-					SET EventName = @EventName, MemberId = @MemberId, EventImg = @EventImg, CategoryId = @CategoryId, Description = @Description, EventTime = @EventTime,
-						Location = @Location, IsOnline = @IsOnline, ParticipantMax = @ParticipantMax, ParticipantMin = @ParticipantMin,
-						Limit = @Limit, DeadLine = @DeadLine, CommentCount = @CommentCount, ParticipantNow = @ParticipantNow
-					WHERE Id = @Id";
-				connection.Execute(sql, updatedEvent);
+				var existingEvent = context.Events.FirstOrDefault(e => e.Id == updatedEvent.Id);
+				if (existingEvent != null)
+				{
+					// 更新屬性
+					existingEvent.EventName = updatedEvent.EventName;
+					existingEvent.MemberId = updatedEvent.MemberId;
+					existingEvent.EventImg = updatedEvent.EventImg;
+					existingEvent.CategoryId = updatedEvent.CategoryId;
+					existingEvent.Description = updatedEvent.Description;
+					existingEvent.EventTime = updatedEvent.EventTime;
+					existingEvent.Location = updatedEvent.Location;
+					existingEvent.IsOnline = updatedEvent.IsOnline;
+					existingEvent.ParticipantMax = updatedEvent.ParticipantMax;
+					existingEvent.ParticipantMin = updatedEvent.ParticipantMin;
+					existingEvent.Limit = updatedEvent.Limit;
+					existingEvent.DeadLine = updatedEvent.DeadLine;
+					existingEvent.CommentCount = updatedEvent.CommentCount;
+					existingEvent.ParticipantNow = updatedEvent.ParticipantNow;
+					existingEvent.Disabled = updatedEvent.Disabled;
+
+					// 儲存變更
+					context.SaveChanges();
+					// 調試輸出，確認更新後的 EventImg
+					Console.WriteLine($"EventImg after update: {existingEvent.EventImg}");
+				}
 			}
 		}
 

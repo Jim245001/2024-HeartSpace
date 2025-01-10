@@ -169,6 +169,7 @@ namespace HeartSpace.BLL
 				Description = eventEntity.Description,
 				EventTime = eventEntity.EventTime,
 				DeadLine = eventEntity.DeadLine,
+				EventImg = eventEntity.EventImg,
 				CategoryName = eventEntity.Category?.CategoryName, // 假設有類別關聯
 				Comments = new List<CommentViewModel>() // 初始化評論列表
 			};

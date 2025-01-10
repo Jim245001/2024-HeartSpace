@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Web;
+using System.Web.Mvc;
 using HeartSpace.Attributes;
 
 namespace HeartSpace.Models.ViewModels
@@ -23,7 +24,8 @@ namespace HeartSpace.Models.ViewModels
 		[Display(Name = "分類 ID")]
 		public int CategoryId { get; set; }
 
-		public string CategoryName { get; set; } // 用於顯示分類名稱
+		public string CategoryName { get; set; } 
+		public IEnumerable<SelectListItem> Categories { get; set; } // 用於分類清單
 
 		//活動資訊
 		[Required(ErrorMessage = "{0}必填")]
@@ -64,9 +66,6 @@ namespace HeartSpace.Models.ViewModels
 
 		[ValidateImage(5 * 1024 * 1024, "image/jpeg", "image/png", "image/gif", ErrorMessage = "圖片必須為 JPEG、PNG 或 GIF 格式，且大小不能超過 5MB")]
 		public HttpPostedFileBase UploadedEventImg { get; set; } // 用於接收圖片上傳
-
-		public string EventImgUrl => $"/Image/GetEventImage?eventId={Id}";
-		public string MemberProfileImgUrl => $"/Image/GetMemberProfileImage?memberId={MemberId}";
 
 		// 人數
 		[Required(ErrorMessage = "{0}必填")]

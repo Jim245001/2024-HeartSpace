@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.UI;
 using HeartSpace.BLL;
@@ -38,7 +40,6 @@ namespace HeartSpace.Controllers
 			ViewBag.Categories = _eventService.GetCategories(); 
 			return View();
 		}
-
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public ActionResult CreateEvent(EventViewModel model)
@@ -48,11 +49,12 @@ namespace HeartSpace.Controllers
 				ViewBag.Categories = _eventService.GetCategories();
 				return View(model);
 			}
+
 			// 驗證人數
-			if ( model.ParticipantMax < model.ParticipantMin)
+			if (model.ParticipantMax < model.ParticipantMin)
 			{
 				ModelState.AddModelError(nameof(model.ParticipantMax), $"最大參加人數必須大於或等於最小參加人數（{model.ParticipantMin}）");
-				ViewBag.Categories = _eventService.GetCategories(); // 重新填充分類資料
+				ViewBag.Categories = _eventService.GetCategories();
 				return View(model);
 			}
 
@@ -64,64 +66,95 @@ namespace HeartSpace.Controllers
 				return View(model);
 			}
 
-			// 圖片處理
-			string imagePath = null;
-
-			//如果有上傳圖片，處理圖片儲存並獲取路徑
-			//不為 null 且檔案大小大於 0 時，進行圖片處理
-			if (model.UploadedEventImg != null && model.UploadedEventImg.ContentLength > 0)
+			// 驗證照片
+			if (model.UploadedEventImg != null)
 			{
-				// 生成唯一檔名，避免覆蓋
-				string fileName = $"{Guid.NewGuid()}{System.IO.Path.GetExtension(model.UploadedEventImg.FileName)}";
+				// 驗證檔案副檔名
+				var fileExtension = Path.GetExtension(model.UploadedEventImg.FileName).ToLower();
+				var permittedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+				if (!permittedExtensions.Contains(fileExtension))
+				{
+					ModelState.AddModelError("UploadedEventImg", "只允許上傳圖片格式的檔案（.jpg, .jpeg, .png, .gif）。");
+					return View(model);
+				}
 
-				// 設定圖片儲存的相對路徑
-				string savePath = System.Web.Hosting.HostingEnvironment.MapPath($"~/Images/{fileName}");
-
-				// 儲存圖片到伺服器
-				model.UploadedEventImg.SaveAs(savePath);
-
-				// 儲存圖片的路徑到資料庫
-				imagePath = $"/Images/{fileName}";
+				// 驗證檔案大小
+				const int maxFileSize = 5 * 1024 * 1024; // 5MB
+				if (model.UploadedEventImg.ContentLength > maxFileSize)
+				{
+					ModelState.AddModelError("UploadedEventImg", "檔案大小不能超過 5MB。");
+					return View(model);
+				}
 			}
-
 
 			// 建立 Event 物件
 			var newEvent = new Event
 			{
 				EventName = model.EventName,
 				MemberId = GetCurrentMemberId(),
-				EventImg = imagePath, // 存路徑而非圖片本身
 				CategoryId = model.CategoryId,
 				Description = model.Description,
 				EventTime = model.EventTime,
 				Location = model.Location,
 				IsOnline = model.IsOnline,
-				ParticipantMax = model.ParticipantMax, // 若為 null，設定為 int.MaxValue
+				ParticipantMax = model.ParticipantMax,
 				ParticipantMin = model.ParticipantMin,
 				Limit = model.Limit,
 				DeadLine = model.DeadLine,
-				CommentCount = 0, // 預設評論數量為 0
-				ParticipantNow = 0, // 預設參與人數為 0
+				CommentCount = 0,
+				ParticipantNow = 0,
 				Disabled = false,
 			};
 
 			try
 			{
 				// 儲存活動
-				//_eventService.AddEvent(newEvent);
 				var newEventId = _eventService.AddEvent(newEvent);
-				newEvent.Id = newEventId; // 將返回的 Id 賦值給 newEvent.Id
+				newEvent.Id = newEventId;
 			}
 			catch (Exception ex)
 			{
 				ModelState.AddModelError("", "儲存活動時發生錯誤，請稍後再試。");
-				ViewBag.Categories = _eventService.GetCategories(); // 重新填充分類資料
+				ViewBag.Categories = _eventService.GetCategories();
 				return View(model);
+			}
+
+			// 圖片處理
+			if (model.UploadedEventImg != null)
+			{
+				var uploadsFolder = Path.Combine(Server.MapPath("~/Images"));
+				if (!Directory.Exists(uploadsFolder))
+				{
+					Directory.CreateDirectory(uploadsFolder);
+				}
+
+				// 基於新生成的 EventId 命名圖片
+				var sanitizedEventName = string.Concat(model.EventName.Split(Path.GetInvalidFileNameChars()));
+				var fileExtension = Path.GetExtension(model.UploadedEventImg.FileName).ToLower();
+				var uniqueFileName = $"Event{newEvent.Id}_{sanitizedEventName}{fileExtension}";
+				var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+				try
+				{
+					// 儲存圖片
+					model.UploadedEventImg.SaveAs(filePath);
+				}
+				catch (Exception ex)
+				{
+					ModelState.AddModelError("", "儲存圖片時發生錯誤，請稍後再試。");
+					ViewBag.Categories = _eventService.GetCategories();
+					return View(model);
+				}
+
+				// 更新圖片路徑到資料庫
+				newEvent.EventImg = Path.Combine("Images", uniqueFileName).Replace("\\", "/");
+				_eventService.UpdateEvent(newEvent);
 			}
 
 			// 導向到活動詳細頁
 			return RedirectToAction("EventDetail", new { id = newEvent.Id });
 		}
+
 
 		//關閉揪團
 		[HttpPost]
@@ -145,21 +178,15 @@ namespace HeartSpace.Controllers
 		[HttpGet]
 		public ActionResult EditEvent(int id)
 		{
+			
 			// 從 Service 層獲取活動資料
 			var eventEntity = _eventService.GetEventById(id);
 			if (eventEntity == null)
 			{
 				return HttpNotFound("找不到該活動。");
 			}
-			// 獲取所有分類
+			// 獲取分類清單
 			var categories = _eventService.GetCategories();
-			ViewBag.Categories = categories.Select(c => new SelectListItem
-			{
-				Value = c.Id.ToString(),
-				Text = c.CategoryName
-			});
-			
-
 			// 將 Event 轉換為 EventViewModel
 			var eventViewModel = new EventViewModel
 			{
@@ -178,7 +205,12 @@ namespace HeartSpace.Controllers
 				DeadLine = eventEntity.DeadLine,
 				CommentCount = eventEntity.CommentCount,
 				ParticipantNow = eventEntity.ParticipantNow,
-				
+				Categories = categories.Select(c => new SelectListItem
+				{
+					Value = c.Id.ToString(),
+					Text = c.CategoryName
+				}).ToList()
+
 			};
 
 			// 返回視圖，並將 ViewModel 傳遞給視圖
@@ -187,46 +219,133 @@ namespace HeartSpace.Controllers
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public ActionResult EditEvent(EventViewModel model)
+		public ActionResult EditEvent(EventViewModel model, bool removePhoto = false)
 		{
 			if (!ModelState.IsValid)
 			{
-				return View(model); // 如果資料驗證失敗，返回編輯頁
+				try
+				{
+					model.Categories = _eventService.GetCategories()
+						.Select(c => new SelectListItem
+						{
+							Value = c.Id.ToString(),
+							Text = c.CategoryName
+						}).ToList();
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine($"Error initializing categories: {ex.Message}");
+				}
+				return View(model);
 			}
 
 			try
 			{
-				// 將 EventViewModel 轉換為 Event
-				var updatedEvent = new Event
+				// 從資料庫獲取現有的活動資料
+				var existingEvent = _eventService.GetEventById(model.Id);
+				if (existingEvent == null)
 				{
-					Id = model.Id,
-					EventName = model.EventName,
-					MemberId = model.MemberId,
-					EventImg = model.EventImg,
-					CategoryId = model.CategoryId,
-					Description = model.Description,
-					EventTime = model.EventTime,
-					Location = model.Location,
-					IsOnline = model.IsOnline,
-					ParticipantMax = model.ParticipantMax,
-					ParticipantMin = model.ParticipantMin,
-					Limit = model.Limit,
-					DeadLine = model.DeadLine,
-					CommentCount = model.CommentCount,
-					ParticipantNow = model.ParticipantNow
-				};
+					return HttpNotFound("活動不存在");
+				}
 
-				// 更新活動
-				_eventService.UpdateEvent(updatedEvent);
+				// 更新活動的基本資料（不包括圖片）
+				existingEvent.EventName = model.EventName;
+				existingEvent.MemberId = model.MemberId;
+				existingEvent.CategoryId = model.CategoryId;
+				existingEvent.Description = model.Description;
+				existingEvent.EventTime = model.EventTime;
+				existingEvent.Location = model.Location;
+				existingEvent.IsOnline = model.IsOnline;
+				existingEvent.ParticipantMax = model.ParticipantMax;
+				existingEvent.ParticipantMin = model.ParticipantMin;
+				existingEvent.Limit = model.Limit;
+				existingEvent.DeadLine = model.DeadLine;
+				existingEvent.CommentCount = model.CommentCount;
+				existingEvent.ParticipantNow = model.ParticipantNow;
 
+				// 更新活動資料
+				_eventService.UpdateEvent(existingEvent);
+
+				// 照片更新邏輯
+				string newImagePath = existingEvent.EventImg; // 預設保留現有圖片路徑
+
+				// 移除照片邏輯
+				if (removePhoto)
+				{
+					if (!string.IsNullOrEmpty(existingEvent.EventImg))
+					{
+						var oldFilePath = Path.Combine(Server.MapPath("~"), existingEvent.EventImg.Replace("/", "\\"));
+						if (System.IO.File.Exists(oldFilePath))
+						{
+							System.IO.File.Delete(oldFilePath); // 刪除舊照片
+						}
+					}
+
+					newImagePath = null; // 設為空，表示移除照片
+					existingEvent.EventImg = null; // 同步更新模型的 EventImg
+					//Console.WriteLine($"EventImg after delete logic: {existingEvent.EventImg}"); // 調試輸出
+					_eventService.UpdateEvent(existingEvent); // 更新資料庫
+				}
+				Console.WriteLine($"removePhoto value: {removePhoto}");
+				// 上傳新照片
+				if (model.UploadedEventImg != null)
+				{
+					// 驗證檔案副檔名
+					var fileExtension = Path.GetExtension(model.UploadedEventImg.FileName).ToLower();
+					var permittedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+					if (!permittedExtensions.Contains(fileExtension))
+					{
+						ModelState.AddModelError("UploadedEventImg", "只允許上傳圖片格式的檔案（.jpg, .jpeg, .png, .gif）。");
+						ViewBag.Categories = _eventService.GetCategories();
+						return View(model);
+					}
+
+					// 驗證檔案大小
+					const int maxFileSize = 5 * 1024 * 1024; // 5MB
+					if (model.UploadedEventImg.ContentLength > maxFileSize)
+					{
+						ModelState.AddModelError("UploadedEventImg", "檔案大小不能超過 5MB。");
+						ViewBag.Categories = _eventService.GetCategories();
+						return View(model);
+					}
+
+					// 確定圖片存放資料夾
+					var uploadsFolder = Path.Combine(Server.MapPath("~/Images"));
+					if (!Directory.Exists(uploadsFolder))
+					{
+						Directory.CreateDirectory(uploadsFolder);
+					}
+
+					// 基於活動 ID 命名新圖片
+					var sanitizedFileName = Path.GetFileNameWithoutExtension(model.UploadedEventImg.FileName)
+						.Replace(" ", "_")
+						.Replace(":", "_")
+						.Replace("/", "_"); // 替換掉不安全的字元
+					var uniqueFileName = $"Event{model.Id}_{sanitizedFileName}{fileExtension}";
+					var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+					// 儲存新圖片
+					model.UploadedEventImg.SaveAs(filePath);
+					newImagePath = Path.Combine("Images", uniqueFileName).Replace("\\", "/");
+				}
+
+				// 更新圖片路徑
+				existingEvent.EventImg = newImagePath;
+				_eventService.UpdateEvent(existingEvent); // 更新圖片路徑到資料庫
+
+				//Console.WriteLine($"Final EventImg value before returning: {existingEvent.EventImg}"); // 最終確認
 				// 更新成功後跳轉到活動詳情頁
 				return RedirectToAction("EventDetail", new { id = model.Id });
 			}
 			catch (Exception ex)
 			{
+				
+				ViewBag.Categories = _eventService.GetCategories();
 				return new HttpStatusCodeResult(500, $"修改活動時發生錯誤：{ex.Message}");
 			}
 		}
+
+
 
 		//報名狀況
 		[HttpGet]
