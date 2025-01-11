@@ -1,5 +1,4 @@
-﻿
-@model HeartSpace.Models.RegisterViewModel
+﻿@model HeartSpace.Models.RegisterViewModel
 
 @{
     ViewData["Title"] = "註冊";
@@ -16,6 +15,8 @@
         </div>
         @using (Html.BeginForm("Register", "Account", FormMethod.Post))
         {
+            @Html.AntiForgeryToken() <!-- 防篡改標記 -->
+
             <div class="mb-3">
                 <label for="Account" class="form-label">帳號</label>
                 @Html.TextBoxFor(m => m.Account, new { @class = "form-control", placeholder = "帳號" })
@@ -57,5 +58,3 @@
         }
     </div>
 </div>
-
-
