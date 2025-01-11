@@ -7,7 +7,7 @@ using HeartSpace.Models.ViewModels;
 
 namespace HeartSpace.Controllers
 {
-	public class EventController : Controller
+	public class EventController : BaseController
 	{
 		private readonly EventService _eventService;
 

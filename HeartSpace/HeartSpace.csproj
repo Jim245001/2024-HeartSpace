@@ -149,6 +149,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\UnityConfig.cs" />
     <Compile Include="App_Start\UnityMvcActivator.cs" />
+    <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="DTOs\CreatePostDto.cs" />
     <Compile Include="DTOs\EventService.cs" />
     <Compile Include="DTOs\EventWithParticipantsDto.cs" />
@@ -173,6 +174,7 @@
     <Compile Include="Models\EFModels\PostComment.cs" />
     <Compile Include="Models\EFModels\Tag.cs" />
     <Compile Include="Models\HomePageViewModel.cs" />
+    <Compile Include="Models\PasswordReset.cs" />
     <Compile Include="Models\SearchPostViewModel.cs" />
     <Compile Include="Models\ViewModels\EventStatusViewModel.cs" />
     <Compile Include="Repositories\EventRepository.cs" />
@@ -289,6 +291,7 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Images\" />
+    <Folder Include="Views\Base\" />
     <Folder Include="Views\Default\" />
   </ItemGroup>
   <ItemGroup>

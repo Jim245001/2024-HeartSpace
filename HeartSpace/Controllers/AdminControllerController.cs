@@ -2,8 +2,8 @@
 
 namespace HeartSpace.Controllers.Admin
 {
-    public class AdminControllerController : Controller
-    {
+    public class AdminControllerController : BaseController
+	{
         // GET: AdminController
         public ActionResult ManageGroup()
         {

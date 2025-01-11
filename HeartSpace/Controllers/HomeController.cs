@@ -6,8 +6,9 @@ using System;
 using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
+using HeartSpace.Controllers;
 
-public class HomeController : Controller
+public class HomeController : BaseController
 {
 	private readonly AppDbContext _context;
 

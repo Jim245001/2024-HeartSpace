@@ -13,7 +13,7 @@ using System.Web.Mvc;
 
 namespace HeartSpace.Controllers
 {
-	public class PostController : Controller
+	public class PostController : BaseController
 	{
 		private readonly PostService _postService;
 

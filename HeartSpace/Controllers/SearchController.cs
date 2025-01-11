@@ -18,8 +18,8 @@ using HeartSpace.Helpers;
 
 namespace HeartSpace.Controllers
 {
-    public class SearchController : Controller
-    {
+    public class SearchController : BaseController
+	{
         private readonly IPostService _postService;
 
         public SearchController(IPostService postService)

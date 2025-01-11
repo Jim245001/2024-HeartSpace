@@ -13,8 +13,8 @@ using System.Web.Mvc;
 
 namespace HeartSpace.Controllers
 {
-    public class ProfileController : Controller
-    {
+    public class ProfileController : BaseController
+	{
         private readonly AppDbContext db = new AppDbContext();
 
         public ActionResult Profile()
