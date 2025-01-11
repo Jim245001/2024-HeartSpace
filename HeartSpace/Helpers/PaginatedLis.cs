@@ -1,14 +1,16 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using HeartSpace.Models;
+using HeartSpace.Models.DTOs;
 
 namespace HeartSpace.Helpers
 {
-	public class PaginatedList<T> : List<T>
-	{
-		public int PageIndex { get; private set; }
-		public int TotalPages { get; private set; }
+    public class PaginatedList<T> : List<T>
+    {
+        public int PageIndex { get; private set; }
+        public int TotalPages { get; private set; }
+        public int TotalItemCount { get; private set; }
 
 		// Constructor for IQueryable<T>
 		public PaginatedList(IQueryable<T> source, int pageIndex, int pageSize)

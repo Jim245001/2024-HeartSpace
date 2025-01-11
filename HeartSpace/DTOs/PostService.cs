@@ -68,6 +68,7 @@ namespace HeartSpace.Models.Services
         public IEnumerable<PostCard> GetRandomPosts(int count)
         {
             return _context.Posts
+                .Where(post => !post.Disabled)
        .Join(_context.Members,
              post => post.MemberId,
              member => member.Id,
@@ -244,5 +245,24 @@ namespace HeartSpace.Models.Services
                 return member?.Name;
             }
         }
+
+        public IQueryable<PostCard> SearchPosts(string keyword)
+        {
+            return _context.Posts
+        .Where(p => p.Title.Contains(keyword) || p.PostContent.Contains(keyword))
+        .Select(p => new PostCard
+        {
+            Id = p.Id,
+            Title = p.Title,
+            CategoryName = _context.Categories
+                .Where(c => c.Id == p.CategoryId)
+                .Select(c => c.CategoryName)
+                .FirstOrDefault(),
+            PublishTime = p.PublishTime,
+            MemberNickName = p.Member.NickName,
+            PostImg = p.PostImg
+        });
+        }
     }
+    
 }

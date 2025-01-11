@@ -139,6 +139,13 @@ namespace HeartSpace.Controllers
                 return HttpNotFound("找不到該貼文！");
             }
 
+            // 檢查是否為該貼文的發文者
+            int currentUserId = GetCurrentUserId(); // 假設有此方法取得目前登入者的 MemberId
+            if (post.MemberId != currentUserId)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.Forbidden, "你沒有權限修改此貼文！");
+            }
+
             post.CategoryList = _postService.GetCategories(); // 初始化類別清單
             post.OldPostImg = post.PostImg; // 初始化舊圖片路徑
             return View(post);
