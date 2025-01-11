@@ -1,167 +1,123 @@
-﻿@using HeartSpace.Models
-@using Dapper
+﻿@model HeartSpace.Models.ProfileViewModel
 
 
-@{
-    ViewData["Title"] = Session["UserName"];
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
 
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>會員中心</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
+<style>
+    /* 頭像樣式 */
+    .profile-section img {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin: 0 auto;
+    }
+
+    .profile-section .manage-btn {
+        background-color: #fd7e14; /* 橘色 */
+        color: white;
+        padding: 8px 20px;
+        font-size: 14px;
+        border: none;
+        border-radius: 5px;
+    }
+
+    /* 標題 */
+    .section h3 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: black;
+    }
+
+    /* 卡片排版調整 */
+    .index-post-card-container {
+        display: flex;
+        flex-wrap: wrap; /* 自動換行 */
+        gap: 20px; /* 卡片之間的間距 */
+        justify-content: center; /* 水平置中 */
+    }
+
+        .index-post-card-container .post-card-wrapper {
+            flex: 0 0 calc(33.333% - 20px); /* 每行三個卡片，扣除間距 */
+            max-width: calc(33.333% - 20px); /* 限制最大寬度 */
         }
 
-        .profile-section {
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .profile-section img {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            border: 2px solid #fdd9a0;
-        }
-
-        .profile-section .username {
-            font-size: 20px;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-
-        .profile-section .manage-btn {
-            margin-top: 10px;
-            background-color: #fdd9a0;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            font-size: 14px;
-            cursor: pointer;
-            color: black;
-            text-decoration: none;
-        }
-
-        .profile-section .manage-btn:hover {
-            background-color: #fcb874;
-        }
-
-        .grid-section {
-            margin-top: 30px;
-        }
-
-        .grid-title {
-            text-align: center;
-            margin-bottom: 2px;
-            font-size: 16px;
-            font-weight: bold;
-            margin-top: 20px;
-        }
-
-        .grid-placeholder {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            height: 100px;
-            background-color: #f0f0f0;
-            border-radius: 10px;
-            color: #aaa;
-            font-size: 14px;
-            margin: 5px;
-        }
-
-        .grid-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <!-- 個人資料區 -->
-        <div class="profile-section">
-            <img src="https://via.placeholder.com/120" alt="Profile Picture">
-
-            @if ((string)Session["UserRole"] == "admin")
-            {
-
-                <div class="username mb-4">管理員<br /> @Session["UserName"] </div>
-
+            .index-post-card-container .post-card-wrapper > * {
+                width: 100%; /* 卡片內容填滿 */
+                transform: scale(1); /* 去除縮放效果 */
             }
-            else
-            {
+</style>
 
-                <div class="username mb-4">會員<br /> @Session["UserName"] </div>
+<div class="container">
+    <!-- 個人資料 -->
+    <div class="profile-section text-center mb-4">
+        <div class="d-flex justify-content-center align-items-center" style="flex-direction: column; margin-bottom: 20px;">
+            <img src="@Model.MemberImg" alt="會員頭像"
+                 style="width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 5px solid #fd7e14;" />
+        </div>
+        <div class="username mt-2" style="font-size: 20px; font-weight: bold;">@Model.MemberNickName</div>
+        <a class="btn mt-3 manage-btn" href="@Url.Action("EditProfile", "Profile")">個人資料管理</a>
+    </div>
 
-            }
-
-
-            <a class="manage-btn" href="@Url.Action("EditProfile", "Profile")">個人資料管理</a>
-
+    <!-- 貼文與揪團區域 -->
+    <div class="grid-section">
+        <!-- 您的貼文 -->
+        <div class="section">
+            <h3>您的貼文</h3>
+            <div class="index-post-card-container">
+                @if (Model.Posts != null && Model.Posts.Any())
+                {
+                    foreach (var post in Model.Posts)
+                    {
+                        <div class="post-card-wrapper">
+                            @Html.Partial("_PostCard", post)
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-center text-muted">尚無貼文</div>
+                }
+            </div>
         </div>
 
-        <!-- 圖片區域 -->
-        <div class="grid-section">
-            <div class="row">
-                <!-- 已報名的活動 -->
-                <div class="col-md-6">
-                    <div class="grid-title">已報名的活動</div>
-                    <div class="d-flex justify-content-between">
-                        @for (int i = 0; i < 2; i++)
-                        {
-                            <div class="grid-placeholder flex-grow-1 mx-2">尚無活動</div>
-                        }
-                    </div>
-                </div>
-
-
-                <!-- 已發布的文章 -->
-                <div class="col-md-6">
-                    <div class="grid-title">已發布的文章</div>
-                    <div class="d-flex justify-content-between">
-                        @for (int i = 0; i < 2; i++)
-                        {
-                            <div class="grid-placeholder flex-grow-1 mx-2">尚無活動</div>
-                        }
-                    </div>
-                </div>
+        <!-- 您發起的揪團 -->
+        <div class="section mt-5">
+            <h3>您發起的揪團</h3>
+            <div class="index-post-card-container">
+                @if (Model.InitiatedEvents != null && Model.InitiatedEvents.Any())
+                {
+                    foreach (var evt in Model.InitiatedEvents)
+                    {
+                        <div class="post-card-wrapper">
+                            @Html.Partial("_EventCard", evt)
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-center text-muted">尚無揪團</div>
+                }
             </div>
+        </div>
 
-            <div class="row">
-                <!-- 發起的活動 -->
-                <div class="col-md-6">
-                    <div class="grid-title">發起的活動</div>
-                    <div class="d-flex justify-content-between">
-                        @for (int i = 0; i < 2; i++)
-                        {
-                            <div class="grid-placeholder flex-grow-1 mx-2">尚無活動</div>
-                        }
-                    </div>
-                </div>
-
-                <!-- 已參加過的活動 -->
-                <div class="col-md-6">
-                    <div class="grid-title">已參加過的活動</div>
-                    <div class="d-flex justify-content-between">
-                        @for (int i = 0; i < 2; i++)
-                        {
-                            <div class="grid-placeholder flex-grow-1 mx-2">尚無活動</div>
-                        }
-                    </div>
-                </div>
-
+        <!-- 您參與的揪團 -->
+        <div class="section mt-5">
+            <h3>您參與過的揪團</h3>
+            <div class="index-post-card-container">
+                @if (Model.ParticipatedEvents != null && Model.ParticipatedEvents.Any())
+                {
+                    foreach (var evt in Model.ParticipatedEvents)
+                    {
+                        <div class="post-card-wrapper">
+                            @Html.Partial("_EventCard", evt)
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-center text-muted">尚無參與的揪團</div>
+                }
             </div>
-
         </div>
     </div>
-</body>
-</html>
+</div>

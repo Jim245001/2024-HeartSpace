@@ -295,7 +295,6 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Images\" />
-    <Folder Include="MemberImg\" />
     <Folder Include="Views\Default\" />
   </ItemGroup>
   <ItemGroup>

@@ -26,7 +26,7 @@
             <div class="d-flex align-items-center">
                 @if (!string.IsNullOrEmpty(Model.MemberImg))
                 {
-                    <img src="@Model.PostImg?cache=@DateTime.Now.Ticks" alt="Post Image" style="max-width: 300px; max-height: 300px;" />
+                    <img src="@Model.MemberImg?cache=@DateTime.Now.Ticks" alt="Post Image" class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover; "  />
                 }
                 else
                 {

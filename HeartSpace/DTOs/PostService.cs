@@ -6,8 +6,10 @@ using HeartSpace.Models.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Drawing.Printing;
+using System.IO;
 using System.Linq;
 using System.Web;
+using System.Web.Hosting;
 using System.Web.Mvc;
 
 namespace HeartSpace.Models.Services
@@ -38,11 +40,14 @@ namespace HeartSpace.Models.Services
 			          pm => pm.post.CategoryId,
 			          category => category.Id,
 			          (pm, category) => new { pm.post, pm.member, category }) // 包含分類
-		        .Where(pmc =>
-			        (pmc.post.Title != null && pmc.post.Title.ToLower().Contains(keyword)) || // 搜尋標題
-			        (pmc.member.NickName != null && pmc.member.NickName.ToLower().Contains(keyword)) || // 搜尋暱稱
-			        (pmc.category.CategoryName != null && pmc.category.CategoryName.ToLower().Contains(keyword))) // 搜尋分類名稱
-		        .OrderBy(pmc => pmc.post.PublishTime)
+                 .Where(pmc =>
+            !pmc.post.Disabled && // 過濾 Disabled = true 的貼文
+            (
+                (pmc.post.Title != null && pmc.post.Title.ToLower().Contains(keyword)) || // 搜尋標題
+                (pmc.member.NickName != null && pmc.member.NickName.ToLower().Contains(keyword)) || // 搜尋暱稱
+                (pmc.category.CategoryName != null && pmc.category.CategoryName.ToLower().Contains(keyword)) // 搜尋分類名稱
+            ))
+                .OrderBy(pmc => pmc.post.PublishTime)
 		        .Skip((pageIndex - 1) * pageSize)
 		        .Take(pageSize)
 		        .ToList();
@@ -198,16 +203,57 @@ namespace HeartSpace.Models.Services
             post.CategoryId = dto.CategoryId;
             post.Disabled = dto.Disabled;
 
-            // 更新圖片（檢查是否有新圖片）
-            if (!string.IsNullOrEmpty(dto.PostImg)) // 如果有新的圖片，更新圖片欄位
+            if (!string.IsNullOrEmpty(dto.PostImg)) // 如果有新圖片
             {
+                // 更新為新圖片，並刪除舊圖片
+                if (!string.IsNullOrEmpty(post.PostImg))
+                {
+                    var oldImagePath = Path.Combine(HostingEnvironment.MapPath("~/"), post.PostImg);
+                    if (File.Exists(oldImagePath))
+                    {
+                        try
+                        {
+                            File.Delete(oldImagePath); // 刪除舊圖片
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"刪除舊圖片時發生錯誤: {ex.Message}");
+                        }
+                    }
+                }
+
+                // 更新為新圖片
                 post.PostImg = dto.PostImg;
+            }
+            else if (dto.DeleteOldImage) // 如果沒有新圖片，但勾選了刪除舊圖片
+            {
+                // 刪除舊圖片
+                if (!string.IsNullOrEmpty(post.PostImg))
+                {
+                    var oldImagePath = Path.Combine(HostingEnvironment.MapPath("~/"), post.PostImg);
+                    if (File.Exists(oldImagePath))
+                    {
+                        try
+                        {
+                            File.Delete(oldImagePath); // 刪除實體檔案
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"刪除舊圖片時發生錯誤: {ex.Message}");
+                        }
+                    }
+                }
+
+                // 將圖片欄位設為 null
+                post.PostImg = null;
             }
             else
             {
-                // 如果沒有新圖片，保持原有圖片
-                post.PostImg = post.PostImg; // 確保不覆蓋舊資料
+                // 如果沒有新圖片，且沒有勾選刪除舊圖片，保持原有圖片
+                post.PostImg = post.PostImg;
             }
+
+
 
             _repository.UpdatePost(post);
         }
