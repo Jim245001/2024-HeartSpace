@@ -155,6 +155,11 @@ namespace HeartSpace.BLL
 				return null; // 如果找不到活動，返回 null
 			}
 
+			// 從 Member 資料表加載 MemberImg 和 NickName
+			var eventOwner = eventEntity.Member; // 透過關聯的 Member 對象獲取資料
+			string memberImg = eventOwner?.MemberImg;
+			string memberNickName = eventOwner?.NickName;
+
 			// 將 EFModels.Event 轉換為 ViewModels.EventViewModel
 			var model = new EventViewModel
 			{
@@ -170,7 +175,9 @@ namespace HeartSpace.BLL
 				DeadLine = eventEntity.DeadLine,
 				EventImg = eventEntity.EventImg,
 				CategoryName = eventEntity.Category?.CategoryName, // 假設有類別關聯
-				Comments = new List<CommentViewModel>() // 初始化評論列表
+				Comments = new List<CommentViewModel>(), // 初始化評論列表
+				MemberImg = memberImg, // 加入圖片
+				MemberNickName = memberNickName // 加入暱稱
 			};
 
 			// 設置是否為活動發起人

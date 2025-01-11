@@ -148,7 +148,7 @@ namespace HeartSpace.DAL
 			{
 				return context.Events
 					.Include(e => e.Category)
-					.Include(e => e.EventMembers.Select(em => em.Member)) // 預先載入 Member 資料
+					.Include(e => e.Member) 
 					.FirstOrDefault(e => e.Id == id);
 			}
 		}
