@@ -42,8 +42,8 @@
 
         <div class="form-group">
             <label for="NickName" style="font-weight: bold; color: #495057;">會員暱稱</label>
-            @Html.EditorFor(model => model.NickName, new { htmlAttributes = new { @class = "form-control", placeholder = "輸入會員暱稱" } })
-            @Html.ValidationMessageFor(model => model.NickName, "", new { @class = "text-danger" })
+            @Html.EditorFor(model => model.MemberNickName, new { htmlAttributes = new { @class = "form-control", placeholder = "輸入會員暱稱" } })
+            @Html.ValidationMessageFor(model => model.MemberNickName, "", new { @class = "text-danger" })
         </div>
 
         <div class="form-group">
@@ -69,26 +69,38 @@
         </div>
     }
 
-    <!-- 放入鴿子的記錄 -->
-    <div class="container" style="margin-top: 40px;">
-        <h3 style="color: #fd7e14; font-weight: bold; border-bottom: 2px solid #28a745; padding-bottom: 5px;">放入鴿子的記錄 🐦</h3>
-        @*<div class="row text-center" style="margin-top: 20px;">
-            <div class="col-md-4">
-                <img src="data:image/png;base64,@(Model.Record1 ?? "")" alt="鴿子記錄"
-                     style="width: 100px; height: 100px; border-radius: 10px; object-fit: cover; border: 2px solid #ccc;" />
-            </div>
-            <div class="col-md-4">
-                <img src="data:image/png;base64,@(Model.Record2 ?? "")" alt="鴿子記錄"
-                     style="width: 100px; height: 100px; border-radius: 10px; object-fit: cover; border: 2px solid #ccc;" />
-            </div>
-            <div class="col-md-4">
-                <img src="data:image/png;base64,@(Model.Record3 ?? "")" alt="鴿子記錄"
-                     style="width: 100px; height: 100px; border-radius: 10px; object-fit: cover; border: 2px solid #ccc;" />
-            </div>*@
-    </div>
-    <p style="color: red; text-align: center; margin-top: 10px;">警告：放 3 次鴿子將會被停權！請在活動報名前取消報名。</p>
-</div>
+<div class="container" style="margin-top: 40px;">
+    <h3 style="color: #fd7e14; font-weight: bold; border-bottom: 2px solid #28a745; padding-bottom: 5px;">缺席活動記錄 🐦</h3>
 
+    @if (Model.AbsentEvents != null && Model.AbsentEvents.Any())
+    {
+        <div class="row">
+            @foreach (var eventItem in Model.AbsentEvents)
+            {
+                <div class="col-md-4 mb-3">
+                    <div class="card shadow-sm">
+                        @if (!string.IsNullOrEmpty(eventItem.EventImg))
+                        {
+                            <img src="@eventItem.EventImg" class="card-img-top" alt="@eventItem.Title"
+                                 style="object-fit: cover; height: 150px; border-radius: 10px;" />
+                        }
+                        <div class="card-body">
+                            <h5 class="card-title">@eventItem.Title</h5>
+                            <p class="card-text">@eventItem.EventContent</p>
+                            <p class="text-muted" style="font-size: 0.9rem;">
+                                <i class="fa-solid fa-clock me-1"></i>@eventItem.EventTime.ToString("yyyy-MM-dd HH:mm")
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="text-muted">目前沒有缺席記錄。</p>
+    }
+</div>
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")

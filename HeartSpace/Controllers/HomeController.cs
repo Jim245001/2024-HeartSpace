@@ -26,7 +26,7 @@ public class HomeController : Controller
         // 分頁處理貼文資料
         var postsQuery = _context.Posts
             .Include(p => p.Member)
-            .OrderByDescending(p => p.PublishTime)
+               .OrderBy(e => Guid.NewGuid())
             .Select(p => new PostCard
             {
                 Id = p.Id,
@@ -35,6 +35,7 @@ public class HomeController : Controller
                 PublishTime = p.PublishTime,
                 MemberNickName = p.Member != null ? p.Member.NickName : "未知作者",
                 PostImg = p.PostImg,
+                MemberImg = p.Member != null ? p.Member.MemberImg : null, // 加入 MemberImg
                 CategoryName = _context.Categories
                     .Where(c => c.Id == p.CategoryId)
                     .Select(c => c.CategoryName)
@@ -53,18 +54,17 @@ public class HomeController : Controller
 
         // 揪團活動資料分頁
         var eventsQuery = _context.Events
-			.Include(e => e.Member)
-			.OrderByDescending(e => e.EventTime)
+               .OrderBy(e => Guid.NewGuid())
             .Select(e => new EventCard
-			{
+            {
                 Id = e.Id,
-				Title = e.EventName,
-
-				EventContent = e.Description,
+                Title = e.EventName,
+                EventContent = e.Description,
                 EventTime = e.EventTime,
 				MemberNickName = e.Member != null ? e.Member.NickName : "未知發起人",
 				EventImg = e.EventImg,
-				CategoryName = _context.Categories
+                MemberImg = e.Member != null ? e.Member.MemberImg : null, // 加入 MemberImg
+                CategoryName = _context.Categories
 					.Where(c => c.Id == c.Id)
 					.Select(c => c.CategoryName)
 					.FirstOrDefault() ?? "未分類"

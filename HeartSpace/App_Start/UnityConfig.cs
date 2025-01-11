@@ -5,6 +5,7 @@ using HeartSpace.Models.EFModels;
 using HeartSpace.Models.Repositories;
 using HeartSpace.Models.Services;
 using System.ComponentModel;
+using System.Web.ApplicationServices;
 using System.Web.Mvc;
 using Unity;
 using Unity.Injection;
@@ -19,8 +20,7 @@ namespace HeartSpace.App_Start
 
         public static void RegisterComponents()
         {
-            // 註冊 AppDbContext
-            //Container.RegisterType<AppDbContext>(new InjectionConstructor("name=AppDbContext"));
+           
 
             // 初始化容器
             Container = new UnityContainer();
@@ -30,8 +30,8 @@ namespace HeartSpace.App_Start
 			Container.RegisterType<IEventService, EventService>();
 			Container.RegisterType<IEventRepository, EventRepository>();
 
-			// 設置 DependencyResolver
-			System.Web.Mvc.DependencyResolver.SetResolver(new UnityDependencyResolver(Container));
+            // 設置 DependencyResolver
+            System.Web.Mvc.DependencyResolver.SetResolver(new UnityDependencyResolver(Container));
         }
     }
 }

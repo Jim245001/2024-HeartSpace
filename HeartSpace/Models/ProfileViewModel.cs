@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HeartSpace.Models.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -22,7 +23,7 @@ namespace HeartSpace.Models
 
         [Required(ErrorMessage = "會員暱稱是必填欄位")]
         [StringLength(10, ErrorMessage = "暱稱長度不得超過10字元")]
-        public string NickName { get; set; } // 暱稱
+        public string MemberNickName { get; set; } // 暱稱
 
 
        
@@ -36,5 +37,11 @@ namespace HeartSpace.Models
         public string MemberImg { get; set; } // 會員頭像（已存在的圖片，作為顯示用）
 
         public HttpPostedFileBase MemberImgFile { get; set; } // 用於上傳新圖片
+
+        public List<PostCard> Posts { get; set; } // 您的貼文
+        public List<EventCard> InitiatedEvents { get; set; }
+        public List<EventCard> ParticipatedEvents { get; set; }
+        public List<EventCard> AbsentEvents { get; set; } // 新增屬性
+
     }
 }

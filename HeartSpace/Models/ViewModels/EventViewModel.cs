@@ -123,7 +123,9 @@ namespace HeartSpace.Models.ViewModels
 		public string EventCommentContent { get; set; }
 		public DateTime CommentTime { get; set; }
 		public bool IsCommentOwner { get; set; }
-	}
+        public int FloorNumber { get; set; } // 樓層數
+
+    }
 
 
 
