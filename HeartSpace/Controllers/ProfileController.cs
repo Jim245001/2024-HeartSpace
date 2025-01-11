@@ -82,18 +82,38 @@ namespace HeartSpace.Controllers
                 {
                     try
                     {
-                        using (var binaryReader = new System.IO.BinaryReader(model.MemberImgFile.InputStream))
+                        // 確保資料夾存在
+                        var uploadDir = Server.MapPath("~/MemberImg/");
+                        if (!System.IO.Directory.Exists(uploadDir))
                         {
-                            member.MemberImg = model.MemberImg; 
+                            System.IO.Directory.CreateDirectory(uploadDir);
                         }
+
+                        // 生成唯一檔案名稱
+                        var fileName = Guid.NewGuid() + System.IO.Path.GetExtension(model.MemberImgFile.FileName);
+                        var filePath = System.IO.Path.Combine(uploadDir, fileName);
+
+                        // 儲存檔案
+                        model.MemberImgFile.SaveAs(filePath);
+
+                        // 儲存檔案路徑到資料庫
+                        member.MemberImg = "/MemberImg/" + fileName;
                     }
                     catch (Exception ex)
                     {
                         ModelState.AddModelError("MemberImgFile", "上傳圖片時發生錯誤：" + ex.Message);
-                        return View(model); // 發生錯誤時，回傳表單
+                        return View(model);
                     }
                 }
 
+                if (!string.IsNullOrEmpty(member.MemberImg))
+                {
+                    var oldFilePath = Server.MapPath(member.MemberImg);
+                    if (System.IO.File.Exists(oldFilePath))
+                    {
+                        System.IO.File.Delete(oldFilePath);
+                    }
+                }
                 // 保存資料庫變更
                 try
                 {

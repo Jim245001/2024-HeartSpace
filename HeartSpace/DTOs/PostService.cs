@@ -196,8 +196,16 @@ namespace HeartSpace.Models.Services
             post.CategoryId = dto.CategoryId;
             post.Disabled = dto.Disabled;
 
-            // 更新圖片路徑（無論是新圖片還是清空圖片）
-            post.PostImg = dto.PostImg;
+            // 更新圖片（檢查是否有新圖片）
+            if (!string.IsNullOrEmpty(dto.PostImg)) // 如果有新的圖片，更新圖片欄位
+            {
+                post.PostImg = dto.PostImg;
+            }
+            else
+            {
+                // 如果沒有新圖片，保持原有圖片
+                post.PostImg = post.PostImg; // 確保不覆蓋舊資料
+            }
 
             _repository.UpdatePost(post);
         }

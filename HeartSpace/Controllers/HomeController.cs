@@ -25,7 +25,7 @@ public class HomeController : Controller
         // 分頁處理貼文資料
         var postsQuery = _context.Posts
             .Include(p => p.Member)
-            .OrderByDescending(p => p.PublishTime)
+               .OrderBy(e => Guid.NewGuid())
             .Select(p => new PostCard
             {
                 Id = p.Id,
@@ -52,7 +52,7 @@ public class HomeController : Controller
 
         // 揪團活動資料分頁
         var eventsQuery = _context.Events
-            .OrderByDescending(e => e.EventTime)
+               .OrderBy(e => Guid.NewGuid())
             .Select(e => new EventViewModel
             {
                 Id = e.Id,
