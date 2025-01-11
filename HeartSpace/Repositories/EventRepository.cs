@@ -10,14 +10,19 @@ using System.Data.Entity;
 using HeartSpace.Models.EFModels;
 using HeartSpace.DTOs;
 using System.Globalization;
+using HeartSpace.DAL;
 
 namespace HeartSpace.DAL
 {
 	public interface IEventRepository
 	{
-		EventWithParticipantsDto GetEventWithParticipants(int eventId);
+		EventWithParticipantsDto GetEventWithParticipants(int eventId);//報名狀況
+		List<EventCard> SearchEvents(string keyword, int pageIndex, int pageSize);//搜尋活動
+		IEnumerable<EventCard> GetRandomEvents(int count); // 取得隨機活動
 	}
-	public class EventRepository
+
+
+	public class EventRepository : IEventRepository
 	{
 		private readonly string _connectionString;
 
@@ -30,6 +35,90 @@ namespace HeartSpace.DAL
 		{
 			return new SqlConnection(_connectionString);
 		}
+
+		// 取得隨機活動
+		public IEnumerable<EventCard> GetRandomEvents(int count)
+		{
+			using (var context = new AppDbContext())
+			{
+				// 使用 LINQ 隨機排序並取出指定數量的活動
+				var query = context.Events
+					.Join(context.Categories, e => e.CategoryId, c => c.Id, (e, c) => new { e, c })
+					.Join(context.Members, ec => ec.e.MemberId, m => m.Id, (ec, m) => new
+					{
+						ec.e.Id,
+						Title = ec.e.EventName,
+						EventContent = ec.e.Description,
+						EventTime = ec.e.EventTime,
+						EventImg = ec.e.EventImg,
+						MemberNickName = m.NickName,
+						MemberImg = m.MemberImg,
+						CategoryName = ec.c.CategoryName
+					})
+					.OrderBy(x => Guid.NewGuid()) // 使用 Guid.NewGuid() 隨機排序
+					.Take(count) // 取出指定數量
+					.ToList();
+
+				// 將結果轉換為 EventCard
+				return query.Select(x => new EventCard(
+					x.Id,
+					x.Title,
+					x.EventContent,
+					x.EventTime,
+					x.EventImg,
+					x.MemberNickName,
+					x.MemberImg,
+					x.CategoryName
+				)).ToList();
+			}
+		}
+		//搜尋活動
+		public List<EventCard> SearchEvents(string keyword, int pageIndex, int pageSize)
+		{
+			using (var context = new AppDbContext())
+			{
+				var query = context.Events
+					.Join(context.Categories, e => e.CategoryId, c => c.Id, (e, c) => new { e, c })
+					.Join(context.Members, ec => ec.e.MemberId, m => m.Id, (ec, m) => new
+					{
+						ec.e.Id,
+						ec.e.EventName,
+						ec.e.Description,
+						ec.e.EventTime,
+						ec.e.EventImg,
+						MemberNickName = m.NickName,
+						MemberImg = m.MemberImg,
+						CategoryName = ec.c.CategoryName
+					});
+
+				if (!string.IsNullOrEmpty(keyword))
+				{
+					query = query.Where(x =>
+						x.EventName.Contains(keyword) ||
+						x.MemberNickName.Contains(keyword) ||
+						x.CategoryName.Contains(keyword));
+				}
+
+				var result = query
+					.OrderBy(x => x.EventTime)
+					.Skip((pageIndex - 1) * pageSize)
+					.Take(pageSize)
+					.ToList()
+					.Select(x => new EventCard(
+						x.Id,
+						x.EventName,
+						x.Description,
+						x.EventTime,
+						x.EventImg,
+						x.MemberNickName,
+						x.MemberImg,
+						x.CategoryName))
+					.ToList();
+
+				return result;
+			}
+		}
+
 
 		//是否為活動的擁有者
 		public bool IsEventOwner(int eventId, int memberId)
@@ -330,6 +419,9 @@ namespace HeartSpace.DAL
 				connection.Execute(query, new { MemberId = memberId, EventId = eventId, IsAttend = isAttend });
 			}
 		}
+
+
 	}
 }
+
 

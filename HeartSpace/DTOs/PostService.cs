@@ -29,34 +29,37 @@ namespace HeartSpace.Models.Services
             var categoryDictionary = _context.Categories
         .ToDictionary(c => c.Id, c => c.CategoryName);
 
-            var pagedPosts = _context.Posts
-                .Join(_context.Members,
-                      post => post.MemberId,
-                      member => member.Id,
-                      (post, member) => new { post, member })
-                .Where(pm =>
-                    (pm.post.Title != null && pm.post.Title.ToLower().Contains(keyword)) ||
-                    (pm.member.NickName != null && pm.member.NickName.ToLower().Contains(keyword)))
-                .OrderBy(pm => pm.post.PublishTime)
-                .Skip((pageIndex - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
+			var pagedPosts = _context.Posts
+		        .Join(_context.Members,
+			          post => post.MemberId,
+			          member => member.Id,
+			          (post, member) => new { post, member })
+		        .Join(_context.Categories,
+			          pm => pm.post.CategoryId,
+			          category => category.Id,
+			          (pm, category) => new { pm.post, pm.member, category }) // 包含分類
+		        .Where(pmc =>
+			        (pmc.post.Title != null && pmc.post.Title.ToLower().Contains(keyword)) || // 搜尋標題
+			        (pmc.member.NickName != null && pmc.member.NickName.ToLower().Contains(keyword)) || // 搜尋暱稱
+			        (pmc.category.CategoryName != null && pmc.category.CategoryName.ToLower().Contains(keyword))) // 搜尋分類名稱
+		        .OrderBy(pmc => pmc.post.PublishTime)
+		        .Skip((pageIndex - 1) * pageSize)
+		        .Take(pageSize)
+		        .ToList();
 
-            return pagedPosts.Select(pm => new CreatePostDto
-            {
-                Id = pm.post.Id,
-                Title = pm.post.Title,
-                PostContent = pm.post.PostContent,
-                PostImg = pm.post.PostImg,
-                PublishTime = pm.post.PublishTime,
-                MemberNickName = pm.member.NickName,
-                MemberImg = pm.member.MemberImg,
-                CategoryName = categoryDictionary.ContainsKey(pm.post.CategoryId)
-                    ? categoryDictionary[pm.post.CategoryId]
-                    : null,
-                Disabled = pm.post.Disabled
-            }).ToList();
-        }
+			return pagedPosts.Select(pmc => new CreatePostDto
+			{
+				Id = pmc.post.Id,
+				Title = pmc.post.Title,
+				PostContent = pmc.post.PostContent,
+				PostImg = pmc.post.PostImg,
+				PublishTime = pmc.post.PublishTime,
+				MemberNickName = pmc.member.NickName,
+				MemberImg = pmc.member.MemberImg,
+				CategoryName = pmc.category.CategoryName, 
+				Disabled = pmc.post.Disabled
+			}).ToList();
+		}
 
 
 

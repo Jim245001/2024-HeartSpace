@@ -21,10 +21,10 @@
                 <div class="card-header text-center">貼文版</div>
                 <div class="card-body">
                     <!-- 按鈕組 -->
-                    <div class="btn-group mb-3 w-100">
+                    @*<div class="btn-group mb-3 w-100">
                         <button class="btn btn-secondary btn-sm">最新</button>
                         <button class="btn btn-secondary btn-sm">分類</button>
-                    </div>
+                    </div>*@
 
                     <!-- 貼文內容-->
                     <div class="row gx-1 gy-2">
@@ -76,69 +76,59 @@
 
         <!-- 揪團版 -->
         <div class="col-md-6 px-1">
-            <!-- 調整列間距 -->
+            <!--調整列間距 -->
             <div class="card">
                 <div class="card-header text-center">揪團版</div>
                 <div class="card-body">
-                    <!-- 按鈕組 -->
+                    按鈕組
                     <div class="btn-group mb-3 w-100">
                         <button class="btn btn-secondary btn-sm">最新</button>
                         <button class="btn btn-secondary btn-sm">分類</button>
                     </div>
 
-
-                    <!-- 揪團卡片 -->
+                    揪團內容
                     <div class="row gx-1 gy-2">
-                        @foreach (var events in Model.Events)
-                        {
-                            <div class="col-6">
-                                <a href="@Url.Action("EventDetail", "Event", new { id = events.Id })" class="text-decoration-none">
-                                    <!-- 使整個卡片成為鏈接 -->
-                                    <div class="card border-0 shadow-sm d-flex align-items-center justify-content-center" style="height: 300px;">
-                                        @Html.Raw(new EventCard(
-                                            events.EventName,
-                                            events.MemberName,
-                                            events.Location,
-                                            events.Description,
-                                            events.EventTime,
-                                            events.MemberProfileImgUrl,
-                                            events.ImgUrl
-                                        ).RenderHtml())
-                                    </div>
-                                </a>
-                            </div>
-                        }
+
+                        揪團卡片
+                        <div class="row gx-1 gy-2">
+                            @foreach (var e in Model.Events)
+                            {
+                                <div class="col-6">
+                                    <a href="@Url.Action("EventDetail", "Event", new { id = e.Id })" class="text-decoration-none">
+                                        @Html.Partial("_EventCard", e)
+                                    </a>
+                                </div>
+                            }
+                        </div>
+
+
                     </div>
 
-
-
-
-                    <!-- 揪團版分頁導航 -->
+                    揪團版分頁導航
                     <nav>
                         <ul class="pagination justify-content-center mt-3">
                             @if (Model.Events.HasPreviousPage)
                             {
                                 <li class="page-item">
-                                    <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex, eventPage = Model.Events.PageIndex - 1 })">Previous</a>
+                                    <a class="page-link" href="@Url.Action("Index", new { eventPage = Model.Events.PageIndex - 1, postPage = Model.Posts.PageIndex })">Previous</a>
                                 </li>
                             }
 
                             @for (int i = 1; i <= Model.Events.TotalPages; i++)
                             {
                                 <li class="page-item @(i == Model.Events.PageIndex ? "active" : "")">
-                                    <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex, eventPage = i })">@i</a>
+                                    <a class="page-link" href="@Url.Action("Index", new { eventPage = i, postPage = Model.Posts.PageIndex })">@i</a>
                                 </li>
                             }
 
                             @if (Model.Events.HasNextPage)
                             {
                                 <li class="page-item">
-                                    <a class="page-link" href="@Url.Action("Index", new { postPage = Model.Posts.PageIndex, eventPage = Model.Events.PageIndex + 1 })">Next</a>
+                                    <a class="page-link" href="@Url.Action("Index", new { eventPage = Model.Events.PageIndex + 1, postPage = Model.Posts.PageIndex })">Next</a>
                                 </li>
                             }
                         </ul>
                     </nav>
-
 
                 </div>
             </div>

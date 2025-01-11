@@ -1,4 +1,6 @@
-﻿using HeartSpace.DTOs.Services.Interfaces;
+﻿using HeartSpace.BLL;
+using HeartSpace.DAL;
+using HeartSpace.DTOs.Services.Interfaces;
 using HeartSpace.Models.EFModels;
 using HeartSpace.Models.Repositories;
 using HeartSpace.Models.Services;
@@ -25,9 +27,11 @@ namespace HeartSpace.App_Start
 
             // 註冊 Repository 和 Service
             Container.RegisterType<IPostService, PostService>();
+			Container.RegisterType<IEventService, EventService>();
+			Container.RegisterType<IEventRepository, EventRepository>();
 
-            // 設置 DependencyResolver
-            System.Web.Mvc.DependencyResolver.SetResolver(new UnityDependencyResolver(Container));
+			// 設置 DependencyResolver
+			System.Web.Mvc.DependencyResolver.SetResolver(new UnityDependencyResolver(Container));
         }
     }
 }

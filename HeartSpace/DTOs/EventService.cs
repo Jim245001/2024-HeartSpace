@@ -6,14 +6,12 @@ using System.Linq;
 using System.Data.Entity;
 using HeartSpace.Models.EFModels;
 using HeartSpace.DTOs.Services.Interfaces;
+using HeartSpace.Models;
+using CommentViewModel = HeartSpace.Models.ViewModels.CommentViewModel;
 
 
 namespace HeartSpace.BLL
 {
-	//public interface IEventService
-	//{
-	//	EventStatusViewModel GetEventStatus(int eventId); // 獲取活動報名狀況
-	//}
 
 	public class EventService : IEventService
 	{
@@ -202,7 +200,6 @@ namespace HeartSpace.BLL
 		}
 
 
-
 		public EventStatusViewModel GetEventStatus(int eventId)
 		{
 			var eventDetails = _eventRepository.GetEventWithParticipants(eventId);
@@ -249,6 +246,17 @@ namespace HeartSpace.BLL
 		public void UpdateAttendance(int memberId, int eventId, bool? isAttend)
 		{
 			_eventRepository.UpdateAttendance(memberId, eventId, isAttend);
+		}
+
+		// 依關鍵字搜尋活動
+		public List<EventCard> SearchEvents(string keyword, int pageIndex, int pageSize)
+		{
+			return _eventRepository.SearchEvents(keyword, pageIndex, pageSize);
+		}
+		// 取得隨機活動
+		public IEnumerable<EventCard> GetRandomEvents(int count)
+		{
+			return _eventRepository.GetRandomEvents(count);
 		}
 	}
 
