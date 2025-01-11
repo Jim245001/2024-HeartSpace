@@ -17,7 +17,7 @@ namespace HeartSpace.Helpers
 			if (pageSize < 1) throw new ArgumentOutOfRangeException(nameof(pageSize), "PageSize must be greater than 0.");
 
 			TotalItemCount = totalItemCount;
-			TotalPages = (int)Math.Ceiling(totalItemCount / (double)pageSize);
+			TotalPages = totalItemCount > 0 ? (int)Math.Ceiling(totalItemCount / (double)pageSize) : 1;
 			PageIndex = pageIndex;
 
 			// 修正超過範圍的 PageIndex
@@ -36,7 +36,8 @@ namespace HeartSpace.Helpers
 			var items = source.Skip(skipCount).Take(pageSize).ToList();
 			this.AddRange(items);
 
-			
+			Debug.WriteLine($"Total Pages: {TotalPages}");
+			Debug.WriteLine($"Total Items: {TotalItemCount}");
 		}
 
 		public bool HasPreviousPage => PageIndex > 1;

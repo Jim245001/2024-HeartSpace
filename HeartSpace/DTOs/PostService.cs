@@ -64,7 +64,6 @@ namespace HeartSpace.Models.Services
 
 
 
-
         public IEnumerable<PostCard> GetRandomPosts(int count)
         {
             return _context.Posts

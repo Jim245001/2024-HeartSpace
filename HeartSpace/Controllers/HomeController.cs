@@ -59,6 +59,7 @@ public class HomeController : Controller
 			{
                 Id = e.Id,
 				Title = e.EventName,
+
 				EventContent = e.Description,
                 EventTime = e.EventTime,
 				MemberNickName = e.Member != null ? e.Member.NickName : "未知發起人",
