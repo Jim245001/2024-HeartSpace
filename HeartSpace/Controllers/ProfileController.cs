@@ -3,6 +3,7 @@ using HeartSpace.Helpers;
 using HeartSpace.Models;
 using HeartSpace.Models.EFModels;
 using HeartSpace.Models.ViewModels;
+using Microsoft.Ajax.Utilities;
 using System;
 using System.Collections.Generic;
 using System.EnterpriseServices;
@@ -49,6 +50,10 @@ namespace HeartSpace.Controllers
                     PublishTime = p.PublishTime,
                     MemberNickName = p.Member != null ? p.Member.NickName : "未知作者",
                     PostImg = p.PostImg,
+                    MemberImg = _context.Members
+            .Where(m => m.Id == p.MemberId)
+            .Select(m => m.MemberImg)
+            .FirstOrDefault(),
                     CategoryName = _context.Categories
                     .Where(c => c.Id == p.CategoryId)
                     .Select(c => c.CategoryName)
@@ -67,6 +72,10 @@ namespace HeartSpace.Controllers
                     EventTime = e.EventTime,
                     MemberNickName = e.Member != null ? e.Member.NickName : "未知發起人",
                     EventImg = e.EventImg,
+                    MemberImg = _context.Members
+            .Where(m => m.Id == e.MemberId)
+            .Select(m => m.MemberImg)
+            .FirstOrDefault(),
                     CategoryName = _context.Categories
                     .Where(c => c.Id == c.Id)
                     .Select(c => c.CategoryName)
@@ -85,6 +94,10 @@ namespace HeartSpace.Controllers
             EventContent = e.Description,
             EventTime = e.EventTime,
             MemberNickName = e.Member != null ? e.Member.NickName : "未知發起人",
+            MemberImg = _context.Members
+            .Where(m => m.Id == e.MemberId)
+            .Select(m => m.MemberImg)
+            .FirstOrDefault(),
             EventImg = e.EventImg,
             CategoryName = _context.Categories
                     .Where(c => c.Id == c.Id)
@@ -144,6 +157,31 @@ namespace HeartSpace.Controllers
                 return View(model);
             }
 
+            int memberId = model.Id; // 從 ViewModel 獲取會員 ID
+
+            // 抓取 "您缺席的揪團"
+            var absentEvents = _context.EventMembers
+                .Where(em => em.MemberId == memberId && em.IsAttend == false) // IsAttend = false
+                .Select(em => em.Event)
+                .OrderByDescending(e => e.EventTime)
+                .Select(e => new EventCard
+                {
+                    Id = e.Id,
+                    Title = e.EventName,
+                    EventContent = e.Description,
+                    EventTime = e.EventTime,
+                    MemberNickName = e.Member != null ? e.Member.NickName : "未知發起人",
+                    MemberImg = _context.Members
+                        .Where(m => m.Id == e.MemberId)
+                        .Select(m => m.MemberImg)
+                        .FirstOrDefault(),
+                    EventImg = e.EventImg,
+                    CategoryName = _context.Categories
+                        .Where(c => c.Id == e.CategoryId)
+                        .Select(c => c.CategoryName)
+                        .FirstOrDefault() ?? "未分類"
+                }).ToList();
+
             // 檢查暱稱是否重複
             var isNickNameExists = _context.Members.Any(m => m.NickName == model.MemberNickName && m.Id != model.Id);
             if (isNickNameExists)
@@ -153,7 +191,7 @@ namespace HeartSpace.Controllers
             }
 
             // 嘗試更新會員資料
-            var member = _context.Members.Find(model.Id);
+            var member = _context.Members.Find(memberId);
             if (member != null)
             {
                 // 更新會員名稱和暱稱
@@ -248,6 +286,7 @@ namespace HeartSpace.Controllers
 
             return View(model);
         }
+
 
     }
 }

@@ -179,22 +179,24 @@ namespace HeartSpace.BLL
 			// 設置是否已報名
 			model.IsRegistered = _eventRepository.IsMemberRegistered(eventId, currentMemberId);
 
-			// 加載評論資料
-			var comments = _eventRepository.GetEventComments(eventId)
-				.Select(c => new CommentViewModel
-				{
-					Id = c.Id,
-					MemberId = c.MemberId,
-					MemberName = c.Member?.Name ?? "未知用戶",
-					MemberNickName = c.Member?.NickName ?? "未知用戶",
-					MemberImg = c.Member?.MemberImg,
-					EventCommentContent = c.EventCommentContent,
-					CommentTime = c.CommentTime
-				}).ToList();
-			model.Comments = comments;
+            // 加載評論資料，並為每條評論設定樓層編號
+            var comments = _eventRepository.GetEventComments(eventId)
+                .Select((c, index) => new CommentViewModel
+                {
+                    Id = c.Id,
+                    MemberId = c.MemberId,
+                    MemberName = c.Member?.Name ?? "未知用戶",
+                    MemberNickName = c.Member?.NickName ?? "未知用戶",
+                    MemberImg = c.Member?.MemberImg,
+                    EventCommentContent = c.EventCommentContent,
+                    CommentTime = c.CommentTime,
+                    FloorNumber = index + 1 // 樓層數，從 1 開始
+                }).ToList();
+            model.Comments = comments;
 
-			// 檢查是否已達報名上限
-			model.IsFull = model.ParticipantNow >= model.ParticipantMax;
+
+            // 檢查是否已達報名上限
+            model.IsFull = model.ParticipantNow >= model.ParticipantMax;
 
 			return model;
 		}

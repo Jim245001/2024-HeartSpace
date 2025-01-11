@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using System.Data.Entity;
 
 namespace HeartSpace.Controllers
 {
@@ -95,6 +96,7 @@ namespace HeartSpace.Controllers
             using (var db = new AppDbContext())
             {
                 var comments = db.PostComments
+                        .Include(c => c.Member) // 預加載 Member 資料
                     .Where(c => c.PostId == id)
                     .OrderBy(c => c.CommentTime)
                     .ToList();
@@ -119,7 +121,7 @@ namespace HeartSpace.Controllers
                         CommentId = c.Id,
                         UserId = c.UserId,
                         UserNickName = db.Members.FirstOrDefault(m => m.Id == c.UserId)?.NickName,
-                        UserImg = db.Members.FirstOrDefault(m => m.Id == c.UserId)?.MemberImg, // 留言者頭像
+                        UserImg = c.Member != null ? c.Member.MemberImg : null, // 正確加載留言者頭像
                         Comment = c.Comment,
                         CommentTime = c.CommentTime,
                         Disabled = c.Disabled ?? false,

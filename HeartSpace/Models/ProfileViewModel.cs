@@ -41,5 +41,7 @@ namespace HeartSpace.Models
         public List<PostCard> Posts { get; set; } // 您的貼文
         public List<EventCard> InitiatedEvents { get; set; }
         public List<EventCard> ParticipatedEvents { get; set; }
+        public List<EventCard> AbsentEvents { get; set; } // 新增屬性
+
     }
 }

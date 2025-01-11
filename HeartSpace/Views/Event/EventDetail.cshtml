@@ -1,4 +1,5 @@
 ﻿@model HeartSpace.Models.ViewModels.EventViewModel
+@using System.Text.RegularExpressions
 
 <!DOCTYPE html>
 <html>
@@ -25,7 +26,7 @@
             padding: 20px;
             margin-bottom: 20px;
         }
-       
+
         #dropdownMenuButton {
             color: #555; /* 修改按鈕顏色 */
             font-size: 1.3rem;
@@ -126,7 +127,7 @@
     </style>
 </head>
 <body>
-    
+
     <div class="outerbox">
         <!-- 糾團 -->
         <div class="upperbox">
@@ -157,19 +158,17 @@
                     </div>
                     <!-- 發起人資訊 -->
                     <div class="d-flex flex-column align-items-center">
-                        <div class="mb-1">
+                        <div class="d-flex align-items-center">
                             @if (!string.IsNullOrEmpty(Model.MemberImg))
                             {
-                                <img src="@Url.Content(Model.MemberImg)"
-                                     style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #ccc;" />
+                                <img src="@Model.MemberImg?cache=@DateTime.Now.Ticks" alt="Post Image" class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover; " />
                             }
                             else
-                            {                        // 顯示預設的 Font Awesome 圖標
-                                <i class="fa-regular fa-circle-user" style="font-size: 50px; color: #ccc;"></i>
+                            {
+                                <i class="fa-regular fa-circle-user me-3" style="font-size: 40px; color: #ccc;"></i>
                             }
-                        </div>
-                        <div>
-                            <p class="mb-0" style="font-size: 1.1rem; font-weight: bold; color: #555;">@Model.MemberNickName</p>
+
+                            <span style="font-weight: bold; color: #495057;">@Model.MemberNickName</span>
                         </div>
                     </div>
                 </div>
@@ -384,205 +383,153 @@
 
             <hr style="border: 1px solid #ccc; margin: 30px 0;" />
 
-            <!-- 留言 -->
-            <div class="commentouterbox mt-3">
-                <div class="section-title" style="font-size: 1.6rem; font-weight: bold; margin: 10px 10px 15px 10px; color: #555; ">
-                    <i class="fa-solid fa-comments me-2" style="font-size: 2.2rem; color: #6a7888; "></i>
-                    留言板
-                </div>
-                <!-- 留言輸入區 -->
-                <div class="mb-3">
-                    @using (Html.BeginForm("AddComment", "Event", FormMethod.Post, new { @class = "d-flex flex-column" }))
-                    {
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="eventId" value="@Model.Id" />
-
-                        <!-- 留言框 -->
-                        <textarea id="commentContent" name="commentContent" class="form-control mb-2" rows="3" placeholder="留下你的意見" style="resize: none;"></textarea>
-
-                        <!-- 按鈕區 -->
-                        <div class="d-flex justify-content-end align-items-center">
-                            <!-- 取消按鈕 -->
-                            <button type="button" class="btn btn-secondary me-2" id="cancelComment">
-                                取消
-                            </button>
-                            <!-- 留言按鈕 -->
-                            <button type="submit" id="submitComment" class="btn btn-warning" style="background-color: #FDD9A0; border: none;" disabled>
-                                留言
-                            </button>
-                        </div>
-                    }
-                </div>
-
+       
                 <!-- 留言顯示區 -->
-                <input type="hidden" id="eventId" value="@Model.Id" />
-                <div class="comments">
-                    @foreach (var comment in Model.Comments)
-                    {
-                        <div class="comment d-flex align-items-start mb-3">
-                            <!-- 留言者大頭照 -->
-                            @if (!string.IsNullOrEmpty(comment.MemberImg))
-                            {
-                                <img src="@comment.MemberImg"
-                                     class="rounded-circle me-3" alt="Avatar"
-                                     style="width: 50px; height: 50px; object-fit: cover;" />
-                            }
-                            else
-                            {
-                                <i class="fa-regular fa-circle-user me-3"
-                                   style="font-size: 50px; color: #abaeba; "></i>
-                            }
+                <div class="commentouterbox mt-3">
+                    <div class="section-title" style="font-size: 1.6rem; font-weight: bold; margin: 10px 10px 15px 10px; color: #555;">
+                        <i class="fa-solid fa-comments me-2" style="font-size: 2.2rem; color: #6a7888;"></i>
+                        留言板
+                    </div>
 
-                            <div class="flex-grow-1">
-                                <div class="d-flex align-items-center justify-content-start">
-                                    <!-- 留言者姓名 -->
-                                    <p class="comment-author mb-1"><strong>@comment.MemberNickName</strong></p>
-                                    <!-- 留言時間 -->
-                                    <small class="comment-time text-muted mb-1 ms-3">@comment.CommentTime.ToString("MM/dd HH:mm")</small>
-                                </div>
-                                <!-- 留言內容 -->
-                                <p class="mb-1">@comment.EventCommentContent</p>
+                    <!-- 留言輸入區 -->
+                    <div class="mb-3">
+                        @using (Html.BeginForm("AddComment", "Event", FormMethod.Post, new { @class = "d-flex flex-column" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="eventId" value="@Model.Id" />
+
+                            <!-- 留言框 -->
+                            <textarea id="commentContent" name="commentContent" class="form-control mb-2" rows="3" placeholder="留下你的意見" style="resize: none;"></textarea>
+
+                            <!-- 按鈕區 -->
+                            <div class="d-flex justify-content-end align-items-center">
+                                <!-- 取消按鈕 -->
+                                <button type="button" class="btn btn-secondary me-2" id="cancelComment">
+                                    取消
+                                </button>
+                                <!-- 留言按鈕 -->
+                                <button type="submit" id="submitComment" class="btn btn-warning" style="background-color: #FDD9A0; border: none;" disabled>
+                                    留言
+                                </button>
                             </div>
+                        }
+                    </div>
 
-                            <!-- 如果是留言者本人，顯示編輯與刪除選單 -->
-                            @if (comment.IsCommentOwner)
-                            {
-                                <div class="dropdown">
-                                    <button class="btn dropdown-toggle-custom" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="fa-solid fa-pen-to-square"></i>
-                                    </button>
+                    <!-- 留言列表 -->
+                    <input type="hidden" id="eventId" value="@Model.Id" />
+                    <div class="comments">
+                        @foreach (var comment in Model.Comments.OrderBy(c => c.FloorNumber))
+                        {
+                            <!-- 單則留言 -->
+                            <div class="comment d-flex align-items-start mb-3">
+                                <!-- 留言者頭像 -->
+                                @if (!string.IsNullOrEmpty(comment.MemberImg))
+                                {
+                                    <img src="@comment.MemberImg"
+                                         class="rounded-circle me-3" alt="Avatar"
+                                         style="width: 50px; height: 50px; object-fit: cover;" />
+                                }
+                                else
+                                {
+                                    <i class="fa-regular fa-circle-user me-3"
+                                       style="font-size: 50px; color: #abaeba;"></i>
+                                }
 
-                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
-                                        <li>
-                                            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#editCommentModal"
-                                                    onclick="loadCommentData(@comment.Id, '@comment.EventCommentContent')">
-                                                編輯留言
-                                            </button>
-                                        </li>
-                                        <li>
-                                            <form id="deleteForm" action="@Url.Action("DeleteComment", "Event")" method="post">
-                                                @Html.AntiForgeryToken()
-                                                <input type="hidden" name="commentId" id="deleteCommentId" />
-                                                <input type="hidden" name="eventId" value="@Model.Id" />
-                                                <button type="button" class="dropdown-item text-danger" onclick="openDeleteModal(@comment.Id)">刪除留言</button>
-                                            </form>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <!-- 留言者暱稱與樓層標籤 -->
+                                        <div class="d-flex align-items-center">
+                                            <p class="comment-author mb-1 me-3" style="font-weight: bold; font-size: 1.1rem; color: #6a7888;">
+                                                @comment.MemberNickName
+                                            </p>
+                                            <span class="badge bg-primary text-white" style="cursor: pointer;" onclick="mentionUser('#B@(comment.FloorNumber)')">
+                                                #B@(comment.FloorNumber)
+                                            </span>
+                                        </div>
+                                        <!-- 留言時間 -->
+                                        <small class="text-muted">@comment.CommentTime.ToString("MM/dd HH:mm")</small>
+                                    </div>
 
-                                        </li>
+                                    <!-- 留言內容 -->
+                                    <p class="mb-1" style="color: #212529; font-size: 1rem;">
+                                        @Html.Raw(Regex.Replace(comment.EventCommentContent, @"#B\d+", match => $"<a href='#' style='color: #007bff; text-decoration: underline;' onclick='mentionUser(\"{match.Value}\"); return false;'>{match.Value}</a>"))
+                                    </p>
 
-                                    </ul>
+                                    <!-- 如果是留言者本人，顯示編輯與刪除選單 -->
+                                    @if (comment.IsCommentOwner)
+                                    {
+                                        <div class="text-end mt-2">
+                                            <div class="dropdown">
+                                                <button class="btn dropdown-toggle-custom" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="fa-solid fa-pen-to-square"></i>
+                                                </button>
+
+                                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+                                                    <li>
+                                                        <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#editCommentModal"
+                                                                onclick="loadCommentData(@comment.MemberId, '@comment.EventCommentContent')">
+                                                            編輯留言
+                                                        </button>
+                                                    </li>
+                                                    <li>
+                                                        <form id="deleteForm" action="@Url.Action("DeleteComment", "Event")" method="post">
+                                                            @Html.AntiForgeryToken()
+                                                            <input type="hidden" name="commentId" id="deleteCommentId" />
+                                                            <input type="hidden" name="eventId" value="@Model.Id" />
+                                                            <button type="button" class="dropdown-item text-danger" onclick="openDeleteModal(@comment.MemberId)">刪除留言</button>
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    }
                                 </div>
-
-                            }
-                        </div>
-                    }
-                </div>
-
-                <!-- 編輯留言模態框 -->
-                <div class="modal fade" id="editCommentModal" tabindex="-1" aria-labelledby="editCommentModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <!-- 表單開始 -->
-                            <form action="@Url.Action("EditComment", "Event")" method="post">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" id="editCommentId" name="commentId" />
-                                <input type="hidden" id="eventId" name="eventId" value="@Model.Id" />
-                                <div class="modal-header">
-                                    <h5 class="modal-title fw-bold" id="editCommentModalLabel">編輯我的留言</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <textarea class="form-control" id="editCommentContent" name="updatedContent" rows="4" required></textarea>
-                                </div>
-                                <div class="modal-footer justify-content-end">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                                    <button type="submit" class="btn btn-primary" style="background-color: #FDD9A0; border: none; color: black">儲存</button>
-                                </div>
-                            </form>
-                            <!-- 表單結束 -->
-                        </div>
+                            </div>
+                        }
                     </div>
                 </div>
 
-                <!-- 刪除確認模態框 -->
-                <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title fw-bold" id="deleteModalLabel">HeartSpace心聚點</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                是否確認刪除此留言？
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                                <button type="button" class="btn btn-danger" id="confirmDeleteButton">刪除</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                @section Scripts {
+                    <script>
+                        function mentionUser(floorNumber) {
+                            const textarea = document.getElementById('commentContent');
+                            textarea.value += ` ${floorNumber}`;
+                            textarea.focus();
+                        }
 
+                        document.addEventListener("DOMContentLoaded", function () {
+                            const commentBox = document.getElementById("commentContent");
+                            const submitButton = document.getElementById("submitComment");
+                            const cancelButton = document.getElementById("cancelComment");
 
+                            if (commentBox && submitButton) {
+                                // 當留言框有內容時啟用留言按鈕
+                                commentBox.addEventListener("input", function () {
+                                    if (this.value.trim().length > 0) {
+                                        submitButton.disabled = false;
+                                    } else {
+                                        submitButton.disabled = true;
+                                    }
+                                });
 
-        @section Scripts {
-            <script>
-                //刪除留言
-                function openDeleteModal(commentId) {
-                    // 設置模態框中的隱藏字段值
-                    document.getElementById('deleteCommentId').value = commentId;
-
-                    // 顯示刪除確認模態框
-                    var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
-                    deleteModal.show();
-
-                    // 綁定刪除按鈕的行為
-                    document.getElementById('confirmDeleteButton').onclick = function () {
-                        document.getElementById('deleteForm').submit();
-                    };
-                }
-                //編輯留言
-                function openEditModal(commentId, commentContent) {
-                    document.getElementById('editCommentId').value = commentId;
-                    document.getElementById('editCommentContent').value = commentContent;
-                    new bootstrap.Modal(document.getElementById('editCommentModal')).show();
-                }
-
-                function confirmDelete() {
-                    return confirm("是否確認刪除此留言？");
-                }
-
-                function loadCommentData(commentId, content) {
-                    // 將留言的 ID 和內容填充到模態框中
-                    document.getElementById('editCommentId').value = commentId;
-                    document.getElementById('editCommentContent').value = content;
-                }
-
-                document.addEventListener("DOMContentLoaded", function () {
-                    const commentBox = document.getElementById("commentContent");
-                    const submitButton = document.getElementById("submitComment");
-                    const cancelButton = document.getElementById("cancelComment");
-
-                    if (commentBox && submitButton) {
-                        // 當留言框有內容時啟用留言按鈕
-                        commentBox.addEventListener("input", function () {
-                            if (this.value.trim().length > 0) {
-                                submitButton.disabled = false;
-                            } else {
-                                submitButton.disabled = true;
+                                // 取消按鈕清空內容並禁用留言按鈕
+                                cancelButton.addEventListener("click", function () {
+                                    commentBox.value = ""; // 清空留言框
+                                    submitButton.disabled = true; // 禁用留言按鈕
+                                });
                             }
                         });
 
-                        // 取消按鈕清空內容並禁用留言按鈕
-                        cancelButton.addEventListener("click", function () {
-                            commentBox.value = ""; // 清空留言框
-                            submitButton.disabled = true; // 禁用留言按鈕
-                        });
-                    }
-                });
-            </script>
-        }
+                        function openDeleteModal(commentId) {
+                            document.getElementById('deleteCommentId').value = commentId;
+                            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+                        }
 
+                        function loadCommentData(commentId, content) {
+                            document.getElementById('editCommentId').value = commentId;
+                            document.getElementById('editCommentContent').value = content;
+                        }
+                    </script>
+                }
 </body>
 </html>
