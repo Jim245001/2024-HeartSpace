@@ -21,16 +21,30 @@ namespace HeartSpace.Controllers
     public class SearchController : Controller
     {
         private readonly IPostService _postService;
+		private readonly IEventService _eventService;
 
-        public SearchController(IPostService postService)
-        {
-            _postService = postService ?? throw new ArgumentNullException(nameof(postService));
-          
-        }
+		// 使用依賴注入
+		public SearchController(IPostService postService, IEventService eventService)
+		{
+			_postService = postService ?? throw new ArgumentNullException(nameof(postService));
+			_eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
+		}
 
+		public ActionResult SearchEvent(string keyword)
+		{
+			var events = _eventService.SearchEvents(keyword, 1, 10); // 搜尋符合條件的活動
+																	
+			var recommendedEvents = _eventService.GetRandomEvents(6);  // 隨機取得其他活動作為推薦
+			var model = new SearchEventViewModel
+			{
+				Events = events,
+				RecommendedEvents = recommendedEvents.ToList()
+			};
+			ViewBag.Keyword = keyword;
+			return View(model);
+		}
 
-
-        public ActionResult SearchPost(string keyword, int pageIndex = 1, int pageSize = 10)
+		public ActionResult SearchPost(string keyword, int pageIndex = 1, int pageSize = 10)
         {
 
             // 從服務層獲取搜尋結果與推薦貼文

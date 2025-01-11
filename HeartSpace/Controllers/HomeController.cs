@@ -6,6 +6,7 @@ using System;
 using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
+using System.Diagnostics;
 
 public class HomeController : Controller
 {
@@ -56,16 +57,16 @@ public class HomeController : Controller
             .Select(e => new EventViewModel
             {
                 Id = e.Id,
-                EventName = e.EventName,
-                Description = e.Description,
-                Location = e.Location,
+				Title = e.EventName,
+				EventContent = e.Description,
                 EventTime = e.EventTime,
-                MemberName = _context.Members
-                    .Where(m => m.Id == e.MemberId)
-                    .Select(m => m.Name)
-                    .FirstOrDefault() ?? "未知主辦者",
-                Img = e.EventImg
-            });
+				MemberNickName = e.Member != null ? e.Member.NickName : "未知發起人",
+				EventImg = e.EventImg,
+				CategoryName = _context.Categories
+					.Where(c => c.Id == c.Id)
+					.Select(c => c.CategoryName)
+					.FirstOrDefault() ?? "未分類"
+			});
 
         var totalEventCount = eventsQuery.Provider.Execute<int>(
             System.Linq.Expressions.Expression.Call(
@@ -75,7 +76,7 @@ public class HomeController : Controller
             )
         );
         var eventItems = eventsQuery.Skip((eventPage - 1) * pageSize).Take(pageSize).AsEnumerable();
-        var paginatedEvents = PaginatedList<EventViewModel>.Create(eventItems, totalEventCount, eventPage, pageSize);
+        var paginatedEvents = PaginatedList<EventCard>.Create(eventItems, totalEventCount, eventPage, pageSize);
 
         // 建立 ViewModel
         var viewModel = new HomePageViewModel
@@ -84,7 +85,11 @@ public class HomeController : Controller
             Events = paginatedEvents
         };
 
-        return View(viewModel);
+		
+
+		return View(viewModel);
+
+
     }
 
 }

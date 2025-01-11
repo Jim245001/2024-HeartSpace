@@ -12,7 +12,7 @@ namespace HeartSpace.Models
 	{
 		//public PaginatedList<PostViewModel> Posts { get; set; }
 
-		public PaginatedList<EventViewModel> Events { get; set; } // 活動分頁資料
+		public PaginatedList<EventCard> Events { get; set; } // 活動分頁資料
 
         public PaginatedList<PostCard> Posts { get; set; }
 

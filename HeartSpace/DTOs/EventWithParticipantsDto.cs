@@ -41,5 +41,6 @@ namespace HeartSpace.DTOs
 		public string NickName { get; set; } // 暱稱
 		public string Email { get; set; } // 信箱
 		public string MemberImg { get; set; } // 頭像
+		public bool? IsAttend { get; set; } // 出席狀態
 	}
 }
