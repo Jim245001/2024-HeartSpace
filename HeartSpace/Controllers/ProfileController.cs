@@ -118,20 +118,51 @@ namespace HeartSpace.Controllers
             return View(profileViewModel);
         }
 
+        public ActionResult EventList()
+        {
+            // 假設從資料庫取得活動列表
+            var events = _context.Events
+                .Select(e => new EventViewModel
+                {
+                    Id = e.Id,
+                    EventName = e.EventName
+                })
+                .ToList();
+
+            return View(events);
+        }
+
         [HttpGet]
         //[Authorize]
         public ActionResult EditProfile()
         {
             int memberId = 1;
 
-            // 從資料庫取得會員資料
+    
             var member = _context.Members.Find(memberId);
             if (member == null)
             {
                 return HttpNotFound();
             }
 
-            // 填入 ViewModel
+
+            var absentEvents = _context.EventMembers
+                 .Where(em => em.MemberId == memberId)
+                .Where(em => em.IsAttend == false)
+                .Select(em => new EventCard
+                {
+                    Id = em.Event.Id,
+                    Title = em.Event.EventName,
+                    EventContent = em.Event.Description,
+                    EventTime = em.Event.EventTime,
+                    MemberNickName = em.Event.Member.NickName ?? "未知发起人",
+                    MemberImg = em.Event.Member.MemberImg,
+                    EventImg = em.Event.EventImg,
+                    CategoryName = em.Event.Category.CategoryName ?? "未分类"
+                })
+                .OrderByDescending(e => e.EventTime)
+                .ToList();
+
             var viewModel = new ProfileViewModel
             {
                 Id = member.Id,
@@ -139,7 +170,8 @@ namespace HeartSpace.Controllers
                 Email = member.Email,
                 Account = member.Account,
                 MemberImg = member.MemberImg,
-                MemberNickName = member.NickName
+                MemberNickName = member.NickName,
+                AbsentEvents = absentEvents
             };
 
             return View(viewModel);
@@ -161,26 +193,30 @@ namespace HeartSpace.Controllers
 
             // 抓取 "您缺席的揪團"
             var absentEvents = _context.EventMembers
-                .Where(em => em.MemberId == memberId && em.IsAttend == false) // IsAttend = false
-                .Select(em => em.Event)
-                .OrderByDescending(e => e.EventTime)
-                .Select(e => new EventCard
-                {
-                    Id = e.Id,
-                    Title = e.EventName,
-                    EventContent = e.Description,
-                    EventTime = e.EventTime,
-                    MemberNickName = e.Member != null ? e.Member.NickName : "未知發起人",
-                    MemberImg = _context.Members
+        .Where(em => em.MemberId == memberId)
+        .Where(em => em.IsAttend == false)
+        .Select(em => em.Event)
+        .OrderByDescending(e => e.EventTime)
+        .Select(e => new EventCard
+        {
+            Id = e.Id,
+            Title = e.EventName,
+            EventContent = e.Description,
+            EventTime = e.EventTime,
+            MemberNickName = e.Member != null ? e.Member.NickName : "未知發起人",
+            MemberImg = _context.Members
                         .Where(m => m.Id == e.MemberId)
                         .Select(m => m.MemberImg)
                         .FirstOrDefault(),
-                    EventImg = e.EventImg,
-                    CategoryName = _context.Categories
+            EventImg = e.EventImg,
+            CategoryName = _context.Categories
                         .Where(c => c.Id == e.CategoryId)
                         .Select(c => c.CategoryName)
                         .FirstOrDefault() ?? "未分類"
-                }).ToList();
+        }).ToList();
+            model.AbsentEvents = absentEvents;
+
+
 
             // 檢查暱稱是否重複
             var isNickNameExists = _context.Members.Any(m => m.NickName == model.MemberNickName && m.Id != model.Id);
@@ -289,4 +325,7 @@ namespace HeartSpace.Controllers
 
 
     }
-}
+
+    
+
+    } 
