@@ -1,3 +1,6 @@
+using HeartSpaceAdmin.Models.EFModels;
+using Microsoft.EntityFrameworkCore;
+
 namespace HeartSpaceAdmin
 {
 	public class Program
@@ -8,6 +11,10 @@ namespace HeartSpaceAdmin
 
 			// Add services to the container.
 			builder.Services.AddControllersWithViews();
+
+			//配置資料庫服務
+			builder.Services.AddDbContext<AppDbContext>(options =>
+	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 			var app = builder.Build();
 

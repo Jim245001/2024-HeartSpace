@@ -1,0 +1,56 @@
+﻿@model IEnumerable<HeartSpaceAdmin.Models.MemberViewModel>
+
+<h1>會員管理</h1>
+
+<a href="@Url.Action("Create", "Member")" class="btn btn-primary mb-3">新增會員</a>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>會員圖片</th>
+            <th>帳號</th>
+            <th>姓名</th>
+            <th>暱稱</th>
+            <th>電子郵件</th>
+            <th>角色</th>
+            <th>停權</th>
+            <th>缺席次數</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var member in Model)
+        {
+            <tr>
+                <td>
+                    @if (!string.IsNullOrEmpty(member.MemberImg))
+                    {
+                        <img src="@member.MemberImg" alt="會員圖片" style="width: 50px; height: 50px; object-fit: cover;" />
+                    }
+                    else
+                    {
+                        <i class="fa-regular fa-circle-user" style="font-size: 2rem;"></i>
+                    }
+                </td>
+                <td>@member.Account</td>
+                <td>@member.Name</td>
+                <td>@member.NickName</td>
+                <td>@member.Email</td>
+                <td>@member.Role</td>
+                <td>@(member.Disabled ? "是" : "否")</td>
+                <td>@member.AbsenceCount</td>
+                <td>
+                    <a href="@Url.Action("Edit", "Member", new { id = member.Id })" class="btn btn-warning btn-sm">編輯</a>
+                    @if (!member.Disabled)
+                    {
+                        <form action="@Url.Action("Disable", "Member")" method="post" style="display: inline;">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@member.Id" />
+                            <button type="submit" class="btn btn-danger btn-sm">停權</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
