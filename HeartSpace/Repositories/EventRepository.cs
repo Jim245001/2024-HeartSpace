@@ -11,6 +11,7 @@ using HeartSpace.Models.EFModels;
 using HeartSpace.DTOs;
 using System.Globalization;
 using HeartSpace.DAL;
+using CommentViewModel = HeartSpace.Models.ViewModels.CommentViewModel;
 
 namespace HeartSpace.DAL
 {
@@ -242,6 +243,16 @@ namespace HeartSpace.DAL
 					.ToList();
 			}
 		}
+		//獲取單一評論
+		public EventComment GetEventCommentById(int commentId)
+		{
+			using (var context = new AppDbContext())
+			{
+				return context.EventComments
+			.Include(ec => ec.Member) // 加載關聯的 Member 資料
+			.FirstOrDefault(c => c.Id == commentId);
+			}
+		}
 
 		public bool EventExists(int eventId)
 		{
@@ -266,10 +277,22 @@ namespace HeartSpace.DAL
 		{
 			using (var context = new AppDbContext())
 			{
-				context.EventComments.Remove(comment);
-				context.SaveChanges();
+				var existingComment = context.EventComments.FirstOrDefault(c => c.Id == comment.Id);
+				if (existingComment != null)
+				{
+					existingComment.Disabled = "true"; // 更新 Disabled 欄位
+					Console.WriteLine("準備保存變更到資料庫..."); // 添加日誌
+					context.SaveChanges();
+					Console.WriteLine("變更已保存到資料庫。"); // 添加日誌
+				}
+				else
+				{
+					throw new KeyNotFoundException("評論不存在，無法刪除。");
+				}
 			}
 		}
+
+
 
 
 		// 確認指定會員是否為評論的擁有者

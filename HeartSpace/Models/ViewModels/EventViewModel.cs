@@ -124,8 +124,9 @@ namespace HeartSpace.Models.ViewModels
 		public DateTime CommentTime { get; set; }
 		public bool IsCommentOwner { get; set; }
         public int FloorNumber { get; set; } // 樓層數
+		public string Disabled { get; set; }
 
-    }
+	}
 
 
 

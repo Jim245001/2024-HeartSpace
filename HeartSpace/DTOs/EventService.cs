@@ -90,10 +90,46 @@ namespace HeartSpace.BLL
 
 
 		// 取得指定活動的所有評論
-		public IEnumerable<EventComment> GetEventComments(int eventId)
+		public IEnumerable<CommentViewModel> GetEventComments(int eventId, int currentMemberId)
 		{
 			var comments = _eventRepository.GetEventComments(eventId);
-			return comments ?? Enumerable.Empty<EventComment>();
+
+			return comments.Select(c => new CommentViewModel
+			{
+				Id = c.Id,
+				MemberId = c.MemberId,
+				MemberName = c.Member.Name,
+				MemberNickName = c.Member.NickName,
+				MemberImg = c.Member.MemberImg,
+				EventCommentContent = c.EventCommentContent,
+				CommentTime = c.CommentTime,
+				//FloorNumber = c.FloorNumber,
+				Disabled = c.Disabled,
+				IsCommentOwner = c.MemberId == currentMemberId // 判斷是否為擁有者
+			}).ToList();
+		}
+		public CommentViewModel GetEventCommentById(int commentId, int currentMemberId)
+		{
+			// 從 Repository 獲取單個評論實體
+			var comment = _eventRepository.GetEventCommentById(commentId);
+
+			if (comment == null)
+			{
+				return null;
+			}
+
+			// 轉換為 ViewModel，並設置 IsCommentOwner
+			return new CommentViewModel
+			{
+				Id = comment.Id,
+				MemberId = comment.MemberId,
+				MemberName = comment.Member?.Name ?? "未知用戶",
+				MemberNickName = comment.Member?.NickName ?? "未知用戶",
+				MemberImg = comment.Member?.MemberImg,
+				EventCommentContent = comment.EventCommentContent,
+				CommentTime = comment.CommentTime,
+				IsCommentOwner = comment.MemberId == currentMemberId // 判斷是否為擁有者
+			};
 		}
 
 
@@ -115,15 +151,28 @@ namespace HeartSpace.BLL
 
 
 		// 刪除評論
-		public void RemoveComment(EventComment comment)
+		public void RemoveComment(int commentId, int currentMemberId)
 		{
-			if (comment == null)
+			// 檢查是否為評論擁有者
+			if (!_eventRepository.IsCommentOwner(commentId, currentMemberId))
 			{
-				throw new ArgumentNullException(nameof(comment), "要刪除的評論不能為空。");
+				throw new UnauthorizedAccessException("無權刪除此評論。");
 			}
 
+			// 獲取評論對象
+			var comment = _eventRepository.GetEventCommentById(commentId);
+			if (comment == null)
+			{
+				throw new KeyNotFoundException("找不到該評論。");
+			}
+
+			// 更新評論 Disabled 欄位為 "true"
+			comment.Disabled = "true";
 			_eventRepository.RemoveComment(comment);
 		}
+
+
+
 
 
 		// 檢查是否為留言者本人
@@ -133,15 +182,22 @@ namespace HeartSpace.BLL
 		}
 
 		// 更新評論
-		public void UpdateComment(EventComment updatedComment)
+		public void UpdateComment(CommentViewModel commentViewModel)
 		{
-			if (updatedComment == null)
+			var comment = _eventRepository.GetEventCommentById(commentViewModel.Id);
+
+			if (comment == null)
 			{
-				throw new ArgumentNullException(nameof(updatedComment), "更新的評論資料不能為空。");
+				throw new KeyNotFoundException("找不到該評論。");
 			}
 
-			_eventRepository.UpdateComment(updatedComment);
+			// 更新評論內容
+			comment.EventCommentContent = commentViewModel.EventCommentContent;
+
+			// 保存修改
+			_eventRepository.UpdateComment(comment);
 		}
+
 
 
 		//檢視揪團
@@ -197,8 +253,10 @@ namespace HeartSpace.BLL
                     MemberImg = c.Member?.MemberImg,
                     EventCommentContent = c.EventCommentContent,
                     CommentTime = c.CommentTime,
-                    FloorNumber = index + 1 // 樓層數，從 1 開始
-                }).ToList();
+					Disabled = c.Disabled,
+					FloorNumber = index + 1, // 樓層數，從 1 開始
+					IsCommentOwner = c.MemberId == currentMemberId // 判斷是否為當前使用者的評論
+				}).ToList();
             model.Comments = comments;
 
 
