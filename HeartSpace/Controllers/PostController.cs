@@ -79,7 +79,7 @@ namespace HeartSpace.Controllers
 		public ActionResult PostDetails(CreatePostDto model, int id)
 		{
             var post = _postService.GetPostById(id);
-            Debug.WriteLine($"CategoryName: {post.CategoryName}");
+            //Debug.WriteLine($"CategoryName: {post.CategoryName}");
 
 
 

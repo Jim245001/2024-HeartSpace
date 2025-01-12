@@ -35,9 +35,6 @@ namespace HeartSpace.Helpers
 
 			var items = source.Skip(skipCount).Take(pageSize).ToList();
 			this.AddRange(items);
-
-			Debug.WriteLine($"Total Pages: {TotalPages}");
-			Debug.WriteLine($"Total Items: {TotalItemCount}");
 		}
 
 		public bool HasPreviousPage => PageIndex > 1;
