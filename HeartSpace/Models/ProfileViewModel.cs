@@ -1,4 +1,5 @@
-﻿using HeartSpace.Models.ViewModels;
+﻿using HeartSpace.Helpers;
+using HeartSpace.Models.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -42,6 +43,7 @@ namespace HeartSpace.Models
         public List<EventCard> InitiatedEvents { get; set; }
         public List<EventCard> ParticipatedEvents { get; set; }
         public List<EventCard> AbsentEvents { get; set; } // 新增屬性
+
 
     }
 }

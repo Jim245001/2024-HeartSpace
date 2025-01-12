@@ -17,8 +17,8 @@ namespace HeartSpace.Models
 		public string MemberImg { get; set; }
 		public string CategoryName { get; set; } // 類別名稱
 
-		// 無參數建構函數
-		public EventCard() { }
+        // 無參數建構函數
+        public EventCard() { }
 
 		// Constructor 初始化
 		public EventCard(int id, string title, string eventContent, DateTime eventTime, string postImg, string memberNickName, string memberImg, string categoryName)
