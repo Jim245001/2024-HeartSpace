@@ -17,6 +17,44 @@ html {
   min-height: 100%;
 }
 
+
+/* 字體樣式 */
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
+    font-size: 18px; /* 整體字體變大 */
+    line-height: 1.5; /* 行距變大 */
+}
+
+/* 表單元素間距 */
+.form-group {
+    margin-bottom: 5px; /* 增加每個表單組件的間距 */
+}
+
+/* 標籤樣式 */
+label {
+    font-size: 20px; /* 標籤字體變大 */
+    font-weight: bold; /* 加粗字體 */
+    margin-bottom: 10px; /* 與輸入框的距離 */
+    display: block; /* 保證標籤與輸入框分行 */
+}
+
+/* 輸入框樣式 */
+input.form-control,
+textarea.form-control,
+select.form-control {
+    font-size: 18px; /* 輸入框內文字變大 */
+    padding: 10px; /* 增加內邊距，讓框內文字有間距 */
+}
+
+/* 按鈕樣式 */
+.btnstyle {
+    font-size: 18px; /* 按鈕字體變大 */
+    padding: 10px 20px; /* 增加按鈕的內邊距 */
+    margin-right: 10px; /* 按鈕間距 */
+}
+
+/* 說明訊息樣式 */
+.text-danger {
+    font-size: 16px; /* 錯誤訊息的字體變大 */
+    margin-top: 5px; /* 與輸入框的間距 */
 }

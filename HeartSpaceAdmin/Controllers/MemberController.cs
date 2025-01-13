@@ -2,6 +2,7 @@
 using HeartSpaceAdmin.Models.EFModels;
 using System.Linq;
 using HeartSpaceAdmin.Models;
+using Microsoft.AspNetCore.Identity;
 
 public class MemberController : Controller
 {
@@ -44,6 +45,12 @@ public class MemberController : Controller
 	{
 		if (ModelState.IsValid)
 		{
+			if (_context.Members.Any(m => m.Account == model.Account))
+			{
+				ModelState.AddModelError("Account", "帳號已存在！");
+				return View(model);
+			}
+
 			var member = new Member
 			{
 				Account = model.Account,
@@ -59,13 +66,22 @@ public class MemberController : Controller
 				IsConfirmed = model.IsConfirmed
 			};
 
-			_context.Members.Add(member);
-			_context.SaveChanges();
-			return RedirectToAction(nameof(Index));
+			try
+			{
+				_context.Members.Add(member);
+				_context.SaveChanges();
+				return RedirectToAction(nameof(Index));
+			}
+			catch (Exception ex)
+			{
+				ModelState.AddModelError("", "無法新增會員，請稍後再試！");
+				Console.WriteLine(ex.Message);
+			}
 		}
 
 		return View(model);
 	}
+
 
 	// Edit (GET)
 	public IActionResult Edit(int id)
@@ -116,9 +132,9 @@ public class MemberController : Controller
 			member.Role = model.Role;
 			member.AbsenceCount = model.AbsenceCount;
 			member.MemberImg = model.MemberImg;
-			member.PasswordHash = model.PasswordHash;
-			member.ConfirmCode = model.ConfirmCode;
-			member.IsConfirmed = model.IsConfirmed;
+			member.PasswordHash = member.PasswordHash;
+			member.ConfirmCode = member.ConfirmCode;
+			member.IsConfirmed = member.IsConfirmed;
 
 			_context.SaveChanges();
 			return RedirectToAction(nameof(Index));
