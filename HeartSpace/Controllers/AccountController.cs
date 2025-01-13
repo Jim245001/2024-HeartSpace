@@ -186,20 +186,6 @@ namespace HeartSpace.Controllers.Account
 		}
 
 
-
-		private void ProcessActiveRegister(int memberId, string confirmCode)
-		{
-			using (var db = new AppDbContext())
-			{
-				var member = db.Members.FirstOrDefault(m => m.Id == memberId && m.ConfirmCode == confirmCode && m.IsConfirmed == false);
-				if (member == null) return;
-
-				member.IsConfirmed = true;
-				member.ConfirmCode = null;
-				db.SaveChanges();
-			}
-		}
-
 		[HttpGet]
 		public ActionResult ForgotPassword()
 		{

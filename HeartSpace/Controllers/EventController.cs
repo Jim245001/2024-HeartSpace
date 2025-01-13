@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Web.Mvc;
+using System.Web.Security;
 using HeartSpace.BLL;
 using HeartSpace.Models.EFModels;
 using HeartSpace.Models.ViewModels;
@@ -229,7 +230,7 @@ namespace HeartSpace.Controllers
 				}
 
 				// 獲取當前用戶 ID
-				int currentMemberId = GetCurrentMemberId(); // 假設有這個方法
+				int currentMemberId = GetCurrentMemberId(); 
 
 				// 建立新的留言物件
 				var newComment = new EventComment
@@ -288,7 +289,32 @@ namespace HeartSpace.Controllers
 
 		private int GetCurrentMemberId()
 		{
-			return 3; // 測試用固定 MemberId
+			if (!User.Identity.IsAuthenticated)
+			{
+				throw new UnauthorizedAccessException("使用者未登入。");
+			}
+
+			// 取得身份驗證 Cookie
+			var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
+			if (authCookie == null)
+			{
+				throw new UnauthorizedAccessException("未找到身份驗證 Cookie。");
+			}
+
+			// 解密票據
+			var ticket = FormsAuthentication.Decrypt(authCookie.Value);
+			if (ticket == null || string.IsNullOrEmpty(ticket.UserData))
+			{
+				throw new UnauthorizedAccessException("身份驗證票據無效。");
+			}
+
+			// 從 UserData 中取得 MemberId
+			if (int.TryParse(ticket.UserData, out int memberId))
+			{
+				return memberId;
+			}
+
+			throw new Exception("票據中的用戶 ID 無效。");
 		}
 
 	}
