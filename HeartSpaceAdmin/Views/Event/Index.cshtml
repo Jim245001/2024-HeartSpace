@@ -1,0 +1,57 @@
+﻿@model IEnumerable<HeartSpaceAdmin.Models.EventViewModel>
+
+<h1>活動管理</h1>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th style="width: 20%;">標題</th>
+            <th style="width: 10%;">發起人</th>
+            <th style="width: 30%;">描述</th>
+            <th style="width: 15%;">活動時間</th>
+            <th style="width: 10%;">截止日期</th>         
+            <th style="width: 15%;">操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr class="@(item.Disabled ? "table-danger" : "")">
+                <td>@item.EventName</td>
+                <td>@item.OrganizerName</td>
+                <td>
+                    @(item.Description.Length > 35
+                        ? item.Description.Substring(0, 35) + "..."
+                        : item.Description)
+                </td>
+                <td>@item.EventTime.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>@item.DeadLine.ToString("yyyy-MM-dd")</td>
+          
+                <td>
+                    <!-- 編輯按鈕，始終顯示 -->
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning">編輯</a>
+
+                    @if (!item.Disabled)
+                    {
+                        <!-- 禁用按鈕 -->
+                        <form asp-action="Delete" asp-route-id="@item.Id" method="post" style="display:inline;">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-danger">禁用</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <!-- 還原按鈕 -->
+                        <form asp-action="Restore" asp-route-id="@item.Id" method="post" style="display:inline;">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-secondary">還原</button>
+                        </form>
+                    }
+                </td>
+
+            </tr>
+        }
+    </tbody>
+</table>
+

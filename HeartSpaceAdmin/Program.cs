@@ -34,8 +34,9 @@ namespace HeartSpaceAdmin
 			app.UseAuthorization();
 
 			app.MapControllerRoute(
-				name: "default",
-				pattern: "{controller=Home}/{action=Index}/{id?}");
+			name: "default",
+			pattern: "{controller=Member}/{action=Index}/{id?}"); // 預設指向 MemberController 的 Index 動作
+
 
 			app.Run();
 		}

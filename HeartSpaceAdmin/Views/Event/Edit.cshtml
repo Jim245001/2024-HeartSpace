@@ -1,0 +1,120 @@
+﻿@model HeartSpaceAdmin.Models.EventViewModel
+
+<h1>編輯活動</h1>
+
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group">
+        <label for="EventName">標題</label>
+        <input asp-for="EventName" class="form-control" />
+        @Html.ValidationMessageFor(model => model.EventName, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group">
+        <label for="Description">描述</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group">
+        <label for="EventTime">活動時間</label>
+        <input asp-for="EventTime" class="form-control" type="datetime-local" />
+        @Html.ValidationMessageFor(model => model.EventTime, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group">
+        <label for="DeadLine">截止日期</label>
+        <input asp-for="DeadLine" class="form-control" type="date" />
+        @Html.ValidationMessageFor(model => model.DeadLine, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group">
+        <label for="ParticipantMax">最大參與人數</label>
+        <input asp-for="ParticipantMax" class="form-control" type="number" />
+        @Html.ValidationMessageFor(model => model.ParticipantMax, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group">
+        <label for="ParticipantMin">最小參與人數</label>
+        <input asp-for="ParticipantMin" class="form-control" type="number" />
+        @Html.ValidationMessageFor(model => model.ParticipantMin, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group">
+        <label for="Location">活動地點</label>
+        <input asp-for="Location" class="form-control" />
+        @Html.ValidationMessageFor(model => model.Location, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group">
+        <label for="IsOnline">是否為線上活動</label>
+        <input asp-for="IsOnline" class="form-check-input" type="checkbox" />
+        @Html.ValidationMessageFor(model => model.IsOnline, "", new { @class = "text-danger" })
+    </div>
+
+    <h2>參與者管理</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>會員名稱</th>
+                <th>是否出席</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (var i = 0; i < Model.Participants.Count; i++)
+            {
+                <tr>
+                    <td>@Model.Participants[i].MemberName</td>
+                    <td>
+                        <input type="checkbox"
+                               name="Participants[@i].IsAttend"
+                               value="true"
+                        @(Model.Participants[i].IsAttend == true ? "checked" : "") />
+                        <input type="hidden"
+                               name="Participants[@i].IsAttend"
+                               value="false" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+
+    </table>
+
+    <h2>留言管理</h2>
+    @if (Model.Comments != null && Model.Comments.Any())
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>會員名稱</th>
+                    <th>留言內容</th>
+                    <th>留言時間</th>
+                    <th>是否禁用</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var comment in Model.Comments)
+                {
+                    <tr>
+                        <td>@comment.MemberName</td>
+                        <td>@comment.CommentContent</td>
+                        <td>@comment.CommentTime.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>
+                            <input asp-for="@comment.Disabled" type="checkbox" />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>目前沒有留言。</p>
+    }
+
+
+    <button type="submit" class="btn btn-primary">儲存</button>
+    <a asp-action="Index" class="btn btn-secondary">返回</a>
+</form>

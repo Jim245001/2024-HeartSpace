@@ -44,4 +44,6 @@ public partial class Event
     public virtual ICollection<EventComment> EventComments { get; set; } = new List<EventComment>();
 
     public virtual ICollection<EventMember> EventMembers { get; set; } = new List<EventMember>();
+	public virtual Member Organizer { get; set; }
+
 }
