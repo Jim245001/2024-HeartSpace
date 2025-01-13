@@ -65,7 +65,15 @@ namespace HeartSpace.Controllers.Account
 		private (string returnUrl, HttpCookie cookie) ProcessLogin(string account, bool rememberMe)
 		{
 
-			var roles = string.Empty;
+			var user = _db.Members.FirstOrDefault(m => m.Account == account);
+			if (user == null)
+			{
+				throw new Exception("無法找到使用者資料");
+			}
+
+			// 存入 UserData 格式為 "MemberId|Role"
+			var userData = $"{user.Id}|{user.Role}";
+
 			var ticket = 
 				new FormsAuthenticationTicket(
 					1,
@@ -73,11 +81,16 @@ namespace HeartSpace.Controllers.Account
 					DateTime.Now, 
 					DateTime.Now.AddDays(2),
 					false,
-					roles,
+					userData,
 					"/");
 
-			string value = FormsAuthentication.Encrypt(ticket);
-			var cookie = new HttpCookie(FormsAuthentication.FormsCookieName, value);
+			string encryptedTicket = FormsAuthentication.Encrypt(ticket);
+			var cookie = new HttpCookie(FormsAuthentication.FormsCookieName, encryptedTicket)
+			{
+				HttpOnly = true,
+				Secure = Request.IsSecureConnection
+			};
+
 			var returnUrl = FormsAuthentication.GetRedirectUrl(account, true);
 
 			return (returnUrl, cookie);

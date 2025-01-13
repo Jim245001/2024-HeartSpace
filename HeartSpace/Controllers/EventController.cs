@@ -539,30 +539,29 @@ namespace HeartSpace.Controllers
 				throw new UnauthorizedAccessException("使用者未登入。");
 			}
 
-			// 取得身份驗證 Cookie
 			var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
 			if (authCookie == null)
 			{
 				throw new UnauthorizedAccessException("未找到身份驗證 Cookie。");
 			}
 
-			// 解密票據
 			var ticket = FormsAuthentication.Decrypt(authCookie.Value);
 			if (ticket == null || string.IsNullOrEmpty(ticket.UserData))
 			{
 				throw new UnauthorizedAccessException("身份驗證票據無效。");
 			}
 
-			// 從 UserData 中取得 MemberId
-			if (int.TryParse(ticket.UserData, out int memberId))
+			// 解析 UserData 格式 "MemberId|Role"
+			var parts = ticket.UserData.Split('|');
+			if (int.TryParse(parts[0], out int memberId))
 			{
-				return memberId;
+				return memberId; // 返回 MemberId
 			}
 
 			throw new Exception("票據中的用戶 ID 無效。");
 		}
 
-	
+
 
 	}
 }
