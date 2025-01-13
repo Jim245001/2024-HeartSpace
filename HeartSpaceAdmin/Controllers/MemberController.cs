@@ -143,19 +143,21 @@ public class MemberController : Controller
 		return View(model);
 	}
 
-	// Disable (POST)
 	[HttpPost]
 	[ValidateAntiForgeryToken]
-	public IActionResult Disable(int id)
+	public IActionResult ToggleDelete(int id)
 	{
-		var member = _context.Members.Find(id);
-		if (member == null)
+		// 確保從正確的表取數據
+		var memberEntity = _context.Members.FirstOrDefault(m => m.Id == id);
+		if (memberEntity == null)
 		{
 			return NotFound();
 		}
 
-		member.Disabled = true;
+		// 切換 Disabled 狀態
+		memberEntity.Disabled = !memberEntity.Disabled;
 		_context.SaveChanges();
-		return RedirectToAction(nameof(Index));
+
+		return RedirectToAction("Index");
 	}
 }

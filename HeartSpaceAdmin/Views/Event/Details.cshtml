@@ -1,0 +1,65 @@
+﻿@model EventViewModel
+
+<h1>@Model.EventName</h1>
+<p>發起人: @Model.OrganizerName</p>
+<p>描述: @Model.Description</p>
+<p>活動時間: @Model.EventTime</p>
+<p>截止日期: @Model.DeadLine</p>
+<p>活動地點: @(Model.IsOnline ? "線上" : "線下") @Model.Location</p>
+<p>人數: @Model.ParticipantMin ~ @Model.ParticipantMax</p>
+
+<h2>參加者</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>會員名稱</th>
+            <th>出席狀態</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var participant in Model.Participants)
+        {
+            <tr>
+                <td>@participant.MemberName</td>
+                <td>@(participant.IsAttend.HasValue ? (participant.IsAttend.Value ? "已出席" : "未出席") : "未選擇")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h2>留言板</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>會員名稱</th>
+            <th>留言內容</th>
+            <th>留言時間</th>
+            <th>禁用狀態</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var comment in Model.Comments)
+        {
+            <tr>
+                <td>@comment.MemberName</td>
+                <td>@comment.CommentContent</td>
+                <td>@comment.CommentTime</td>
+                <td>@(comment.Disabled == "true" ? "禁用" : "啟用")</td>
+                <td>
+                    <form asp-action="ToggleCommentDisabled" method="post" style="display:inline;">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@comment.Id" />
+                        <button type="submit" class="btn @(comment.Disabled == "true" ? "btn-success" : "btn-danger") btn-sm">
+                            @(comment.Disabled == "true" ? "恢復" : "禁用")
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+
+</table>
+
+
+<a asp-controller="Event" asp-action="Index" class="btn btn-secondary btnstyle">返回</a>
