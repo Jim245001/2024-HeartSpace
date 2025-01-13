@@ -12,6 +12,8 @@ using System.Linq;
 using System.Web;
 using System.Web.ApplicationServices;
 using System.Web.Mvc;
+using System.Web.Security;
+using Member = HeartSpace.Models.EFModels.Member;
 
 namespace HeartSpace.Controllers
 {
@@ -25,13 +27,10 @@ namespace HeartSpace.Controllers
         }
         public ActionResult Profile()
         {
-            // 假設目前登入的會員 ID 從 Session 取得
-            //int memberId = Convert.ToInt32(Session["UserId"]);
 
-            int memberId = 1;
 
             // 獲取當前會員資料
-            var member = _context.Members.Find(memberId);
+            var member = GetMember();
             if (member == null)
             {
                 return HttpNotFound();
@@ -39,7 +38,7 @@ namespace HeartSpace.Controllers
 
             // 抓取 "您的貼文"
             var userPosts = _context.Posts
-                .Where(p => p.MemberId == memberId)
+                .Where(p => p.MemberId == member.Id)
                 .OrderByDescending(p => p.PublishTime)
                 .Select(p => new PostCard
                 {
@@ -62,7 +61,7 @@ namespace HeartSpace.Controllers
 
             // 抓取 "您發起的揪團"
             var initiatedEvents = _context.Events
-                .Where(e => e.MemberId == memberId)
+                .Where(e => e.MemberId == member.Id)
                 .OrderByDescending(e => e.EventTime)
                 .Select(e => new EventCard
                 {
@@ -84,7 +83,7 @@ namespace HeartSpace.Controllers
 
             // 抓取 "您過去參與的揪團"（假設有 JoinTable 或 JoinLogs 紀錄參與者）
             var participatedEvents = _context.EventMembers
-        .Where(em => em.MemberId == memberId && em.IsAttend == true)
+        .Where(em => em.MemberId == member.Id && em.IsAttend == true)
         .Select(em => em.Event)
         .OrderByDescending(e => e.EventTime)
         .Select(e => new EventCard
@@ -311,8 +310,50 @@ namespace HeartSpace.Controllers
         }
 
 
-    }
 
-    
+		private Member GetMember()
+		{
+			if (!User.Identity.IsAuthenticated)
+			{
+				throw new UnauthorizedAccessException("使用者未登入。");
+			}
 
-    } 
+			// 取得身份驗證 Cookie
+			var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
+			if (authCookie == null)
+			{
+				throw new UnauthorizedAccessException("未找到身份驗證 Cookie。");
+			}
+
+			// 解密票據
+			var ticket = FormsAuthentication.Decrypt(authCookie.Value);
+			if (ticket == null || string.IsNullOrEmpty(ticket.UserData))
+			{
+				throw new UnauthorizedAccessException("身份驗證票據無效。");
+			}
+
+			// 解析 UserData 格式 "MemberId|Role"
+			var parts = ticket.UserData.Split('|');
+			if (int.TryParse(parts[0], out int memberId))
+			{
+				// 使用 MemberId 從資料庫中查詢 Member
+				var member = _context.Members.Find(memberId);
+				if (member != null)
+				{
+					return member; // 返回完整的 Member 資料
+				}
+
+				throw new Exception("無法找到對應的會員資料。");
+			}
+
+			throw new Exception("票據中的用戶 ID 無效。");
+		}
+
+
+
+
+	}
+
+
+
+}

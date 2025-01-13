@@ -28,8 +28,7 @@ namespace HeartSpace.Models
         [StringLength(25, ErrorMessage = "暱稱長度不得超過 25 個字元")]
         public string NickName { get; set; }
 
-        [Required(ErrorMessage = "請輸入手機號碼")]
-        [Phone(ErrorMessage = "請輸入有效的手機號碼")]
-        public string PhoneNumber { get; set; }
+       
+
     }
 }

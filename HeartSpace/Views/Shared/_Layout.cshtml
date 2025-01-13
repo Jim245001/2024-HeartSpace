@@ -83,7 +83,7 @@
                 <a class="nav-item-admin" href="#">後台</a>
 
 
-                @if (Session["UserId"] != null)
+                @if (User.Identity.IsAuthenticated)
                 {
                     <a class="nav-item" href="@Url.Action("CreateEvent", "Event")">來揪團</a>
                     <a class="nav-item" href="@Url.Action("CreatePost", "Post")">來發文</a>
@@ -92,7 +92,7 @@
 
                 <a class="nav-item" href="@Url.Action("SearchEvent","Search")">搜尋揪團</a>
                 <a class="nav-item" href="@Url.Action("SearchPost","Search")">搜尋貼文</a>
-                @if (Session["UserId"] != null)
+                @if (User.Identity.IsAuthenticated)
                 {
                     <a class="nav-item" href="@Url.Action("Profile", "Profile")">會員</a>
                     <a class="nav-item" href="@Url.Action("Logout", "Account")">登出</a>

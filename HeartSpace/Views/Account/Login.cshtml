@@ -54,6 +54,9 @@
         </div>
         @using (Html.BeginForm("Login", "Account", FormMethod.Post))
         {
+
+            @Html.AntiForgeryToken()
+
             <div class="mb-3">
                 <label for="Account" class="form-label">帳號</label>
                 @Html.TextBoxFor(m => m.Account, new { @class = "form-control", placeholder = "請輸入帳號", id = "Account" })

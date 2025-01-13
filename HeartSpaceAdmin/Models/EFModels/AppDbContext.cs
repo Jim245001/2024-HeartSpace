@@ -38,7 +38,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.CategoryName)
                 .IsRequired()
                 .HasMaxLength(10);
-        });
+		});
 
         modelBuilder.Entity<Event>(entity =>
         {

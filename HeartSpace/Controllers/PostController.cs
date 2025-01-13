@@ -11,6 +11,7 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using System.Data.Entity;
+using System.Web.Security;
 
 namespace HeartSpace.Controllers
 {
@@ -23,10 +24,10 @@ namespace HeartSpace.Controllers
 			_postService = postService;
 		}
 
-        // 在控制器類別內，新增一個靜態屬性來存儲刪除的留言 ID
-        private static readonly List<int> DeletedCommentIds = new List<int>();
+		// 在控制器類別內，新增一個靜態屬性來存儲刪除的留言 ID
+		private static readonly List<int> DeletedCommentIds = new List<int>();
 
-        [HttpGet]
+		[HttpGet]
 		public ActionResult CreatePost()
 		{
 			var model = new CreatePostDto();
@@ -38,13 +39,13 @@ namespace HeartSpace.Controllers
 		[ValidateAntiForgeryToken]
 		public ActionResult CreatePost(CreatePostDto model, HttpPostedFileBase Image)
 		{
-			model.MemberId = GetCurrentUserId();
+			model.MemberId = GetCurrentMemberId();
 
-            if (model.CategoryId <= 0)
-            {
-                ModelState.AddModelError("CategoryId", "請選擇一個有效的分類！");
-            }
-            if (!ModelState.IsValid)
+			if (model.CategoryId <= 0)
+			{
+				ModelState.AddModelError("CategoryId", "請選擇一個有效的分類！");
+			}
+			if (!ModelState.IsValid)
 			{
 				ViewBag.Categories = _postService.GetCategories();
 				return View(model);
@@ -134,20 +135,20 @@ if (Image != null && Image.ContentLength > 0)
 		[HttpGet]
 		public ActionResult PostDetails(CreatePostDto model, int id)
 		{
-            var post = _postService.GetPostById(id);
-            //Debug.WriteLine($"CategoryName: {post.CategoryName}");
+			var post = _postService.GetPostById(id);
+			Debug.WriteLine($"CategoryName: {post.CategoryName}");
 
 
 
-            if (post == null)
-            {
-                return HttpNotFound("找不到該貼文！");
-            }
+			if (post == null)
+			{
+				return HttpNotFound("找不到該貼文！");
+			}
 
-            if (post.Disabled && post.MemberId != GetCurrentUserId())
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.Forbidden, "此貼文已關閉，您無權查看！");
-            }
+			if (post.Disabled && post.MemberId != GetCurrentMemberId())
+			{
+				return new HttpStatusCodeResult(HttpStatusCode.Forbidden, "此貼文已關閉，您無權查看！");
+			}
 
             using (var db = new AppDbContext())
             {
@@ -157,7 +158,7 @@ if (Image != null && Image.ContentLength > 0)
                     .OrderBy(c => c.CommentTime)
                     .ToList();
 
-                ViewBag.CurrentUserId = GetCurrentUserId();
+				ViewBag.CurrentUserId = GetCurrentMemberId();
 
                 var viewModel = new PostViewModel
                 {
@@ -185,40 +186,40 @@ if (Image != null && Image.ContentLength > 0)
                     }).ToList()
                 };
 
-                return View(viewModel);
-            }
-        }
+				return View(viewModel);
+			}
+		}
 
 		[HttpGet]
 		public ActionResult EditPost(int id)
 		{
-            var post = _postService.GetPostById(id); // 取得貼文資訊
-            if (post == null)
-            {
-                return HttpNotFound("找不到該貼文！");
-            }
+			var post = _postService.GetPostById(id); // 取得貼文資訊
+			if (post == null)
+			{
+				return HttpNotFound("找不到該貼文！");
+			}
 
-            // 檢查是否為該貼文的發文者
-            int currentUserId = GetCurrentUserId(); // 假設有此方法取得目前登入者的 MemberId
-            if (post.MemberId != currentUserId)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.Forbidden, "你沒有權限修改此貼文！");
-            }
+			// 檢查是否為該貼文的發文者
+			int currentUserId = GetCurrentMemberId(); // 假設有此方法取得目前登入者的 MemberId
+			if (post.MemberId != currentUserId)
+			{
+				return new HttpStatusCodeResult(HttpStatusCode.Forbidden, "你沒有權限修改此貼文！");
+			}
 
-            post.CategoryList = _postService.GetCategories(); // 初始化類別清單
-            post.OldPostImg = post.PostImg; // 初始化舊圖片路徑
-            return View(post);
-        }
+			post.CategoryList = _postService.GetCategories(); // 初始化類別清單
+			post.OldPostImg = post.PostImg; // 初始化舊圖片路徑
+			return View(post);
+		}
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult EditPost(CreatePostDto model, HttpPostedFileBase Image, bool? deleteOldImage)
-        {
-            if (!ModelState.IsValid)
-            {
-                model.CategoryList = _postService.GetCategories();
-                return View(model);
-            }
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public ActionResult EditPost(CreatePostDto model, HttpPostedFileBase Image, bool? deleteOldImage)
+		{
+			if (!ModelState.IsValid)
+			{
+				model.CategoryList = _postService.GetCategories();
+				return View(model);
+			}
 
             try
             {
@@ -295,29 +296,29 @@ if (Image != null && Image.ContentLength > 0)
             // 更新資料庫
             _postService.UpdatePost(model);
 
-                TempData["SuccessMessage"] = "貼文已成功更新！";
-                return RedirectToAction("PostDetails", "Post", new { id = model.Id });
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("", "更新失敗：" + ex.Message);
-                model.CategoryList = _postService.GetCategories();
-                return View(model);
-            }
+				TempData["SuccessMessage"] = "貼文已成功更新！";
+				return RedirectToAction("PostDetails", "Post", new { id = model.Id });
+			}
+			catch (Exception ex)
+			{
+				ModelState.AddModelError("", "更新失敗：" + ex.Message);
+				model.CategoryList = _postService.GetCategories();
+				return View(model);
+			}
 
 
-        }
+		}
 
 
-        private string GenerateFileName()
-        {
-            var directoryPath = Server.MapPath("~/Images");
+		private string GenerateFileName()
+		{
+			var directoryPath = Server.MapPath("~/Images");
 
-            // 檢查目錄是否存在，若不存在則建立
-            if (!Directory.Exists(directoryPath))
-            {
-                Directory.CreateDirectory(directoryPath);
-            }
+			// 檢查目錄是否存在，若不存在則建立
+			if (!Directory.Exists(directoryPath))
+			{
+				Directory.CreateDirectory(directoryPath);
+			}
 
             // 找出現有檔案中以 PostImg_ 開頭的檔案，並提取數字部分
             var existingFiles = Directory.GetFiles(directoryPath)
@@ -326,168 +327,180 @@ if (Image != null && Image.ContentLength > 0)
                                          .Select(name => int.Parse(name.Substring("PostImg_".Length)))
                                          .OrderByDescending(x => x);
 
-            int nextNumber = existingFiles.Any() ? existingFiles.First() + 1 : 1;
+			int nextNumber = existingFiles.Any() ? existingFiles.First() + 1 : 1;
 
             // 回傳新檔案名稱（加上 PostImg_ 前綴）
             return $"PostImg_{nextNumber}.jpg";
 
         }
 
-        [HttpPost]
+		[HttpPost]
 		public ActionResult DeletePost(int id)
 		{
-            try
-            {
-                var post = _postService.GetPostById(id);
-                if (post != null)
-                {
-                    // 刪除圖片檔案
-                    var imagePath = Server.MapPath(post.PostImg);
-                    if (System.IO.File.Exists(imagePath))
-                    {
-                        System.IO.File.Delete(imagePath);
-                    }
+			try
+			{
+				var post = _postService.GetPostById(id);
+				if (post != null)
+				{
+					// 刪除圖片檔案
+					var imagePath = Server.MapPath(post.PostImg);
+					if (System.IO.File.Exists(imagePath))
+					{
+						System.IO.File.Delete(imagePath);
+					}
 
-                    _postService.DeletePost(id);
-                   
-                }
-                TempData["SuccessMessage"] = "貼文已成功刪除！";
-                return RedirectToAction("Index", "Home");
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = "刪除失敗：" + ex.Message;
-                return RedirectToAction("PostDetails", "Post", new { id = id });
-            }
+					_postService.DeletePost(id);
+				   
+				}
+				TempData["SuccessMessage"] = "貼文已成功刪除！";
+				return RedirectToAction("Index", "Home");
+			}
+			catch (Exception ex)
+			{
+				TempData["ErrorMessage"] = "刪除失敗：" + ex.Message;
+				return RedirectToAction("PostDetails", "Post", new { id = id });
+			}
 		}
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public ActionResult TogglePostStatus(int postId)
 		{
-            var post = _postService.GetPostById(postId);
-            if (post == null)
-            {
-                TempData["ErrorMessage"] = "找不到該貼文！";
-                return RedirectToAction("PostDetails", new { id = postId });
-            }
+			var post = _postService.GetPostById(postId);
+			if (post == null)
+			{
+				TempData["ErrorMessage"] = "找不到該貼文！";
+				return RedirectToAction("PostDetails", new { id = postId });
+			}
 
-            if (post.MemberId != GetCurrentUserId())
-            {
-                TempData["ErrorMessage"] = "您無權限執行此操作！";
-                return RedirectToAction("PostDetails", new { id = postId });
-            }
+			if (post.MemberId != GetCurrentMemberId())
+			{
+				TempData["ErrorMessage"] = "您無權限執行此操作！";
+				return RedirectToAction("PostDetails", new { id = postId });
+			}
 
-            try
-            {
-                post.Disabled = true; // 永遠關閉
-                _postService.UpdatePost(post); // 更新資料庫
+			try
+			{
+				post.Disabled = true; // 永遠關閉
+				_postService.UpdatePost(post); // 更新資料庫
 
-                TempData["SuccessMessage"] = "貼文已成功關閉！";
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = "操作失敗：" + ex.Message;
-            }
+				TempData["SuccessMessage"] = "貼文已成功關閉！";
+			}
+			catch (Exception ex)
+			{
+				TempData["ErrorMessage"] = "操作失敗：" + ex.Message;
+			}
 
-            return RedirectToAction("PostDetails", new { id = postId });
-        }
-
-
-
-        [HttpPost]
-        public ActionResult AddCommentAndRefresh(int postId, string content)
-        {
-            try
-            {
-                // 確保 UserId 的存在（模擬登入或測試版本）
-                int userId = ViewBag.CurrentUserId ?? 1; // 測試用 1 表示當前使用者 ID
-
-                // 新增留言到資料庫
-                using (var db = new AppDbContext())
-                {
-                    var newComment = new PostComment
-                    {
-                        PostId = postId,
-                        UserId = userId,
-                        Comment = content,
-                        CommentTime = DateTime.Now,
-                         Disabled = false
-                    };
-                    db.PostComments.Add(newComment);
-                    db.SaveChanges();
-                }
-
-                TempData["SuccessMessage"] = "留言成功！";
-                return RedirectToAction("PostDetails", new { id = postId });
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = "留言失敗：" + ex.Message;
-                return RedirectToAction("PostDetails", new { id = postId });
-            }
-        }
-
-        [HttpPost]
-        public ActionResult DeleteComment(int commentId)
-        {
-            try
-            {
-                using (var db = new AppDbContext())
-                {
-                    var comment = db.PostComments.FirstOrDefault(c => c.Id == commentId);
-                    if (comment == null)
-                    {
-                        TempData["ErrorMessage"] = "找不到該留言！";
-                        return RedirectToAction("PostDetails", new { id = comment.PostId });
-                    }
-
-                    // 將 Disabled 狀態設為 1
-                    comment.Disabled = true;
-                    db.SaveChanges();
-                }
-
-                TempData["SuccessMessage"] = "留言已成功刪除！";
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = "刪除失敗：" + ex.Message;
-            }
-
-            return RedirectToAction("PostDetails", new { id = GetPostIdByCommentId(commentId) });
-        }
-
-        // 根據留言 ID 獲取貼文 ID 的方法
-        private int GetPostIdByCommentId(int commentId)
-        {
-            using (var db = new AppDbContext())
-            {
-                return db.PostComments
-                         .Where(c => c.Id == commentId)
-                         .Select(c => c.PostId)
-                         .FirstOrDefault();
-            }
-        }
+			return RedirectToAction("PostDetails", new { id = postId });
+		}
 
 
-        // 獲取當前用戶 ID（需根據你的系統調整）
-        private int GetCurrentUserId()
-        {
-            //var userName = User.Identity.Name; // 假設登入後的用戶名
-            //using (var db = new AppDbContext())
-            //{
-            //    var member = db.Members.FirstOrDefault(m => m.Name == userName);
 
-            //    if (member == null)
-            //    {
-            //        throw new Exception("找不到對應的會員，請檢查是否正確登入！");
-            //    }
+		[HttpPost]
+		public ActionResult AddCommentAndRefresh(int postId, string content)
+		{
+			try
+			{
+				// 確保 UserId 的存在（模擬登入或測試版本）
+				int userId = ViewBag.CurrentUserId ?? 1; // 測試用 1 表示當前使用者 ID
 
-            //    return member.Id;
-            //}
+				// 新增留言到資料庫
+				using (var db = new AppDbContext())
+				{
+					var newComment = new PostComment
+					{
+						PostId = postId,
+						UserId = userId,
+						Comment = content,
+						CommentTime = DateTime.Now,
+						 Disabled = false
+					};
+					db.PostComments.Add(newComment);
+					db.SaveChanges();
+				}
 
-            return 1;
-        }
+				TempData["SuccessMessage"] = "留言成功！";
+				return RedirectToAction("PostDetails", new { id = postId });
+			}
+			catch (Exception ex)
+			{
+				TempData["ErrorMessage"] = "留言失敗：" + ex.Message;
+				return RedirectToAction("PostDetails", new { id = postId });
+			}
+		}
 
-    }
+		[HttpPost]
+		public ActionResult DeleteComment(int commentId)
+		{
+			try
+			{
+				using (var db = new AppDbContext())
+				{
+					var comment = db.PostComments.FirstOrDefault(c => c.Id == commentId);
+					if (comment == null)
+					{
+						TempData["ErrorMessage"] = "找不到該留言！";
+						return RedirectToAction("PostDetails", new { id = comment.PostId });
+					}
+
+					// 將 Disabled 狀態設為 1
+					comment.Disabled = true;
+					db.SaveChanges();
+				}
+
+				TempData["SuccessMessage"] = "留言已成功刪除！";
+			}
+			catch (Exception ex)
+			{
+				TempData["ErrorMessage"] = "刪除失敗：" + ex.Message;
+			}
+
+			return RedirectToAction("PostDetails", new { id = GetPostIdByCommentId(commentId) });
+		}
+
+		// 根據留言 ID 獲取貼文 ID 的方法
+		private int GetPostIdByCommentId(int commentId)
+		{
+			using (var db = new AppDbContext())
+			{
+				return db.PostComments
+						 .Where(c => c.Id == commentId)
+						 .Select(c => c.PostId)
+						 .FirstOrDefault();
+			}
+		}
+
+
+		// 獲取當前用戶 ID（需根據你的系統調整）
+		private int GetCurrentMemberId()
+		{
+			if (!User.Identity.IsAuthenticated)
+			{
+				throw new UnauthorizedAccessException("使用者未登入。");
+			}
+
+			var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
+			if (authCookie == null)
+			{
+				throw new UnauthorizedAccessException("未找到身份驗證 Cookie。");
+			}
+
+			var ticket = FormsAuthentication.Decrypt(authCookie.Value);
+			if (ticket == null || string.IsNullOrEmpty(ticket.UserData))
+			{
+				throw new UnauthorizedAccessException("身份驗證票據無效。");
+			}
+
+			// 解析 UserData 格式 "MemberId|Role"
+			var parts = ticket.UserData.Split('|');
+			if (int.TryParse(parts[0], out int memberId))
+			{
+				return memberId; // 返回 MemberId
+			}
+
+			throw new Exception("票據中的用戶 ID 無效。");
+		}
+
+
+	}
 }

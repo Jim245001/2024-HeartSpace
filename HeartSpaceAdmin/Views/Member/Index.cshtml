@@ -7,6 +7,7 @@
 <table class="table table-bordered">
     <thead>
         <tr>
+            <th>會員ID</th>
             <th>會員圖片</th>
             <th>帳號</th>
             <th>姓名</th>
@@ -22,6 +23,7 @@
         @foreach (var member in Model)
         {
             <tr>
+                <td>@member.Id</td>
                 <td>
                     @if (!string.IsNullOrEmpty(member.MemberImg))
                     {
@@ -40,15 +42,16 @@
                 <td>@(member.Disabled ? "是" : "否")</td>
                 <td>@member.AbsenceCount</td>
                 <td>
-                    <a href="@Url.Action("Edit", "Member", new { id = member.Id })" class="btn btn-warning btn-sm">編輯</a>
-                    @if (!member.Disabled)
-                    {
-                        <form action="@Url.Action("Disable", "Member")" method="post" style="display: inline;">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="id" value="@member.Id" />
-                            <button type="submit" class="btn btn-danger btn-sm">停權</button>
-                        </form>
-                    }
+                    <a asp-action="Edit" asp-route-id="@member.Id" class="btn btn-primary">管理</a>
+
+                    <form asp-action="ToggleDelete" method="post" style="display:inline;">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@member.Id" />
+                        <button type="submit" class="btn @(member.Disabled ? "btn-success" : "btn-danger")">
+                            @(member.Disabled ? "復原" : "停權")
+                        </button>
+                    </form>
+
                 </td>
             </tr>
         }
