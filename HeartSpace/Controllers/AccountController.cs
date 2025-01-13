@@ -9,13 +9,14 @@ using System.Reflection;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
+using System.Web.UI.WebControls;
 
 namespace HeartSpace.Controllers.Account
 {
 	public class AccountController : Controller
 	{
 		// GET: Account
-		private readonly AppDbContext _db = new AppDbContext(); // 替換為您的 DbContext 類別
+		private readonly AppDbContext _db = new AppDbContext(); 
 
 		[HttpGet]
 		public ActionResult Login()
@@ -24,44 +25,44 @@ namespace HeartSpace.Controllers.Account
 		}
 
 		[HttpPost]
-		[ValidateAntiForgeryToken]
 		public ActionResult Login(LoginViewModel model)
 		{
-			if (!ModelState.IsValid)
+			if (ModelState.IsValid == false) return View(model);
+
+			var result = ValidLogin(model);
+			if (result.IsSuccess != true)
 			{
-				return View(model); // 如果輸入驗證失敗，返回原表單
-			}
-
-			try
-			{
-				// 驗證帳號和密碼
-				ValidateLogin(model.Account, model.Password);
-
-				// 處理登入並生成 Cookie
-				(string returnUrl, HttpCookie cookie) = ProcessLogin(model.Account);
-
-				// 檢查 ReturnUrl 是否為本地 URL，防止 Open Redirect 攻擊
-				if (!Url.IsLocalUrl(returnUrl))
-				{
-					returnUrl = Url.Action("Index", "Home"); // 設定為首頁
-				}
-
-				// 設置 Cookie
-				Response.Cookies.Add(cookie);
-
-				// 導向目標頁面
-				return Redirect(returnUrl);
-			}
-			catch (Exception ex)
-			{
-				// 捕捉錯誤並顯示於表單
-				ModelState.AddModelError("", ex.Message);
+				ModelState.AddModelError("", result.ErrorMessage);
 				return View(model);
 			}
+
+			const bool rememberMe = false; // 是否記住登入成功的會員
+
+			var processResult = ProcessLogin(model.Account, rememberMe);
+
+			Response.Cookies.Add(processResult.cookie);
+
+			return Redirect(processResult.returnUrl);
 		}
 
+		private (bool IsSuccess, string ErrorMessage) ValidLogin(LoginViewModel model)
+		{
+			var db = new AppDbContext();
+			var member = db.Members.FirstOrDefault(m => m.Account == model.Account);
 
-		private (string returnUrl, HttpCookie cookie) ProcessLogin(string account)
+			if (member == null) return (false, "帳密有誤");
+
+			if (member.IsConfirmed.HasValue == false || member.IsConfirmed.Value == false) return (false, "會員資格尚未確認");
+
+			var salt = HashUtility.GetSalt();
+			var hashPassword = HashUtility.ToSHA256(model.Password, salt);
+
+			return string.CompareOrdinal(member.PasswordHash, hashPassword) == 0
+				? (true, null)
+				: (false, "帳密有誤");
+		}
+
+		private (string returnUrl, HttpCookie cookie) ProcessLogin(string account, bool rememberMe)
 		{
 
 			var roles = string.Empty;
@@ -83,25 +84,42 @@ namespace HeartSpace.Controllers.Account
 
 		}
 
-		private void ValidateLogin(string account, string password)
+		//====================================================================================================
+
+		public ActionResult ActiveRegister(int memberId, string confirmCode)
 		{
-			using (var db = new AppDbContext())
-			{
-				var member = db.Members.FirstOrDefault(m => m.Account == account);
+			var result = Load(memberId, confirmCode);
 
-				if (member == null) throw new Exception("帳號錯誤");
+			if (result.IsSuccess) ActiveMember(memberId);
 
-				// 使用存儲的鹽值來驗證密碼
-				if (!HashUtility.VarifySHA256(password, member.PasswordHash, member.ConfirmCode)) throw new Exception("密碼錯誤");
 
-				if (member.IsConfirmed == false) throw new Exception("帳號未開通");
-			}
+			return View();
 		}
 
+		private void ActiveMember(int memberId)
+		{
+			var db = new AppDbContext();
+			var memberInDb = db.Members.Find(memberId);
+			if (memberInDb == null) return;
 
+			memberInDb.IsConfirmed = true;
+			memberInDb.ConfirmCode = string.Empty;
+			db.SaveChanges();
 
+		}
 
+		private (bool IsSuccess, string ErrorMessage) Load(int memberId, string confirmCode)
+		{
+			var db = new AppDbContext();
+			var memberInDb = db.Members.Find(memberId);
+			if (memberInDb == null) return (false, "查無資料");
 
+			return string.CompareOrdinal(confirmCode, memberInDb.ConfirmCode) != 0
+				? (false, "驗證碼錯誤")
+				: (true, string.Empty);
+		}
+
+		//====================================================================================================
 
 		[HttpGet]
 		public ActionResult Register()
@@ -155,7 +173,7 @@ namespace HeartSpace.Controllers.Account
 					Email = model.Email,
 					Name = model.Name,
 					NickName = model.NickName,
-					IsConfirmed = false,
+					IsConfirmed = true,
 					Disabled = false,
 					Role = "member",
 					ConfirmCode = Guid.NewGuid().ToString() // 生成激活碼
@@ -168,19 +186,6 @@ namespace HeartSpace.Controllers.Account
 		}
 
 
-
-
-
-
-
-		public ActionResult ActiveRegister(int memberId, string confirmCode)
-		{
-
-			ProcessActiveRegister(memberId, confirmCode);
-			
-			return View();
-		
-		}
 
 		private void ProcessActiveRegister(int memberId, string confirmCode)
 		{
