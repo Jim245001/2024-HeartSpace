@@ -35,6 +35,8 @@ namespace HeartSpace.Models.DTOs
         public string CategoryName { get; set; }
         public string Comments { get; set; }
 
+        public bool DeleteOldImage { get; set; } // 用於判斷是否刪除舊圖片
+
 
         public DateTime PublishTime { get; set; }
 

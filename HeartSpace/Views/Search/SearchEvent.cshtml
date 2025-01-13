@@ -1,69 +1,131 @@
-﻿@{
+﻿@using System.Linq
+@model HeartSpace.Models.SearchEventViewModel
+
+@{
     ViewData["Title"] = "搜尋揪團";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+<style>
+    .container-fluid {
+        max-width: 100%;
+        padding: 0 15px;
+    }
 
+    .row {
+        margin: 0 auto;
+    }
+
+    .card {
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.15);
+        }
+    .btn-search {
+        background-color: #FDD9A0;
+        border-color: #FDD9A0;
+        color: #52400b;
+        font-size: 20px;
+        font-weight: bold;
+        padding: 12px;
+    }
+
+        .btn-search:hover {
+            background-color: #fccf87;
+            border-color: #fccf87;
+            color: #322604;
+            font-weight: bold;
+        }
+
+    .recommended-title {
+        background-color: #FDD9A0;
+        padding: 18px;
+        border-radius: 25px;
+        color: #5A4E2B;
+        text-align: center;
+        display: inline-block;
+        font-size: 1.6rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    .custom-alert {
+        background-color: #f9c01687;
+        /* border: 2px solid #ffc107; */
+        color: #281e02;
+        border-radius: 20px;
+        padding: 15px;
+        font-size: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom:30px;
+    }
+
+</style>
 <div class="container mt-4">
-    <!-- 搜尋區域 -->
-    <div class="row mb-4">
-        <div class=" align-items-center">
-            <div class="input-group">
-                <input type="text" class="form-control" placeholder="請輸入搜尋關鍵字">
-                <button class="btn btn-primary">搜尋</button>
-            </div>
-        </div>
-    </div>
+    <h1 class="mb-4">搜尋揪團  <i class="fa-solid fa-magnifying-glass"></i></h1>
 
-    <!-- 揪團資訊卡 -->
-    <div class="card p-4" style="border: 2px solid purple;">
-        <div class="row">
-            <!-- 左側區塊 -->
-            <div class="col-md-4 text-center">
-                <img src="https://via.placeholder.com/150" alt="揪團圖片" class="img-fluid rounded mb-3">
-                <h5 class="fw-bold">揪團名稱</h5>
-                <div class="d-flex align-items-center justify-content-center">
-                    <img src="https://via.placeholder.com/50" alt="主辦頭像" class="rounded-circle me-2">
-                    <span>主辦 ID</span>
-                </div>
+    <!-- 搜尋表單 -->
+    <form action="@Url.Action("SearchEvent", "Search")" method="get" class="mb-4">
+        <div class="input-group" style="text-align: center;">
+            <input type="text" id="searchKeyword" class="form-control search-input" name="keyword" placeholder="請輸入搜尋關鍵字" value="@ViewBag.Keyword" required>
+            <button type="submit" class="btn btn-primary btn-search">搜尋</button>
+        </div>
+    </form>
+
+
+    <!-- 搜尋結果 -->
+    @if (ViewBag.Keyword != null)
+    {
+        if (Model.Events != null && Model.Events.Any())
+        {
+            <div class="custom-alert text-center">
+                <i class="fa-solid fa-bell"></i>
+                找到以下符合「<strong>@ViewBag.Keyword</strong>」的揪團！
             </div>
 
-            <!-- 右側區塊 -->
-            <div class="col-md-8">
-                <div class="row mb-2">
-                    <div class="col-6">
-                        <strong>時間：</strong>
-                        <span>2025/01/01 18:00</span>
+            <div class="row" style="background-color: #f9f9f9ad; padding: 20px; border-radius: 8px;">
+                @foreach (var post in Model.Events)
+                {
+                    <div class="col-md-6 mb-4">
+                        @Html.Partial("_EventCard", post)
                     </div>
-                    <div class="col-6">
-                        <strong>已報名人數/人數上限：</strong>
-                        <span>10 / 20</span>
-                    </div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-6">
-                        <strong>地點：</strong>
-                        <span>台北市中山區某某路</span>
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-6">
-                        <strong>揪團狀態：</strong>
-                        <span class="badge bg-warning text-dark">進行中</span>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <strong>聚會描述：</strong>
-                    <p>這是一個關於學習程式設計的聚會，歡迎新手和專業人士參與！</p>
-                </div>
-                <!-- 標籤區域 -->
-                <div>
-                    <strong>標籤：</strong>
-                    <span class="badge bg-secondary me-1">#編程</span>
-                    <span class="badge bg-secondary me-1">#學習</span>
-                    <span class="badge bg-secondary me-1">#聚會</span>
-                    <span class="badge bg-secondary me-1">#台北</span>
-                </div>
+                }
             </div>
+        }
+        else
+        {
+            <div class="custom-alert text-center" style="background-color: #ffbdc4d6">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                  找不到符合「<strong>@ViewBag.Keyword</strong>」的揪團！請重新搜尋
+            </div>
+        }
+    }
+
+
+    <!-- 隨機推薦貼文 -->
+    <hr style="border: 1px solid #979797; margin: 20px 0;">
+
+    <div class="recommended-section" style="background-color: #f9f9f9ad; padding: 20px; border-radius: 8px;">
+        <div style="display: flex; justify-content: center;">
+            <h3 class="mt-1 recommended-title"><i class="fa-solid fa-thumbs-up"></i> 推薦揪團</h3>
         </div>
-    </div>
+            @if (Model.RecommendedEvents != null && Model.RecommendedEvents.Any())
+            {
+                <div class="row">
+                    @foreach (var card in Model.RecommendedEvents)
+                    {
+                        <div class="col-md-4 mb-3">
+                            @Html.Partial("_EventCard", card)
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-center text-muted">目前沒有推薦推薦揪團。</p>
+            }
+        </div>
 </div>

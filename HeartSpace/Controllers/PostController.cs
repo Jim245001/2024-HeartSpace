@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using System.Data.Entity;
 using System.Web.Security;
 
 namespace HeartSpace.Controllers
@@ -93,39 +94,41 @@ namespace HeartSpace.Controllers
 				return new HttpStatusCodeResult(HttpStatusCode.Forbidden, "此貼文已關閉，您無權查看！");
 			}
 
-			using (var db = new AppDbContext())
-			{
-				var comments = db.PostComments
-					.Where(c => c.PostId == id)
-					.OrderBy(c => c.CommentTime)
-					.ToList();
+            using (var db = new AppDbContext())
+            {
+                var comments = db.PostComments
+                        .Include(c => c.Member) // 預加載 Member 資料
+                    .Where(c => c.PostId == id)
+                    .OrderBy(c => c.CommentTime)
+                    .ToList();
 
 				ViewBag.CurrentUserId = GetCurrentMemberId();
 
-				var viewModel = new PostViewModel
-				{
-					Id = post.Id,
-					Title = post.Title,
-					PostContent = post.PostContent,
-					PostImg = post.PostImg,
-					CategoryName = post.CategoryName,
-					MemberNickName = db.Members.FirstOrDefault(m => m.Id == post.MemberId)?.NickName,
-					PublishTime = post.PublishTime,
-					MemberId = post.MemberId,
-					Disabled = post.Disabled,
-					Comments = comments.Select((c, index) => new CommentViewModel
-					{
-						PostId = c.PostId,
-						CommentId = c.Id,
-						UserId = c.UserId,
-						UserNickName = db.Members.FirstOrDefault(m => m.Id == c.UserId)?.NickName,
-						UserImg = db.Members.FirstOrDefault(m => m.Id == c.UserId)?.MemberImg,
-						Comment = c.Comment,
-						CommentTime = c.CommentTime,
-						Disabled = c.Disabled ?? false,
-						FloorNumber = index + 1
-					}).ToList()
-				};
+                var viewModel = new PostViewModel
+                {
+                    Id = post.Id,
+                    Title = post.Title,
+                    PostContent = post.PostContent,
+                    PostImg = post.PostImg,
+                    CategoryName = post.CategoryName,
+                    MemberNickName = db.Members.FirstOrDefault(m => m.Id == post.MemberId)?.NickName,
+                    PublishTime = post.PublishTime,
+                    MemberId = post.MemberId,
+                    MemberImg = db.Members.FirstOrDefault(m => m.Id == post.MemberId)?.MemberImg, // 新增這行
+                    Disabled = post.Disabled,
+                    Comments = comments.Select((c, index) => new CommentViewModel
+                    {
+                        PostId = c.PostId,
+                        CommentId = c.Id,
+                        UserId = c.UserId,
+                        UserNickName = db.Members.FirstOrDefault(m => m.Id == c.UserId)?.NickName,
+                        UserImg = c.Member != null ? c.Member.MemberImg : null, // 正確加載留言者頭像
+                        Comment = c.Comment,
+                        CommentTime = c.CommentTime,
+                        Disabled = c.Disabled ?? false,
+                        FloorNumber = index + 1
+                    }).ToList()
+                };
 
 				return View(viewModel);
 			}
@@ -234,18 +237,19 @@ namespace HeartSpace.Controllers
 				Directory.CreateDirectory(directoryPath);
 			}
 
-			// 找出現有檔案中最大的數字
-			var existingFiles = Directory.GetFiles(directoryPath)
-										 .Select(Path.GetFileNameWithoutExtension)
-										 .Where(name => int.TryParse(name, out _))
-										 .Select(int.Parse)
-										 .OrderByDescending(x => x);
+            // 找出現有檔案中以 PostImg_ 開頭的檔案，並提取數字部分
+            var existingFiles = Directory.GetFiles(directoryPath)
+                                         .Select(Path.GetFileNameWithoutExtension)
+                                         .Where(name => name.StartsWith("PostImg_") && int.TryParse(name.Substring("PostImg_".Length), out _))
+                                         .Select(name => int.Parse(name.Substring("PostImg_".Length)))
+                                         .OrderByDescending(x => x);
 
 			int nextNumber = existingFiles.Any() ? existingFiles.First() + 1 : 1;
 
-			// 回傳新檔案名稱
-			return $"{nextNumber}.jpg";
-		}
+            // 回傳新檔案名稱（加上 PostImg_ 前綴）
+            return $"PostImg_{nextNumber}.jpg";
+
+        }
 
 		[HttpPost]
 		public ActionResult DeletePost(int id)

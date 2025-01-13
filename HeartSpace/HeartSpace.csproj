@@ -149,6 +149,10 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\UnityConfig.cs" />
     <Compile Include="App_Start\UnityMvcActivator.cs" />
+    <Compile Include="Attributes\DeadlineInFutureAndBeforeEvent.cs" />
+    <Compile Include="Attributes\EventTimeInFutureAttribute.cs" />
+    <Compile Include="Attributes\MaxGreaterThanMinAttribute.cs" />
+    <Compile Include="Attributes\ValidateImageAttribute.cs" />
     <Compile Include="DTOs\CreatePostDto.cs" />
     <Compile Include="DTOs\EventService.cs" />
     <Compile Include="DTOs\EventWithParticipantsDto.cs" />
@@ -161,6 +165,7 @@
     <Compile Include="Controllers\PostController.cs" />
     <Compile Include="Controllers\ProfileController.cs" />
     <Compile Include="Controllers\SearchController.cs" />
+    <Compile Include="DTOs\Services\Interfaces\IEventService.cs" />
     <Compile Include="DTOs\Services\Interfaces\IPostService.cs" />
     <Compile Include="Helpers\HashUtility.cs" />
     <Compile Include="Helpers\PaginatedLis.cs" />
@@ -174,6 +179,7 @@
     <Compile Include="Models\EFModels\PostComment.cs" />
     <Compile Include="Models\EFModels\Tag.cs" />
     <Compile Include="Models\HomePageViewModel.cs" />
+    <Compile Include="Models\SearchEventViewModel.cs" />
     <Compile Include="Models\SearchPostViewModel.cs" />
     <Compile Include="Models\ViewModels\EventStatusViewModel.cs" />
     <Compile Include="Repositories\EventRepository.cs" />

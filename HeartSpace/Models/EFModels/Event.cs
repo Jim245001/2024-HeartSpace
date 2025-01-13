@@ -22,8 +22,9 @@ namespace HeartSpace.Models.EFModels
         public string EventName { get; set; }
 
         public int MemberId { get; set; }
+		public Member Member { get; set; } // ¾ÉÄıÄİ©Ê
 
-        public int CategoryId { get; set; }
+		public int CategoryId { get; set; }
 
         [Required]
         [StringLength(500)]

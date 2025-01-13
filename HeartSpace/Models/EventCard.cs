@@ -1,4 +1,4 @@
-
+using HeartSpace.Models.EFModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,65 +8,63 @@ namespace HeartSpace.Models
 {
 	public class EventCard
 	{
-		public string Title { get; set; }
-		public string Organizer { get; set; }
-		public string Location { get; set; }
-		public DateTime EventDate { get; set; }
-		public string ImageUrl { get; set; }
+		public int Id { get; set; }
+		public string Title { get; set; } //活動標題
+		public string EventContent { get; set; } //活動內容
+		public DateTime EventTime { get; set; } //活動時間		
+		public string EventImg { get; set; }
+		public string MemberNickName { get; set; } // 發起人暱稱
+		public string MemberImg { get; set; }
+		public string CategoryName { get; set; } // 類別名稱
 
-		public string Description { get; set; }
-		public string MemberImageUrl { get; set; } // 發起人 ID
+        // 無參數建構函數
+        public EventCard() { }
 
 		// Constructor 初始化
-		public EventCard(string title, string organizer, string location, string description, DateTime eventDate, string imageUrl, string memberImageUrl)
+		public EventCard(int id, string title, string eventContent, DateTime eventTime, string postImg, string memberNickName, string memberImg, string categoryName)
 		{
+			Id = id;
 			Title = title;
-			Organizer = organizer;
-			Location = location;
-			Description = description;
-			EventDate = eventDate;
-			ImageUrl = imageUrl;
-			MemberImageUrl = memberImageUrl;
+			EventContent = eventContent;
+			EventTime = eventTime;
+			EventImg = postImg;
+			MemberNickName = memberNickName;
+			MemberImg = memberImg;
+			CategoryName = categoryName;
 		}
 
 		// Render HTML 方法
 		public string RenderHtml()
 		{
-
-			string truncatedPostContent = Description.Length > 100
-				? Description.Substring(0, 80) + "..."
-				: Description;
+			// 限制活動內容字數（例如：80 字）
+			string truncatedEventContent = EventContent.Length > 100
+				? EventContent.Substring(0, 80) + "..."
+				: EventContent;
 
 			return $@"
-			
-			<div style='width: 250px; height: 266px; background-color: #d9d9d9; border-radius: 7px; padding: 7px; font-family: Arial, sans-serif; position: relative; font-size: 0.6rem;'>
+                <div style='width: 250px; height: 266px; background-color: #d9d9d9; border-radius: 7px; padding: 7px; font-family: Arial, sans-serif; position: relative; font-size: 0.6rem;'>
 
-				<!-- 左上角的圖片 -->
-				<div style='height: 80px; background-color: #e7f3e8; border: 1px solid #c0c0c0; display: flex; justify-content: center; align-items: center;'>
-					<img src='{ImageUrl}' alt='活動圖片' style='width: 90%; height: 90%; object-fit: cover;' />
-				</div>
+                    <!-- 貼文圖片 -->
+                    <div style='height: 80px; background-color: #e7f3e8; border: 1px solid #c0c0c0; display: flex; justify-content: center; align-items: center;'>
+                        <img src='{EventImg}' alt='活動圖片' style='width: 90%; height: 90%; object-fit: cover;' />
+                    </div>
 
-				<!-- 文字內容 -->
-				<div style='margin-top: 5px; text-align: left;'>
-					<!-- 標題 -->
-					<p style='margin: 0;'><strong style='font-size:16px'>{Title}</strong></span>
-				
-					<!-- 主辦人 -->
-					<p style='margin: -2px'>
+                    <!-- 貼文內容 -->
+                    <div style='margin-top: 5px; text-align: left;'>
+                        <p style='margin: 0;'><strong style='font-size:16px'>{Title}</strong></p>
+                        <p style='margin: -2px'>
+                            <img src='{MemberImg}' style='width: 9px; height: 9px; object-fit: cover;' />
+                            <strong style='font-size:9px'>{MemberNickName}</strong>
+                        </p>
+                        <p style='margin: 6px 0 0 0; font-size:12px;margin-top:15px;'>{truncatedEventContent}</p>
+                    </div>
 
-						<img src='{MemberImageUrl}' style='width: 9px; height: 9px; object-fit: cover;' /><strong style='font-size:9px'>{Organizer}</strong>：<strong>{Location}</strong>
+                    <!-- 發佈時間 -->
+                    <p style='position: absolute; bottom: 7px; right: 7px; margin: 0; font-size: 0.8rem; color: #888;'>
+                        貼文時間：{EventTime:yyyy/MM/dd tt h:mm}
+                    </p>
 
-					</p>
-					<!-- 描述 -->
-					<p style='margin: 6px 0 0 0; font-size:12px;margin-top:15px'>{truncatedPostContent}</p>
-				</div>
-
-				<!-- 日期與時間 -->
-				<p style='position: absolute; bottom: 7px; right: 7px; margin: 0; font-size: 0.8rem; color: #888;'>
-						活動時間：{EventDate:yyyy/MM/dd tt h:mm}
-				</p>
-
-			</div>";
+                </div>";
 		}
 
 

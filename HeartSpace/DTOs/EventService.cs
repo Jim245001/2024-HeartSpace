@@ -5,14 +5,13 @@ using HeartSpace.Models.ViewModels;
 using System.Linq;
 using System.Data.Entity;
 using HeartSpace.Models.EFModels;
+using HeartSpace.DTOs.Services.Interfaces;
 using HeartSpace.Models;
+using CommentViewModel = HeartSpace.Models.ViewModels.CommentViewModel;
+
 
 namespace HeartSpace.BLL
 {
-	public interface IEventService
-	{
-		EventStatusViewModel GetEventStatus(int eventId); // 獲取活動報名狀況
-	}
 
 	public class EventService : IEventService
 	{
@@ -30,12 +29,16 @@ namespace HeartSpace.BLL
 
 		public Event GetEventById(int id)
 		{
-			return _eventRepository.GetEventById(id);
+			var eventResult = _eventRepository.GetEventById(id);
+
+
+			return eventResult;
+
 		}
 
-		public void AddEvent(Event newEvent)
+		public int AddEvent(Event newEvent)
 		{
-			_eventRepository.AddEvent(newEvent);
+			return _eventRepository.AddEvent(newEvent);
 		}
 
 		public void UpdateEvent(Event updatedEvent)
@@ -48,39 +51,12 @@ namespace HeartSpace.BLL
 			_eventRepository.DeleteEvent(id);
 		}
 
-		// ：取得所有分類
+		// 取得所有分類
 		public IEnumerable<Category> GetCategories()
 		{
 			return _eventRepository.GetCategories();
 		}
 
-		// 取得指定活動的所有評論
-		public IEnumerable<EventComment> GetEventComments(int eventId)
-		{
-			//return _eventRepository.GetEventComments(eventId);
-
-			var comments = _eventRepository.GetEventComments(eventId);
-
-			// 加入檢查輸出
-			foreach (var comment in comments)
-			{
-				Console.WriteLine($"CommentId: {comment.Id}, MemberId: {comment.MemberId}, MemberName: {comment.Member?.Name ?? "未加載"}");
-			}
-
-			return comments;
-		}
-
-		// 新增評論
-		public void AddComment(EventComment comment)
-		{
-			_eventRepository.AddComment(comment);
-		}
-
-		// 刪除評論
-		public void RemoveComment(EventComment comment)
-		{
-			_eventRepository.RemoveComment(comment);
-		}
 
 		// 檢查是否為活動擁有者
 		public bool IsEventOwner(int eventId, int memberId)
@@ -112,83 +88,184 @@ namespace HeartSpace.BLL
 			return _eventRepository.GetParticipantCount(eventId);
 		}
 
-		public EventViewModel GetEventWithDetails(int id)
+
+		// 取得指定活動的所有評論
+		public IEnumerable<CommentViewModel> GetEventComments(int eventId, int currentMemberId)
 		{
-			using (var context = new AppDbContext())
+			var comments = _eventRepository.GetEventComments(eventId);
+
+			return comments.Select(c => new CommentViewModel
 			{
-				var eventItem = context.Events
-					.Include(e => e.Category) // 確保載入 Category 資料
-					.FirstOrDefault(e => e.Id == id);
-
-				if (eventItem == null)
-					return null;
-
-				// 根據 MemberId 查詢 Member
-				var member = context.Members.FirstOrDefault(m => m.Id == eventItem.MemberId);
-
-				return new EventViewModel
-				{
-					Id = eventItem.Id,
-					EventName = eventItem.EventName,
-					MemberId = eventItem.MemberId,
-					MemberName = member?.Name, // 查詢得到的 Member.Name
-					MemberNickName = member?.NickName,
-					MemberImg = member?.MemberImg, // 查詢得到的 Member.Img
-					Description = eventItem.Description,
-					EventTime = eventItem.EventTime,
-					Location = eventItem.Location,
-					IsOnline = eventItem.IsOnline,
-					ParticipantMax = eventItem.ParticipantMax,
-					ParticipantMin = eventItem.ParticipantMin,
-					Limit = eventItem.Limit,
-					DeadLine = eventItem.DeadLine,
-					CommentCount = eventItem.CommentCount,
-					ParticipantNow = eventItem.ParticipantNow,
-					CategoryName = eventItem.Category?.CategoryName, // 直接訪問 Category
-					Disabled = eventItem.Disabled
-				};
-			}
+				Id = c.Id,
+				MemberId = c.MemberId,
+				MemberName = c.Member.Name,
+				MemberNickName = c.Member.NickName,
+				MemberImg = c.Member.MemberImg,
+				EventCommentContent = c.EventCommentContent,
+				CommentTime = c.CommentTime,
+				//FloorNumber = c.FloorNumber,
+				Disabled = c.Disabled,
+				IsCommentOwner = c.MemberId == currentMemberId // 判斷是否為擁有者
+			}).ToList();
 		}
+		public CommentViewModel GetEventCommentById(int commentId, int currentMemberId)
+		{
+			// 從 Repository 獲取單個評論實體
+			var comment = _eventRepository.GetEventCommentById(commentId);
+
+			if (comment == null)
+			{
+				return null;
+			}
+
+			// 轉換為 ViewModel，並設置 IsCommentOwner
+			return new CommentViewModel
+			{
+				Id = comment.Id,
+				MemberId = comment.MemberId,
+				MemberName = comment.Member?.Name ?? "未知用戶",
+				MemberNickName = comment.Member?.NickName ?? "未知用戶",
+				MemberImg = comment.Member?.MemberImg,
+				EventCommentContent = comment.EventCommentContent,
+				CommentTime = comment.CommentTime,
+				IsCommentOwner = comment.MemberId == currentMemberId // 判斷是否為擁有者
+			};
+		}
+
+
+		// 新增評論
+		public void AddComment(EventComment comment)
+		{
+			if (comment == null)
+			{
+				throw new ArgumentNullException(nameof(comment), "評論資料不能為空。");
+			}
+
+			if (!_eventRepository.EventExists(comment.EventId))
+			{
+				throw new Exception("指定的活動不存在，無法新增評論。");
+			}
+
+			_eventRepository.AddComment(comment);
+		}
+
+
+		// 刪除評論
+		public void RemoveComment(int commentId, int currentMemberId)
+		{
+			// 檢查是否為評論擁有者
+			if (!_eventRepository.IsCommentOwner(commentId, currentMemberId))
+			{
+				throw new UnauthorizedAccessException("無權刪除此評論。");
+			}
+
+			// 獲取評論對象
+			var comment = _eventRepository.GetEventCommentById(commentId);
+			if (comment == null)
+			{
+				throw new KeyNotFoundException("找不到該評論。");
+			}
+
+			// 更新評論 Disabled 欄位為 "true"
+			comment.Disabled = "true";
+			_eventRepository.RemoveComment(comment);
+		}
+
+
+
+
 
 		// 檢查是否為留言者本人
 		public bool IsCommentOwner(int commentId, int memberId)
 		{
-			using (var context = new AppDbContext())
-			{
-				// 從資料庫中查詢指定的留言
-				var comment = context.EventComments.FirstOrDefault(c => c.Id == commentId);
-
-				// 如果留言不存在，返回 false
-				if (comment == null)
-				{
-					return false;
-				}
-
-				// 判斷該留言的 MemberId 是否等於當前用戶的 MemberId
-				return comment.MemberId == memberId;
-			}
+			return _eventRepository.IsCommentOwner(commentId, memberId);
 		}
 
-		public void UpdateComment(EventComment updatedComment)
+		// 更新評論
+		public void UpdateComment(CommentViewModel commentViewModel)
 		{
-			using (var context = new AppDbContext())
-			{
-				// 查找需要更新的留言
-				var existingComment = context.EventComments.FirstOrDefault(c => c.Id == updatedComment.Id);
-				if (existingComment != null)
-				{
-					// 更新內容
-					existingComment.EventCommentContent = updatedComment.EventCommentContent;
+			var comment = _eventRepository.GetEventCommentById(commentViewModel.Id);
 
-					// 保存更改
-					context.SaveChanges();
-				}
-				else
-				{
-					throw new Exception("找不到該留言，無法更新。");
-				}
+			if (comment == null)
+			{
+				throw new KeyNotFoundException("找不到該評論。");
 			}
+
+			// 更新評論內容
+			comment.EventCommentContent = commentViewModel.EventCommentContent;
+
+			// 保存修改
+			_eventRepository.UpdateComment(comment);
 		}
+
+
+
+		//檢視揪團
+		public EventViewModel GetEventDetailsWithExtras(int eventId, int currentMemberId)
+		{
+			// 從資料庫取得活動資料
+			var eventEntity = _eventRepository.GetEventDetails(eventId); // 返回 EFModels.Event
+
+			if (eventEntity == null)
+			{
+				return null; // 如果找不到活動，返回 null
+			}
+
+			// 從 Member 資料表加載 MemberImg 和 NickName
+			var eventOwner = eventEntity.Member; // 透過關聯的 Member 對象獲取資料
+			string memberImg = eventOwner?.MemberImg;
+			string memberNickName = eventOwner?.NickName;
+
+			// 將 EFModels.Event 轉換為 ViewModels.EventViewModel
+			var model = new EventViewModel
+			{
+				Id = eventEntity.Id,
+				EventName = eventEntity.EventName,
+				MemberId = eventEntity.MemberId,
+				ParticipantMax = eventEntity.ParticipantMax,
+				ParticipantNow = _eventRepository.GetParticipantCount(eventId),
+				IsOnline = eventEntity.IsOnline,
+				Location = eventEntity.Location,
+				Description = eventEntity.Description,
+				EventTime = eventEntity.EventTime,
+				DeadLine = eventEntity.DeadLine,
+				EventImg = eventEntity.EventImg,
+				CategoryName = eventEntity.Category?.CategoryName, // 假設有類別關聯
+				Comments = new List<CommentViewModel>(), // 初始化評論列表
+				MemberImg = memberImg, // 加入圖片
+				MemberNickName = memberNickName // 加入暱稱
+			};
+
+			// 設置是否為活動發起人
+			model.IsEventOwner = model.MemberId == currentMemberId;
+
+			// 設置是否已報名
+			model.IsRegistered = _eventRepository.IsMemberRegistered(eventId, currentMemberId);
+
+            // 加載評論資料，並為每條評論設定樓層編號
+            var comments = _eventRepository.GetEventComments(eventId)
+                .Select((c, index) => new CommentViewModel
+                {
+                    Id = c.Id,
+                    MemberId = c.MemberId,
+                    MemberName = c.Member?.Name ?? "未知用戶",
+                    MemberNickName = c.Member?.NickName ?? "未知用戶",
+                    MemberImg = c.Member?.MemberImg,
+                    EventCommentContent = c.EventCommentContent,
+                    CommentTime = c.CommentTime,
+					Disabled = c.Disabled,
+					FloorNumber = index + 1, // 樓層數，從 1 開始
+					IsCommentOwner = c.MemberId == currentMemberId // 判斷是否為當前使用者的評論
+				}).ToList();
+            model.Comments = comments;
+
+
+            // 檢查是否已達報名上限
+            model.IsFull = model.ParticipantNow >= model.ParticipantMax;
+
+			return model;
+		}
+
 
 		public EventStatusViewModel GetEventStatus(int eventId)
 		{
@@ -217,7 +294,8 @@ namespace HeartSpace.BLL
 					NickName = p.NickName,
 					FullName = p.MemberName,
 					Email = p.Email,
-					ProfileImage = p.MemberImg
+					ProfileImage = p.MemberImg,
+					IsAttend = p.IsAttend
 				}).ToList(),
 
 				CategoryName = eventDetails.CategoryName,
@@ -232,7 +310,21 @@ namespace HeartSpace.BLL
 			};
 		}
 
+		public void UpdateAttendance(int memberId, int eventId, bool? isAttend)
+		{
+			_eventRepository.UpdateAttendance(memberId, eventId, isAttend);
+		}
 
+		// 依關鍵字搜尋活動
+		public List<EventCard> SearchEvents(string keyword, int pageIndex, int pageSize)
+		{
+			return _eventRepository.SearchEvents(keyword, pageIndex, pageSize);
+		}
+		// 取得隨機活動
+		public IEnumerable<EventCard> GetRandomEvents(int count)
+		{
+			return _eventRepository.GetRandomEvents(count);
+		}
 	}
 
 
