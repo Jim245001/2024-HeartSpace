@@ -1,0 +1,40 @@
+﻿@model HeartSpaceAdmin.Models.PostViewModel
+
+<h1>@Model.Title</h1>
+<p><strong>作者:</strong> @Model.AuthorName</p>
+<p><strong>發布時間:</strong> @Model.PublishTime</p>
+<div>
+    <h3>內容</h3>
+    <p>@Model.PostContent</p>
+</div>
+
+<h3>留言板</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>留言者</th>
+            <th>內容</th>
+            <th>留言時間</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var comment in Model.Comments)
+        {
+            <tr>
+                <td>@comment.UserName</td>
+                <td>@comment.Comment</td>
+                <td>@comment.CommentTime</td>
+                <td>
+                    <form asp-action="ToggleCommentDisabled" method="post" style="display:inline;">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@comment.Id" />
+                        <button type="submit" class="btn @(comment.Disabled == true ? "btn-success" : "btn-danger")">
+                            @(comment.Disabled == true ? "恢復" : "禁用")
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

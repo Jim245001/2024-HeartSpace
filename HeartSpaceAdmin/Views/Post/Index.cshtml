@@ -1,0 +1,38 @@
+﻿@model IEnumerable<HeartSpaceAdmin.Models.PostViewModel>
+
+<h1>貼文管理</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>標題</th>
+            <th>發文者</th>
+            <th>貼文時間</th>
+            <th>是否刪除</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var post in Model)
+        {
+            <tr>
+                <td>@post.Id</td>
+                <td>@post.Title</td>
+                <td>@post.AuthorName</td>
+                <td>@post.PublishTime</td>
+                <td>@(post.Disabled ? "是" : "否")</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@post.Id" class="btn btn-primary">編輯</a>
+                    <form asp-action="ToggleDelete" method="post" style="display:inline;">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@post.Id" />
+                        <button type="submit" class="btn @(post.Disabled ? "btn-success" : "btn-danger")">
+                            @(post.Disabled ? "恢復" : "刪除")
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
