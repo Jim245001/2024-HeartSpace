@@ -51,6 +51,7 @@ namespace HeartSpaceAdmin.Controllers
 				PostContent = post.PostContent,
 				PublishTime = post.PublishTime,
 				AuthorName = post.Member.Name,
+				PostImg = post.PostImg,
 				Comments = post.PostComments.Select(c => new PostCommentViewModel
 				{
 					Id = c.Id,

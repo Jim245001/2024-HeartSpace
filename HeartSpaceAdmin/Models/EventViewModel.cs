@@ -11,6 +11,7 @@
 		public DateTime EventTime { get; set; }
 		public string Location { get; set; }
 		public bool IsOnline { get; set; }
+		public string EventImg { get; set; }
 		public bool Disabled { get; set; }
 		public int ParticipantMax { get; set; }
 		public int ParticipantMin { get; set; }

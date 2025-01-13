@@ -1,5 +1,5 @@
 ﻿@model IEnumerable<HeartSpaceAdmin.Models.PostViewModel>
-
+<br />
 <h1>貼文管理</h1>
 
 <table class="table">
@@ -23,7 +23,7 @@
                 <td>@post.PublishTime</td>
                 <td>@(post.Disabled ? "是" : "否")</td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@post.Id" class="btn btn-primary">編輯</a>
+                    <a asp-action="Edit" asp-route-id="@post.Id" class="btn btn-primary">管理</a>
                     <form asp-action="ToggleDelete" method="post" style="display:inline;">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="id" value="@post.Id" />
