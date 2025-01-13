@@ -1,5 +1,4 @@
-﻿
-@model HeartSpace.Models.RegisterViewModel
+﻿@model HeartSpace.Models.RegisterViewModel
 
 @{
     ViewData["Title"] = "註冊";
@@ -16,6 +15,14 @@
         </div>
         @using (Html.BeginForm("Register", "Account", FormMethod.Post))
         {
+
+            @Html.AntiForgeryToken()
+
+            <!-- 顯示全局錯誤訊息 -->
+            <div class="text-danger">
+                @Html.ValidationSummary(true, "請修正以下錯誤：", new { @class = "alert alert-danger" })
+            </div>
+
             <div class="mb-3">
                 <label for="Account" class="form-label">帳號</label>
                 @Html.TextBoxFor(m => m.Account, new { @class = "form-control", placeholder = "帳號" })
@@ -46,16 +53,9 @@
                 @Html.TextBoxFor(m => m.NickName, new { @class = "form-control", placeholder = "暱稱" })
                 @Html.ValidationMessageFor(m => m.NickName, "", new { @class = "text-danger" })
             </div>
-            <div class="mb-3">
-                <label for="PhoneNumber" class="form-label">手機</label>
-                @Html.TextBoxFor(m => m.PhoneNumber, new { @class = "form-control", placeholder = "手機" })
-                @Html.ValidationMessageFor(m => m.PhoneNumber, "", new { @class = "text-danger" })
-            </div>
             <div class="d-grid">
                 <button type="submit" class="btn btn-primary">註冊</button>
             </div>
         }
     </div>
 </div>
-
-
