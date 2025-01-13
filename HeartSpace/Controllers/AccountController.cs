@@ -1,6 +1,7 @@
 ﻿using HeartSpace.Models;
 using HeartSpace.Models.EFModels;
 using HeartSpace.Utilities;
+using Microsoft.Ajax.Utilities;
 using System;
 using System.Data;
 using System.Diagnostics;
@@ -64,38 +65,44 @@ namespace HeartSpace.Controllers.Account
 
 		private (string returnUrl, HttpCookie cookie) ProcessLogin(string account, bool rememberMe)
 		{
-
+			// 查詢使用者
 			var user = _db.Members.FirstOrDefault(m => m.Account == account);
 			if (user == null)
 			{
 				throw new Exception("無法找到使用者資料");
 			}
 
-			// 存入 UserData 格式為 "MemberId|Role"
+			// 檢查角色並存入 UserData 格式為 "MemberId|Role"
 			var userData = $"{user.Id}|{user.Role}";
 
-			var ticket = 
-				new FormsAuthenticationTicket(
-					1,
-					account, 
-					DateTime.Now, 
-					DateTime.Now.AddDays(2),
-					false,
-					userData,
-					"/");
+			// 建立 FormsAuthenticationTicket
+			var ticket = new FormsAuthenticationTicket(
+				version: 1,
+				name: account, // 用戶帳號
+				issueDate: DateTime.Now, // 發行時間
+				expiration: DateTime.Now.AddDays(rememberMe ? 30 : 2), // 記住登入則 30 天，否則 2 天
+				isPersistent: rememberMe, // 是否記住登入
+				userData: userData, // 附加的用戶資料
+				cookiePath: FormsAuthentication.FormsCookiePath // Cookie 路徑
+			);
 
+			// 加密票據
 			string encryptedTicket = FormsAuthentication.Encrypt(ticket);
+
+			// 建立 Cookie
 			var cookie = new HttpCookie(FormsAuthentication.FormsCookieName, encryptedTicket)
 			{
-				HttpOnly = true,
-				Secure = Request.IsSecureConnection
+				HttpOnly = true, // 防止客戶端腳本存取
+				Secure = Request.IsSecureConnection, // 如果是 HTTPS，則啟用 Secure 屬性
+				Path = FormsAuthentication.FormsCookiePath
 			};
 
-			var returnUrl = FormsAuthentication.GetRedirectUrl(account, true);
+			// 取得重定向的網址
+			var returnUrl = FormsAuthentication.GetRedirectUrl(account, rememberMe);
 
 			return (returnUrl, cookie);
-
 		}
+
 
 		//====================================================================================================
 
@@ -179,7 +186,7 @@ namespace HeartSpace.Controllers.Account
 				var hashPassword = HashUtility.ToSHA256(model.Password, salt);
 
 				// 建立新會員
-				var member = new Member
+				var member = new Models.EFModels.Member
 				{
 					Account = model.Account,
 					PasswordHash = hashPassword,
@@ -189,6 +196,7 @@ namespace HeartSpace.Controllers.Account
 					IsConfirmed = true,
 					Disabled = false,
 					Role = "member",
+					AbsenceCount = 0,
 					ConfirmCode = Guid.NewGuid().ToString() // 生成激活碼
 				};
 
@@ -198,25 +206,6 @@ namespace HeartSpace.Controllers.Account
 			}
 		}
 
-
-		[HttpGet]
-		public ActionResult ForgotPassword()
-		{
-			return View();
-		}
-
-		[HttpPost]
-		public ActionResult ForgotPassword(ForgotPasswordViewModel model)
-		{
-			if (!ModelState.IsValid)
-			{
-				return View(model);
-			}
-
-			// 模擬發送重設密碼的信件
-			TempData["Message"] = "重設密碼的信件已發送到您的信箱。";
-			return RedirectToAction("Login");
-		}
 
 		[HttpGet]
 		public ActionResult Logout()
@@ -229,12 +218,13 @@ namespace HeartSpace.Controllers.Account
 			return RedirectToAction("Index", "Home");
 		}
 
+		// GET: Profile
 		[HttpGet]
 		public ActionResult Profile()
 		{
 			if (Session["UserId"] == null)
 			{
-				return RedirectToAction("Login", "Account");
+				return RedirectToAction("Login", "Account"); // 驗證使用者是否登入，未登入則重導向
 			}
 
 			// 加載用戶的個人資料
@@ -243,10 +233,12 @@ namespace HeartSpace.Controllers.Account
 
 			if (member == null)
 			{
-				return RedirectToAction("Login", "Account");
+				return RedirectToAction("Login", "Account"); // 如果找不到用戶，重導向至登入頁面
 			}
 
-			return View(member);
+			return View(member); // 將資料傳遞給視圖
 		}
+
+
 	}
 }

@@ -80,8 +80,11 @@
 
             <!-- 導覽按鈕 -->
             <div class="d-flex flex-wrap gap-2">
-                <a class="nav-item-admin" href="#">後台</a>
 
+                @if (User.IsInRole("Admin"))
+                {
+                    <a class="nav-item-admin" href="#">後台</a>
+                }
 
                 @if (User.Identity.IsAuthenticated)
                 {
