@@ -1,6 +1,8 @@
 ﻿@model HeartSpace.Models.ViewModels.EventViewModel
 @using System.Text.RegularExpressions
 
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -484,7 +486,7 @@
 
                                 <!-- 留言內容與編輯圖標 -->
                                 <div class="d-flex align-items-center justify-content-between">
-                                  
+
                                     @if (comment.Disabled != null)
                                     {
                                         <p class="mb-1 text-muted" style="font-style: italic; color:#949597"><i class="fa-solid fa-xmark"></i>此則留言已遭作者刪除</p>

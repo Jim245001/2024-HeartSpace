@@ -127,40 +127,43 @@ namespace HeartSpace.Controllers
 				return View(model);
 			}
 
-			// 圖片處理
-			if (model.UploadedEventImg != null)
-			{
-				var uploadsFolder = Path.Combine(Server.MapPath("~/Images"));
-				if (!Directory.Exists(uploadsFolder))
-				{
-					Directory.CreateDirectory(uploadsFolder);
-				}
+            // 圖片處理
+            if (model.UploadedEventImg != null)
+            {
+                // 確保圖片資料夾存在
+                var uploadsFolder = HeartSpaceImage.ImageHelper.RootPath; // 使用 HeartSpaceImage 的 ImageHelper 定義的路徑
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
 
-				// 基於新生成的 EventId 命名圖片
-				var sanitizedEventName = string.Concat(model.EventName.Split(Path.GetInvalidFileNameChars()));
-				var fileExtension = Path.GetExtension(model.UploadedEventImg.FileName).ToLower();
-				var uniqueFileName = $"Event{newEvent.Id}_{sanitizedEventName}{fileExtension}";
-				var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                // 基於 EventId 和 EventName 命名圖片
+                var sanitizedEventName = string.Concat(model.EventName.Split(Path.GetInvalidFileNameChars())); // 移除無效字元
+                var fileExtension = Path.GetExtension(model.UploadedEventImg.FileName).ToLower();
+                var uniqueFileName = $"Event_{newEvent.Id}_{sanitizedEventName}{fileExtension}"; // 檔名格式：Event_<Id>_<EventName>.<副檔名>
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-				try
-				{
-					// 儲存圖片
-					model.UploadedEventImg.SaveAs(filePath);
-				}
-				catch (Exception ex)
-				{
-					ModelState.AddModelError("", "儲存圖片時發生錯誤，請稍後再試。");
-					ViewBag.Categories = _eventService.GetCategories();
-					return View(model);
-				}
+                try
+                {
+                    // 儲存圖片到指定路徑
+                    model.UploadedEventImg.SaveAs(filePath);
 
-				// 更新圖片路徑到資料庫
-				newEvent.EventImg = Path.Combine("Images", uniqueFileName).Replace("\\", "/");
-				_eventService.UpdateEvent(newEvent);
-			}
+                    // 更新資料庫圖片路徑
+                    newEvent.EventImg = $"http://localhost:44378/Images/{uniqueFileName}";
+                    _eventService.UpdateEvent(newEvent); // 更新資料庫
+                }
+                catch (Exception ex)
+                {
+                    // 處理儲存失敗的例外
+                    ModelState.AddModelError("", $"儲存圖片時發生錯誤：{ex.Message}");
+                    return View(model);
+                }
+            }
 
-			// 導向到活動詳細頁
-			return RedirectToAction("EventDetail", new { id = newEvent.Id });
+
+
+            // 導向到活動詳細頁
+            return RedirectToAction("EventDetail", new { id = newEvent.Id });
 		}
 
 

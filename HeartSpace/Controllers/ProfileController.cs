@@ -234,30 +234,26 @@ namespace HeartSpace.Controllers
                 member.Name = model.Name;
                 member.NickName = model.MemberNickName;
 
-                // 處理頭像上傳
                 if (model.MemberImgFile != null && model.MemberImgFile.ContentLength > 0)
                 {
                     try
                     {
                         // 確保資料夾存在
-                        var uploadDir = Server.MapPath("~/Images/");
-                        if (!System.IO.Directory.Exists(uploadDir))
-                        {
-                            System.IO.Directory.CreateDirectory(uploadDir);
-                        }
+                        HeartSpaceImage.ImageHelper.EnsureDirectoryExists();
+                        var uploadDir = HeartSpaceImage.ImageHelper.RootPath;
 
-                        // 取得檔案副檔名
+                        // 取得副檔名
                         var fileExtension = Path.GetExtension(model.MemberImgFile.FileName).ToLower();
 
-                        // 支援的檔案格式檢查
+                        // 檢查格式
                         if (fileExtension != ".jpg" && fileExtension != ".jpeg" && fileExtension != ".png" && fileExtension != ".webp")
                         {
                             ModelState.AddModelError("MemberImgFile", "僅接受 JPG、JPEG、PNG、WEBP 格式圖片。");
                             return View(model);
                         }
 
-                        // 檔案名稱生成
-                        var fileName = $"MemberImg_{Guid.NewGuid()}.jpg"; // 最終存為 JPG 格式
+                        // 檔案名稱生成：以 MemberId 命名
+                        var fileName = $"Member_{memberId}.jpg";
                         var savePath = Path.Combine(uploadDir, fileName);
 
                         if (fileExtension == ".webp")
@@ -279,28 +275,19 @@ namespace HeartSpace.Controllers
                             System.Diagnostics.Debug.WriteLine($"圖片已儲存到路徑：{savePath}");
                         }
 
-                        // 刪除舊檔案
-                        if (!string.IsNullOrEmpty(member.MemberImg))
-                        {
-                            var oldFilePath = Server.MapPath(member.MemberImg);
-                            if (System.IO.File.Exists(oldFilePath))
-                            {
-                                System.IO.File.Delete(oldFilePath);
-                                System.Diagnostics.Debug.WriteLine($"舊檔案已刪除：{oldFilePath}");
-                            }
-                        }
-
                         // 更新資料庫的圖片路徑
-                        member.MemberImg = "/Images/" + fileName;
-                        System.Diagnostics.Debug.WriteLine($"資料庫將更新圖片路徑：{member.MemberImg}");
+                        member.MemberImg = $"https://localhost:44378/Images/{fileName}";
                     }
                     catch (Exception ex)
                     {
-                        System.Diagnostics.Debug.WriteLine($"上傳圖片時發生錯誤：{ex.Message}");
-                        ModelState.AddModelError("MemberImgFile", "圖片上傳失敗：" + ex.Message);
+                        ModelState.AddModelError("MemberImgFile", $"圖片上傳失敗：{ex.Message}");
                         return View(model);
                     }
                 }
+
+
+
+
 
                 // 保存資料庫變更
                 try
