@@ -150,7 +150,7 @@ namespace HeartSpace.Controllers
                     model.UploadedEventImg.SaveAs(filePath);
 
                     // 更新資料庫圖片路徑
-                    newEvent.EventImg = $"http://localhost:44378/Images/{uniqueFileName}";
+                    newEvent.EventImg = $"https://localhost:44378/Images/{uniqueFileName}";
                     _eventService.UpdateEvent(newEvent); // 更新資料庫
                 }
                 catch (Exception ex)
@@ -295,7 +295,7 @@ namespace HeartSpace.Controllers
 
 					newImagePath = null; // 設為空，表示移除照片
 					existingEvent.EventImg = null; // 同步更新模型的 EventImg
-					//Console.WriteLine($"EventImg after delete logic: {existingEvent.EventImg}"); // 調試輸出
+					
 					_eventService.UpdateEvent(existingEvent); // 更新資料庫
 				}
 				Console.WriteLine($"removePhoto value: {removePhoto}");
@@ -321,33 +321,31 @@ namespace HeartSpace.Controllers
 						return View(model);
 					}
 
-					// 確定圖片存放資料夾
-					var uploadsFolder = Path.Combine(Server.MapPath("~/Images"));
-					if (!Directory.Exists(uploadsFolder))
-					{
-						Directory.CreateDirectory(uploadsFolder);
-					}
+                    // 確定圖片存放資料夾
+                    var uploadsFolder = HeartSpaceImage.ImageHelper.RootPath; // 使用 ImageHelper 的路徑
+                    if (!Directory.Exists(uploadsFolder))
+                    {
+                        Directory.CreateDirectory(uploadsFolder);
+                    }
 
-					// 基於活動 ID 命名新圖片
-					var sanitizedFileName = Path.GetFileNameWithoutExtension(model.UploadedEventImg.FileName)
+                    // 基於活動 ID 命名新圖片
+                    var sanitizedFileName = Path.GetFileNameWithoutExtension(model.UploadedEventImg.FileName)
 						.Replace(" ", "_")
 						.Replace(":", "_")
 						.Replace("/", "_"); // 替換掉不安全的字元
 					var uniqueFileName = $"Event{model.Id}_{sanitizedFileName}{fileExtension}";
 					var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-					// 儲存新圖片
-					model.UploadedEventImg.SaveAs(filePath);
-					newImagePath = Path.Combine("Images", uniqueFileName).Replace("\\", "/");
-				}
+                    // 儲存新圖片
+                    model.UploadedEventImg.SaveAs(filePath);
+                    newImagePath = $"https://localhost:44378/Images/{uniqueFileName}"; // 儲存完整 URL 路徑
+                }
 
-				// 更新圖片路徑
-				existingEvent.EventImg = newImagePath;
-				_eventService.UpdateEvent(existingEvent); // 更新圖片路徑到資料庫
+                // 更新圖片路徑
+                existingEvent.EventImg = newImagePath;
+                _eventService.UpdateEvent(existingEvent); // 更新圖片路徑到資料庫
 
-				//Console.WriteLine($"Final EventImg value before returning: {existingEvent.EventImg}"); // 最終確認
-				// 更新成功後跳轉到活動詳情頁
-				return RedirectToAction("EventDetail", new { id = model.Id });
+                return RedirectToAction("EventDetail", new { id = model.Id });
 			}
 			catch (Exception ex)
 			{

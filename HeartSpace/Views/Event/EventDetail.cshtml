@@ -169,7 +169,7 @@
             <div class="text-center mb-4">
                 @if (!string.IsNullOrEmpty(Model.EventImg))
                 {
-                    <img src="@Url.Content("~/" + Model.EventImg)" alt="活動圖片" class="img-fluid"
+                    <img src="@Model.EventImg" alt="活動圖片" class="img-fluid"
                          style=" aspect-ratio: 3 / 1; border-radius: 10px; object-fit: cover; display: block; margin: 0 auto;" />
                 }
                 else
