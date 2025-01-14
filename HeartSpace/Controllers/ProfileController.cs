@@ -252,7 +252,7 @@ namespace HeartSpace.Controllers
                         }
 
                         // 檔案名稱生成
-                        var fileName = $"MemberImg_{Guid.NewGuid()}.jpg"; // 最終存為 JPG 格式
+                        var fileName = $"Member_{member.Id}.jpg";
                         var savePath = Path.Combine(uploadDir, fileName);
 
 						if (fileExtension == ".webp")
