@@ -49,16 +49,18 @@
                 <td>@comment.MemberName</td>
                 <td>@comment.CommentContent</td>
                 <td>@comment.CommentTime</td>
-                <td>@(comment.Disabled == "true" ? "禁用" : "啟用")</td>
+                <td>@(string.IsNullOrWhiteSpace(comment.Disabled) ? "啟用" : "禁用")</td>
                 <td>
                     <form asp-action="ToggleCommentDisabled" method="post" style="display:inline;">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="id" value="@comment.Id" />
-                        <button type="submit" class="btn @(comment.Disabled == "true" ? "btn-success" : "btn-danger") btn-sm">
-                            @(comment.Disabled == "true" ? "恢復" : "禁用")
+                        <button type="submit" class="btn @(string.IsNullOrWhiteSpace(comment.Disabled) ? "btn-danger" : "btn-success") btn-sm">
+                            @(string.IsNullOrWhiteSpace(comment.Disabled) ? "禁用" : "恢復")
                         </button>
                     </form>
                 </td>
+
+
             </tr>
         }
     </tbody>

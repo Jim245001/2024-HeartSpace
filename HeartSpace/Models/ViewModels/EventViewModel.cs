@@ -13,6 +13,9 @@ namespace HeartSpace.Models.ViewModels
 		// 基本屬性
 		public int Id { get; set; }
 
+
+		public int GetCurrentUserId { get; set; }
+
 		//活動名稱
 		[Required(ErrorMessage = "{0}必填")]
 		[StringLength(25, ErrorMessage = "活動名稱最多 25 字元")]
@@ -126,6 +129,7 @@ namespace HeartSpace.Models.ViewModels
         public int FloorNumber { get; set; } // 樓層數
 		public string Disabled { get; set; }
 
+		public int EventId { get; set; }
 	}
 
 

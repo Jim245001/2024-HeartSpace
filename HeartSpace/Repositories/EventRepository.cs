@@ -200,14 +200,25 @@ namespace HeartSpace.DAL
 		}
 
 		// 刪除活動
-		public void DeleteEvent(int id)
+		public void DisableEvent(int id)
 		{
-			using (var connection = CreateConnection())
+			using (var context = new AppDbContext())
 			{
-				const string sql = "DELETE FROM Events WHERE Id = @Id";
-				connection.Execute(sql, new { Id = id });
+				// 查找指定的活動
+				var eventEntity = context.Events.FirstOrDefault(e => e.Id == id);
+				if (eventEntity == null)
+				{
+					throw new KeyNotFoundException($"找不到 Id 為 {id} 的活動。");
+				}
+
+				// 將 Disabled 設置為 true
+				eventEntity.Disabled = true;
+
+				// 保存變更
+				context.SaveChanges();
 			}
 		}
+
 
 		// 獲取所有分類，並按照顯示順序排序
 		public IEnumerable<Category> GetCategories()
@@ -373,42 +384,42 @@ namespace HeartSpace.DAL
 
 				// 查詢活動的基本資訊和發起人資訊（包括類別名稱）
 				var eventQuery = @"
-        SELECT 
-            e.Id AS EventId,
-            e.EventName,
-            c.CategoryName AS CategoryName, -- 從 Category 表中取得類別名稱
-            e.EventTime,
-            e.IsOnline,
-            e.Location,
-            e.ParticipantMin,
-            e.ParticipantMax,
-            e.Description,
-            e.DeadLine,
-            m.Id AS MemberId,
-            m.Name AS MemberName, -- 發起人姓名
-            m.NickName,
-            m.Email,
-            m.MemberImg,
-            (SELECT COUNT(*) FROM EventMembers em WHERE em.EventId = e.Id) AS ParticipantNow
-        FROM Events e
-        INNER JOIN Members m ON e.MemberId = m.Id
-        LEFT JOIN Categories c ON e.CategoryId = c.Id -- 連接 Categories 表
-        WHERE e.Id = @EventId";
+		SELECT 
+			e.Id AS EventId,
+			e.EventName,
+			c.CategoryName AS CategoryName, -- 從 Category 表中取得類別名稱
+			e.EventTime,
+			e.IsOnline,
+			e.Location,
+			e.ParticipantMin,
+			e.ParticipantMax,
+			e.Description,
+			e.DeadLine,
+			m.Id AS MemberId,
+			m.Name AS MemberName, -- 發起人姓名
+			m.NickName,
+			m.Email,
+			m.MemberImg,
+			(SELECT COUNT(*) FROM EventMembers em WHERE em.EventId = e.Id) AS ParticipantNow
+		FROM Events e
+		INNER JOIN Members m ON e.MemberId = m.Id
+		LEFT JOIN Categories c ON e.CategoryId = c.Id -- 連接 Categories 表
+		WHERE e.Id = @EventId";
 
 				// 查詢活動參與者清單
 				var participantsQuery = @"
-        SELECT 
-            em.Id AS EventMemberId,
-            em.EventId,
-            em.MemberId,
+		SELECT 
+			em.Id AS EventMemberId,
+			em.EventId,
+			em.MemberId,
 			em.IsAttend,
-            m.Name AS MemberName,
-            m.NickName,
-            m.Email,
-            m.MemberImg
-        FROM EventMembers em
-        INNER JOIN Members m ON em.MemberId = m.Id
-        WHERE em.EventId = @EventId";
+			m.Name AS MemberName,
+			m.NickName,
+			m.Email,
+			m.MemberImg
+		FROM EventMembers em
+		INNER JOIN Members m ON em.MemberId = m.Id
+		WHERE em.EventId = @EventId";
 
 				// 查詢活動和發起人資訊
 				var eventResult = connection.QueryFirstOrDefault<EventWithParticipantsDto>(

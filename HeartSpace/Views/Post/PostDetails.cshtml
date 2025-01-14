@@ -80,17 +80,21 @@
             <i class="fa-solid fa-comments me-2"></i>留言板
         </h3>
 
-        <!-- 留言輸入框 -->
-        <div class="mb-4">
-            <form action="@Url.Action("AddCommentAndRefresh", "Post")" method="post" class="d-flex flex-column">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="postId" value="@Model.Id" />
-                <textarea id="commentContent" name="content" class="form-control mb-2" rows="3" placeholder="輸入您的留言..." required></textarea>
-                <button type="submit" class="btn btn-success" id="submitComment" style="background-color: #FDD9A0; border: none; color: black; font-weight: bolder;" disabled>
-                    送出留言
-                </button>
-            </form>
-        </div>
+
+        @if (ViewBag.CurrentUserId != -1)
+        {
+            <!-- 留言輸入框 -->
+            <div class="mb-4">
+                <form action="@Url.Action("AddCommentAndRefresh", "Post")" method="post" class="d-flex flex-column">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="postId" value="@Model.Id" />
+                    <textarea id="commentContent" name="content" class="form-control mb-2" rows="3" placeholder="輸入您的留言..." required></textarea>
+                    <button type="submit" class="btn btn-success" id="submitComment" style="background-color: #FDD9A0; border: none; color: black; font-weight: bolder;" disabled>
+                        送出留言
+                    </button>
+                </form>
+            </div>
+        }
 
         <!-- 留言列表 -->
         @if (Model.Comments != null && Model.Comments.Any())

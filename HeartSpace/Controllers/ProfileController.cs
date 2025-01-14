@@ -241,15 +241,15 @@ namespace HeartSpace.Controllers
                         HeartSpaceImage.ImageHelper.EnsureDirectoryExists();
                         var uploadDir = HeartSpaceImage.ImageHelper.RootPath;
 
-                        // 取得檔案副檔名
-                        var fileExtension = Path.GetExtension(model.MemberImgFile.FileName).ToLower();
+						// 取得檔案副檔名
+						var fileExtension = Path.GetExtension(model.MemberImgFile.FileName).ToLower();
 
-                        // 支援的檔案格式檢查
-                        if (fileExtension != ".jpg" && fileExtension != ".jpeg" && fileExtension != ".png" && fileExtension != ".webp")
-                        {
-                            ModelState.AddModelError("MemberImgFile", "僅接受 JPG、JPEG、PNG、WEBP 格式圖片。");
-                            return View(model);
-                        }
+						// 支援的檔案格式檢查
+						if (fileExtension != ".jpg" && fileExtension != ".jpeg" && fileExtension != ".png" && fileExtension != ".webp")
+						{
+							ModelState.AddModelError("MemberImgFile", "僅接受 JPG、JPEG、PNG、WEBP 格式圖片。");
+							return View(model);
+						}
 
                         // 檔案名稱生成
                         var fileName = $"Member_{member.Id}.jpg";
