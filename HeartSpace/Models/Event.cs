@@ -1,4 +1,4 @@
-namespace HeartSpace.Models.EFModels
+namespace HeartSpace.Models
 {
     using System;
     using System.Collections.Generic;
@@ -22,9 +22,8 @@ namespace HeartSpace.Models.EFModels
         public string EventName { get; set; }
 
         public int MemberId { get; set; }
-		public Member Member { get; set; } // ¾ÉÄýÄÝ©Ê
 
-		public int CategoryId { get; set; }
+        public int CategoryId { get; set; }
 
         [Required]
         [StringLength(500)]

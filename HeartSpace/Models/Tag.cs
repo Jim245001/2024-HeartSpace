@@ -1,4 +1,4 @@
-namespace HeartSpace.Models.EFModels
+namespace HeartSpace.Models
 {
     using System;
     using System.Collections.Generic;

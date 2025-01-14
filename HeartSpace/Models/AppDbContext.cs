@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 using System.Linq;
 
-namespace HeartSpace.Models.EFModels
+namespace HeartSpace.Models
 {
 	public partial class AppDbContext : DbContext
 	{

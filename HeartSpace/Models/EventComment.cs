@@ -1,4 +1,4 @@
-namespace HeartSpace.Models.EFModels
+namespace HeartSpace.Models
 {
     using System;
     using System.Collections.Generic;
@@ -6,7 +6,7 @@ namespace HeartSpace.Models.EFModels
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Data.Entity.Spatial;
 
-    public partial class EventMember
+    public partial class EventComment
     {
         public int Id { get; set; }
 
@@ -14,7 +14,14 @@ namespace HeartSpace.Models.EFModels
 
         public int MemberId { get; set; }
 
-        public bool? IsAttend { get; set; }
+        [Required]
+        [StringLength(500)]
+        public string EventCommentContent { get; set; }
+
+        public DateTime CommentTime { get; set; }
+
+        [StringLength(10)]
+        public string Disabled { get; set; }
 
         public virtual Event Event { get; set; }
 
