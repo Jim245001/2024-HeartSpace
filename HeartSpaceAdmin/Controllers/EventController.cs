@@ -63,7 +63,7 @@ namespace HeartSpaceAdmin.Controllers
 					MemberName = c.Member?.Name ?? "未知成員", // 確保 Member 為 null 時提供預設值
 					CommentContent = c.EventCommentContent,
 					CommentTime = c.CommentTime,
-					Disabled = string.IsNullOrWhiteSpace(c.Disabled) ? "false" : c.Disabled.Trim() // null 視為未禁用
+					Disabled = c.Disabled // null 視為未禁用
 				}).ToList() ?? new List<EventCommentViewModel>(), // 確保 Comments 不為 null
 				Participants = eventEntity.EventMembers?.Select(em => new EventMemberViewModel
 				{
@@ -101,23 +101,36 @@ namespace HeartSpaceAdmin.Controllers
 
 
 
-
+		//刪除或恢復留言
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public IActionResult ToggleCommentDisabled(int id)
 		{
-			var comment = _context.EventComments.FirstOrDefault(c => c.Id == id);
-			if (comment == null)
+			try
 			{
-				return NotFound();
+				// 查找評論
+				var comment = _context.EventComments.FirstOrDefault(c => c.Id == id);
+				if (comment == null)
+				{
+					return NotFound(); // 如果找不到評論，返回 404
+				}
+
+				// 切換 Disabled 狀態
+				comment.Disabled = string.IsNullOrWhiteSpace(comment.Disabled) ? "true" : null;
+
+				// 保存變更
+				_context.SaveChanges();
+
+				// 重定向至詳細頁
+				return RedirectToAction("Details", new { id = comment.EventId });
 			}
-
-			// 切換 Disabled 狀態，null 視為未禁用
-			comment.Disabled = string.IsNullOrWhiteSpace(comment.Disabled) || comment.Disabled == "false" ? "true" : "false";
-			_context.SaveChanges();
-
-			return RedirectToAction("Details", new { id = comment.EventId });
+			catch (Exception ex)
+			{
+				// 處理例外並返回錯誤
+				return StatusCode(500, $"無法切換評論狀態：{ex.Message}");
+			}
 		}
+
 
 
 	}

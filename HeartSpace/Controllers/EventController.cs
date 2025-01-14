@@ -175,10 +175,10 @@ namespace HeartSpace.Controllers
 		{
 			try
 			{
-				_eventService.DeleteEvent(id);
+				_eventService.DisableEvent(id);
 
-				// 重定向到活動列表頁或其他頁面
-				return RedirectToAction("Index");
+				// 重定向到活動詳細頁
+				return RedirectToAction("EventDetail", new { id });
 			}
 			catch (Exception ex)
 			{
@@ -400,22 +400,36 @@ namespace HeartSpace.Controllers
 		{
 			try
 			{
-				int currentMemberId = GetCurrentMemberId(); // 獲取當前使用者的 MemberId
-				_eventService.RemoveComment(commentId, currentMemberId); // 執行刪除邏輯
+				// 獲取當前使用者的 MemberId
+				int currentMemberId = GetCurrentMemberId();
+
+				// 查詢資料庫中的評論
+				using (var dbContext = new AppDbContext())
+				{
+					var comment = dbContext.EventComments.FirstOrDefault(c => c.Id == commentId);
+
+					if (comment == null)
+					{
+						return HttpNotFound("找不到該評論。");
+					}
+
+					// 檢查是否有權限刪除評論
+					if (comment.MemberId != currentMemberId)
+					{
+						return new HttpStatusCodeResult(403, "無權刪除此評論。");
+					}
+
+					// 更新 Disabled 欄位為 NULL
+					comment.Disabled = "true";
+					dbContext.SaveChanges();
+				}
 
 				// 重定向到活動詳細頁，附加時間戳避免快取
 				return RedirectToAction("EventDetail", new { id = eventId, ts = DateTime.Now.Ticks });
 			}
-			catch (UnauthorizedAccessException)
-			{
-				return new HttpStatusCodeResult(403, "無權刪除此評論。");
-			}
-			catch (KeyNotFoundException)
-			{
-				return HttpNotFound("找不到該評論。");
-			}
 			catch (Exception ex)
 			{
+				// 返回 500 錯誤，包含例外訊息
 				return new HttpStatusCodeResult(500, $"刪除評論時發生錯誤：{ex.Message}");
 			}
 		}
@@ -423,63 +437,64 @@ namespace HeartSpace.Controllers
 
 
 
-		public ActionResult EditComment(int commentId)
-		{
-			// 獲取當前使用者 ID
-			int currentMemberId = GetCurrentMemberId();
 
-			// 從 Service 獲取單個評論
-			var comment = _eventService.GetEventCommentById(commentId, currentMemberId);
+		//public ActionResult EditComment(int commentId)
+		//{
+		//	// 獲取當前使用者 ID
+		//	int currentMemberId = GetCurrentMemberId();
 
-			if (comment == null)
-			{
-				return HttpNotFound("找不到該留言。");
-			}
+		//	// 從 Service 獲取單個評論
+		//	var comment = _eventService.GetEventCommentById(commentId, currentMemberId);
 
-			// 檢查是否為該評論的擁有者
-			if (!comment.IsCommentOwner)
-			{
-				return new HttpStatusCodeResult(403, "無權編輯此留言。");
-			}
+		//	if (comment == null)
+		//	{
+		//		return HttpNotFound("找不到該留言。");
+		//	}
 
-			return View(comment); // 返回 View 並傳遞評論
-		}
+		//	// 檢查是否為該評論的擁有者
+		//	if (!comment.IsCommentOwner)
+		//	{
+		//		return new HttpStatusCodeResult(403, "無權編輯此留言。");
+		//	}
+
+		//	return View(comment); // 返回 View 並傳遞評論
+		//}
 
 
-		[HttpPost]
-		[ValidateAntiForgeryToken]
-		public ActionResult EditComment(int commentId, string updatedContent, int eventId)
-		{
-			try
-			{
-				// 獲取當前使用者 ID
-				int currentMemberId = GetCurrentMemberId();
+		//[HttpPost]
+		//[ValidateAntiForgeryToken]
+		//public ActionResult EditComment(int commentId, string updatedContent, int eventId)
+		//{
+		//	try
+		//	{
+		//		// 獲取當前使用者 ID
+		//		int currentMemberId = GetCurrentMemberId();
 
-				// 從 Service 獲取單個評論
-				var comment = _eventService.GetEventCommentById(commentId, currentMemberId);
+		//		// 從 Service 獲取單個評論
+		//		var comment = _eventService.GetEventCommentById(commentId, currentMemberId);
 
-				if (comment == null)
-				{
-					return HttpNotFound("找不到該留言。");
-				}
+		//		if (comment == null)
+		//		{
+		//			return HttpNotFound("找不到該留言。");
+		//		}
 
-				// 確認是否為該評論的擁有者
-				if (!comment.IsCommentOwner)
-				{
-					return new HttpStatusCodeResult(403, "無權編輯此留言。");
-				}
+		//		// 確認是否為該評論的擁有者
+		//		if (!comment.IsCommentOwner)
+		//		{
+		//			return new HttpStatusCodeResult(403, "無權編輯此留言。");
+		//		}
 
-				// 更新評論內容
-				comment.EventCommentContent = updatedContent;
-				_eventService.UpdateComment(comment);
+		//		// 更新評論內容
+		//		comment.EventCommentContent = updatedContent;
+		//		_eventService.UpdateComment(comment);
 
-				return RedirectToAction("EventDetail", new { id = eventId });
-			}
-			catch (Exception ex)
-			{
-				return new HttpStatusCodeResult(500, $"編輯留言時發生錯誤：{ex.Message}");
-			}
-		}
+		//		return RedirectToAction("EventDetail", new { id = eventId });
+		//	}
+		//	catch (Exception ex)
+		//	{
+		//		return new HttpStatusCodeResult(500, $"編輯留言時發生錯誤：{ex.Message}");
+		//	}
+		//}
 
 
 		[HttpPost]

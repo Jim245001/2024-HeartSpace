@@ -200,14 +200,25 @@ namespace HeartSpace.DAL
 		}
 
 		// 刪除活動
-		public void DeleteEvent(int id)
+		public void DisableEvent(int id)
 		{
-			using (var connection = CreateConnection())
+			using (var context = new AppDbContext())
 			{
-				const string sql = "DELETE FROM Events WHERE Id = @Id";
-				connection.Execute(sql, new { Id = id });
+				// 查找指定的活動
+				var eventEntity = context.Events.FirstOrDefault(e => e.Id == id);
+				if (eventEntity == null)
+				{
+					throw new KeyNotFoundException($"找不到 Id 為 {id} 的活動。");
+				}
+
+				// 將 Disabled 設置為 true
+				eventEntity.Disabled = true;
+
+				// 保存變更
+				context.SaveChanges();
 			}
 		}
+
 
 		// 獲取所有分類，並按照顯示順序排序
 		public IEnumerable<Category> GetCategories()

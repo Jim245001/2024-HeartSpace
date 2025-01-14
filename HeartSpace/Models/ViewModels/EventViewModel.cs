@@ -126,6 +126,7 @@ namespace HeartSpace.Models.ViewModels
         public int FloorNumber { get; set; } // 樓層數
 		public string Disabled { get; set; }
 
+		public int EventId { get; set; }
 	}
 
 

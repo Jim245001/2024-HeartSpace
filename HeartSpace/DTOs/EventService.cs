@@ -46,9 +46,9 @@ namespace HeartSpace.BLL
 			_eventRepository.UpdateEvent(updatedEvent);
 		}
 
-		public void DeleteEvent(int id)
+		public void DisableEvent(int id)
 		{
-			_eventRepository.DeleteEvent(id);
+			_eventRepository.DisableEvent(id);
 		}
 
 		// 取得所有分類
@@ -151,25 +151,25 @@ namespace HeartSpace.BLL
 
 
 		// 刪除評論
-		public void RemoveComment(int commentId, int currentMemberId)
-		{
-			// 檢查是否為評論擁有者
-			if (!_eventRepository.IsCommentOwner(commentId, currentMemberId))
-			{
-				throw new UnauthorizedAccessException("無權刪除此評論。");
-			}
+		//public void RemoveComment(int commentId, int currentMemberId)
+		//{
+		//	// 檢查是否為評論擁有者
+		//	if (!_eventRepository.IsCommentOwner(commentId, currentMemberId))
+		//	{
+		//		throw new UnauthorizedAccessException("無權刪除此評論。");
+		//	}
 
-			// 獲取評論對象
-			var comment = _eventRepository.GetEventCommentById(commentId);
-			if (comment == null)
-			{
-				throw new KeyNotFoundException("找不到該評論。");
-			}
+		//	// 獲取評論對象
+		//	var comment = _eventRepository.GetEventCommentById(commentId);
+		//	if (comment == null)
+		//	{
+		//		throw new KeyNotFoundException("找不到該評論。");
+		//	}
 
-			// 更新評論 Disabled 欄位為 "true"
-			comment.Disabled = "true";
-			_eventRepository.RemoveComment(comment);
-		}
+		//	// 更新評論 Disabled 欄位為 "true"
+		//	comment.Disabled = "true";
+		//	_eventRepository.RemoveComment(comment);
+		//}
 
 
 
@@ -182,21 +182,21 @@ namespace HeartSpace.BLL
 		}
 
 		// 更新評論
-		public void UpdateComment(CommentViewModel commentViewModel)
-		{
-			var comment = _eventRepository.GetEventCommentById(commentViewModel.Id);
+		//public void UpdateComment(CommentViewModel commentViewModel)
+		//{
+		//	var comment = _eventRepository.GetEventCommentById(commentViewModel.Id);
 
-			if (comment == null)
-			{
-				throw new KeyNotFoundException("找不到該評論。");
-			}
+		//	if (comment == null)
+		//	{
+		//		throw new KeyNotFoundException("找不到該評論。");
+		//	}
 
-			// 更新評論內容
-			comment.EventCommentContent = commentViewModel.EventCommentContent;
+		//	// 更新評論內容
+		//	comment.EventCommentContent = commentViewModel.EventCommentContent;
 
-			// 保存修改
-			_eventRepository.UpdateComment(comment);
-		}
+		//	// 保存修改
+		//	_eventRepository.UpdateComment(comment);
+		//}
 
 
 
@@ -226,6 +226,7 @@ namespace HeartSpace.BLL
 				ParticipantNow = _eventRepository.GetParticipantCount(eventId),
 				IsOnline = eventEntity.IsOnline,
 				Location = eventEntity.Location,
+				Disabled = eventEntity.Disabled,
 				Description = eventEntity.Description,
 				EventTime = eventEntity.EventTime,
 				DeadLine = eventEntity.DeadLine,
