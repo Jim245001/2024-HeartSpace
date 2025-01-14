@@ -471,7 +471,7 @@ if (Image != null && Image.ContentLength > 0)
 		}
 
 
-		// 獲取當前用戶 ID（需根據你的系統調整）
+		// 獲取當前用戶 ID
 		private int GetCurrentMemberId()
 		{
 			if (!User.Identity.IsAuthenticated)
