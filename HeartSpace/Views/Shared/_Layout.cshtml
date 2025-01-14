@@ -15,7 +15,7 @@
         .navbar-container {
             width: 1200px; /* 固定寬度 */
             margin: 0 auto; /* 置中對齊 */
-            margin-top: 10px;
+            margin-top: 10px;ˊ
         }
 
         .navbar {
@@ -81,9 +81,9 @@
             <!-- 導覽按鈕 -->
             <div class="d-flex flex-wrap gap-2">
 
-                @if (User.IsInRole("Admin"))
+                @if (User.IsInRole("admin"))
                 {
-                    <a class="nav-item-admin" href="#">後台</a>
+                    <a class="nav-item-admin" href="https://localhost:7075/">後台</a>
                 }
 
                 @if (User.Identity.IsAuthenticated)

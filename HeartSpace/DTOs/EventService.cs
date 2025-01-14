@@ -71,13 +71,13 @@ namespace HeartSpace.BLL
 		}
 
 		// 為會員註冊活動
-		public void RegisterMember(int eventId, int memberId)
+		public void RegisterMember(int eventId, int? memberId)
 		{
 			_eventRepository.RegisterMember(eventId, memberId);
 		}
 
 		// 取消會員的活動註冊
-		public void UnregisterMember(int eventId, int memberId)
+		public void UnregisterMember(int eventId, int? memberId)
 		{
 			_eventRepository.UnregisterMember(eventId, memberId);
 		}
@@ -108,7 +108,7 @@ namespace HeartSpace.BLL
 				IsCommentOwner = c.MemberId == currentMemberId // 判斷是否為擁有者
 			}).ToList();
 		}
-		public CommentViewModel GetEventCommentById(int commentId, int currentMemberId)
+		public CommentViewModel GetEventCommentById(int commentId, int? currentMemberId)
 		{
 			// 從 Repository 獲取單個評論實體
 			var comment = _eventRepository.GetEventCommentById(commentId);
@@ -151,7 +151,7 @@ namespace HeartSpace.BLL
 
 
 		// 刪除評論
-		public void RemoveComment(int commentId, int currentMemberId)
+		public void RemoveComment(int commentId, int? currentMemberId)
 		{
 			// 檢查是否為評論擁有者
 			if (!_eventRepository.IsCommentOwner(commentId, currentMemberId))
@@ -201,7 +201,7 @@ namespace HeartSpace.BLL
 
 
 		//檢視揪團
-		public EventViewModel GetEventDetailsWithExtras(int eventId, int currentMemberId)
+		public EventViewModel GetEventDetailsWithExtras(int eventId, int? currentMemberId)
 		{
 			// 從資料庫取得活動資料
 			var eventEntity = _eventRepository.GetEventDetails(eventId); // 返回 EFModels.Event

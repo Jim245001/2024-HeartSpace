@@ -24,6 +24,8 @@ namespace HeartSpace.Controllers
 		//檢視揪團
 		public ActionResult EventDetail(int id)
 		{
+			
+			
 			var model = _eventService.GetEventDetailsWithExtras(id, GetCurrentMemberId());
 
 			if (model == null)
@@ -100,7 +102,7 @@ namespace HeartSpace.Controllers
 			var newEvent = new Event
 			{
 				EventName = model.EventName,
-				MemberId = GetCurrentMemberId(),
+				MemberId = GetCurrentMemberId() ?? -1,
 				CategoryId = model.CategoryId,
 				Description = model.Description,
 				EventTime = model.EventTime,
@@ -400,7 +402,7 @@ namespace HeartSpace.Controllers
 		{
 			try
 			{
-				int currentMemberId = GetCurrentMemberId(); // 獲取當前使用者的 MemberId
+				int? currentMemberId = GetCurrentMemberId(); // 獲取當前使用者的 MemberId
 				_eventService.RemoveComment(commentId, currentMemberId); // 執行刪除邏輯
 
 				// 重定向到活動詳細頁，附加時間戳避免快取
@@ -426,7 +428,7 @@ namespace HeartSpace.Controllers
 		public ActionResult EditComment(int commentId)
 		{
 			// 獲取當前使用者 ID
-			int currentMemberId = GetCurrentMemberId();
+			int? currentMemberId = GetCurrentMemberId();
 
 			// 從 Service 獲取單個評論
 			var comment = _eventService.GetEventCommentById(commentId, currentMemberId);
@@ -453,7 +455,7 @@ namespace HeartSpace.Controllers
 			try
 			{
 				// 獲取當前使用者 ID
-				int currentMemberId = GetCurrentMemberId();
+				int? currentMemberId = GetCurrentMemberId();
 
 				// 從 Service 獲取單個評論
 				var comment = _eventService.GetEventCommentById(commentId, currentMemberId);
@@ -494,12 +496,12 @@ namespace HeartSpace.Controllers
 				}
 
 				// 獲取當前用戶 ID
-				int currentMemberId = GetCurrentMemberId(); 
+				int? currentMemberId = GetCurrentMemberId(); 
 
 				var newComment = new EventComment
 				{
 					EventId = eventId,
-					MemberId = currentMemberId,
+					MemberId = currentMemberId ?? -1,
 					EventCommentContent = commentContent,
 					CommentTime = DateTime.Now
 				};
@@ -517,7 +519,7 @@ namespace HeartSpace.Controllers
 		[HttpPost]
 		public ActionResult ToggleRegistration(int eventId, string actionType)
 		{
-			int memberId = GetCurrentMemberId();
+			int? memberId = GetCurrentMemberId();
 
 			if (actionType == "cancel")
 			{
@@ -533,34 +535,35 @@ namespace HeartSpace.Controllers
 			return RedirectToAction("EventDetail", new { id = eventId });
 		}
 
-		private int GetCurrentMemberId()
+		private int? GetCurrentMemberId()
 		{
 			if (!User.Identity.IsAuthenticated)
 			{
-				throw new UnauthorizedAccessException("使用者未登入。");
+				return null; // 未登入返回 null
 			}
 
 			var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
 			if (authCookie == null)
 			{
-				throw new UnauthorizedAccessException("未找到身份驗證 Cookie。");
+				return null; // 未找到身份驗證 Cookie，返回 null
 			}
 
 			var ticket = FormsAuthentication.Decrypt(authCookie.Value);
 			if (ticket == null || string.IsNullOrEmpty(ticket.UserData))
 			{
-				throw new UnauthorizedAccessException("身份驗證票據無效。");
+				return null; // 身份驗證票據無效，返回 null
 			}
 
 			// 解析 UserData 格式 "MemberId|Role"
 			var parts = ticket.UserData.Split('|');
-			if (int.TryParse(parts[0], out int memberId))
+			if (parts.Length > 0 && int.TryParse(parts[0], out int memberId))
 			{
 				return memberId; // 返回 MemberId
 			}
 
-			throw new Exception("票據中的用戶 ID 無效。");
+			return null; // 如果解析失敗，返回 null
 		}
+
 
 
 

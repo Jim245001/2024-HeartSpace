@@ -296,7 +296,7 @@ namespace HeartSpace.DAL
 
 
 		// 確認指定會員是否為評論的擁有者
-		public bool IsCommentOwner(int commentId, int memberId)
+		public bool IsCommentOwner(int commentId, int? memberId)
 		{
 			using (var context = new AppDbContext())
 			{
@@ -324,7 +324,7 @@ namespace HeartSpace.DAL
 
 
 		// 檢查會員是否已報名指定活動
-		public bool IsMemberRegistered(int eventId, int memberId)
+		public bool IsMemberRegistered(int eventId, int? memberId)
 		{
 			using (var connection = CreateConnection())
 			{
@@ -334,7 +334,7 @@ namespace HeartSpace.DAL
 		}
 
 		// 為會員註冊活動
-		public void RegisterMember(int eventId, int memberId)
+		public void RegisterMember(int eventId, int? memberId)
 		{
 			using (var connection = CreateConnection())
 			{
@@ -345,7 +345,7 @@ namespace HeartSpace.DAL
 		}
 
 		// 取消會員的活動註冊
-		public void UnregisterMember(int eventId, int memberId)
+		public void UnregisterMember(int eventId, int? memberId)
 		{
 			using (var connection = CreateConnection())
 			{

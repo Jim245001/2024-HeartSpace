@@ -72,8 +72,9 @@ namespace HeartSpace.Controllers.Account
 				throw new Exception("無法找到使用者資料");
 			}
 
-			// 檢查角色並存入 UserData 格式為 "MemberId|Role"
-			var userData = $"{user.Id}|{user.Role}";
+	
+			var userData = $"{user.Name}|{user.Role}";
+
 
 			// 建立 FormsAuthenticationTicket
 			var ticket = new FormsAuthenticationTicket(
