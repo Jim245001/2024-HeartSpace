@@ -5,6 +5,10 @@ VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeartSpace", "HeartSpace\HeartSpace.csproj", "{AE15872B-BD4F-459F-88EC-70586A4C0068}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeartSpaceAdmin", "HeartSpaceAdmin\HeartSpaceAdmin.csproj", "{8A1A9BCB-C0C3-4B0C-9955-7236D79249F8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeartSpaceImage", "HeartSpaceImage\HeartSpaceImage.csproj", "{0F6485A4-4BBE-4B3D-8C02-F2A4B6904F91}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{AE15872B-BD4F-459F-88EC-70586A4C0068}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AE15872B-BD4F-459F-88EC-70586A4C0068}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AE15872B-BD4F-459F-88EC-70586A4C0068}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A1A9BCB-C0C3-4B0C-9955-7236D79249F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A1A9BCB-C0C3-4B0C-9955-7236D79249F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A1A9BCB-C0C3-4B0C-9955-7236D79249F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A1A9BCB-C0C3-4B0C-9955-7236D79249F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F6485A4-4BBE-4B3D-8C02-F2A4B6904F91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F6485A4-4BBE-4B3D-8C02-F2A4B6904F91}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F6485A4-4BBE-4B3D-8C02-F2A4B6904F91}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F6485A4-4BBE-4B3D-8C02-F2A4B6904F91}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

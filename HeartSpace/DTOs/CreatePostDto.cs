@@ -9,6 +9,8 @@ namespace HeartSpace.Models.DTOs
     public class CreatePostDto
     {
         public int Id { get; set; }
+        public int PostId { get; set; }
+
 
         [Required(ErrorMessage = " 請輸入標題！")]
         [Display(Name = "分類")]

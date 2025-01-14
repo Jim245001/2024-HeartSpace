@@ -1,0 +1,59 @@
+﻿@model IEnumerable<HeartSpaceAdmin.Models.MemberViewModel>
+
+<h1>會員管理</h1>
+
+<a href="@Url.Action("Create", "Member")" class="btn btn-primary mb-3">新增會員</a>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th style="width: 5%;">ID</th>
+            <th style="width: 10%;">大頭照</th>
+            <th style="width: 10%;">帳號</th>
+            <th style="width: 10%;">姓名</th>
+            <th style="width: 10%;">暱稱</th>
+            <th style="width: 10%;">信箱</th>
+            <th style="width: 7%;">角色</th>
+            <th style="width: 8%;">缺席次數</th>
+            <th style="width: 10%;">停權</th>
+            <th style="width: 20%;">操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var member in Model)
+        {
+            <tr>
+                <td>@member.Id</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(member.MemberImg))
+                    {
+                        <img src="@member.MemberImg" alt="大頭照" style="width: 50px; height: 50px; object-fit: cover;" />
+                    }
+                    else
+                    {
+                        <i class="fa-regular fa-circle-user" style="font-size: 2rem;"></i>
+                    }
+                </td>
+                <td>@member.Account</td>
+                <td>@member.Name</td>
+                <td>@member.NickName</td>
+                <td>@member.Email</td>
+                <td>@member.Role</td>
+                <td>@member.AbsenceCount</td>
+                <td>@(member.Disabled ? "是" : "否")</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@member.Id" class="btn btn-primary">管理</a>
+
+                    <form asp-action="ToggleDelete" method="post" style="display:inline;">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@member.Id" />
+                        <button type="submit" class="btn @(member.Disabled ? "btn-success" : "btn-danger")">
+                            @(member.Disabled ? "復原" : "停權")
+                        </button>
+                    </form>
+
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

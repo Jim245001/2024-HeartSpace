@@ -51,16 +51,72 @@ namespace HeartSpace.Controllers
 				return View(model);
 			}
 
-			// 處理圖片上傳
-			if (Image != null && Image.ContentLength > 0)
-			{
-				string fileName = GenerateFileName(); // 產生唯一檔案名稱
-				string savePath = Path.Combine(Server.MapPath("~/Images"), fileName);
-				Image.SaveAs(savePath); // 儲存圖片到 Images 資料夾
-				model.PostImg = $"/Images/{fileName}"; // 儲存路徑到資料庫
-			}
+            // 處理圖片上傳
+if (Image != null && Image.ContentLength > 0)
+{
+    try
+    {
+        // 確保資料夾存在
+        HeartSpaceImage.ImageHelper.EnsureDirectoryExists();
+        var uploadDir = HeartSpaceImage.ImageHelper.RootPath;
 
-			model.PublishTime = DateTime.Now;
+        // 取得副檔名
+        var fileExtension = Path.GetExtension(Image.FileName).ToLower();
+
+        // 檢查格式
+        if (fileExtension != ".jpg" && fileExtension != ".jpeg" && fileExtension != ".png" && fileExtension != ".webp")
+        {
+            ModelState.AddModelError("Image", "僅接受 JPG、JPEG、PNG、WEBP 格式圖片。");
+            return View(model);
+        }
+
+                    // 搜尋現有檔案，找出最大編號
+                    var existingFiles = Directory.GetFiles(uploadDir, "Post_*.jpg");
+                    int nextNumber = existingFiles
+                        .Select(file => Path.GetFileNameWithoutExtension(file))
+                        .Where(name => name.StartsWith("Post_"))
+                        .Select(name => int.TryParse(name.Replace("Post_", ""), out int num) ? num : 0)
+                        .DefaultIfEmpty(0)
+                        .Max() + 1;
+
+                    // 生成新檔案名稱
+                    string fileName = $"Post_{nextNumber}.jpg";
+                    string savePath = Path.Combine(uploadDir, fileName);
+
+                    // 儲存圖片
+                    Image.SaveAs(savePath);
+
+                    if (fileExtension == ".webp")
+        {
+            // 處理 .webp 圖片轉換
+            using (var webpStream = Image.InputStream)
+            {
+                using (var bitmap = new System.Drawing.Bitmap(webpStream))
+                {
+                    bitmap.Save(savePath, System.Drawing.Imaging.ImageFormat.Jpeg);
+                    System.Diagnostics.Debug.WriteLine($"WEBP 已轉換為 JPG 並儲存到：{savePath}");
+                }
+            }
+        }
+        else
+        {
+            // 直接儲存非 .webp 圖片
+            Image.SaveAs(savePath);
+            System.Diagnostics.Debug.WriteLine($"圖片已儲存到路徑：{savePath}");
+        }
+
+        // 更新資料庫的圖片路徑
+        model.PostImg = $"https://localhost:44378/Images/{fileName}";
+    }
+    catch (Exception ex)
+    {
+        ModelState.AddModelError("Image", $"圖片上傳失敗：{ex.Message}");
+        return View(model);
+    }
+}
+
+
+            model.PublishTime = DateTime.Now;
 
 			try
 			{
@@ -165,53 +221,80 @@ namespace HeartSpace.Controllers
 				return View(model);
 			}
 
-			try
-			{
-				// 如果上傳了新圖片
-				if (Image != null && Image.ContentLength > 0)
-				{
-					// 生成新圖片名稱並保存
-					string fileName = GenerateFileName();
-					string savePath = Path.Combine(Server.MapPath("~/Images"), fileName);
-					Image.SaveAs(savePath);
+            try
+            {
+                // 如果上傳了新圖片
+                if (Image != null && Image.ContentLength > 0)
+                {
+                    // 確保資料夾存在
+                    HeartSpaceImage.ImageHelper.EnsureDirectoryExists();
+                    var uploadDir = HeartSpaceImage.ImageHelper.RootPath;
 
-					// 更新資料庫圖片路徑
-					model.PostImg = $"/Images/{fileName}";
+                    // 取得副檔名
+                    var fileExtension = Path.GetExtension(Image.FileName).ToLower();
 
-					// 如果需要刪除舊圖片
-					if (!string.IsNullOrEmpty(model.OldPostImg))
-					{
-						var oldImagePath = Server.MapPath(model.OldPostImg);
-						if (System.IO.File.Exists(oldImagePath))
-						{
-							System.IO.File.Delete(oldImagePath);
-						}
-					}
-				}
-				else if (deleteOldImage == true) // 如果勾選刪除舊圖片但未上傳新圖片
-				{
-					// 檢查舊圖片路徑是否存在
-					if (!string.IsNullOrEmpty(model.OldPostImg))
-					{
-						var oldImagePath = Server.MapPath(model.OldPostImg);
-						if (System.IO.File.Exists(oldImagePath))
-						{
-							try
-							{
-								System.IO.File.Delete(oldImagePath); // 刪除實體檔案
-							}
-							catch (Exception ex)
-							{
-								// Log 錯誤訊息以便調試
-								Console.WriteLine($"無法刪除檔案: {ex.Message}");
-							}
-						}
-					}
-					model.PostImg = null; // 將資料庫中的圖片路徑設為 null
-				}
+                    // 支援的檔案格式檢查
+                    if (fileExtension != ".jpg" && fileExtension != ".jpeg" && fileExtension != ".png" && fileExtension != ".webp")
+                    {
+                        ModelState.AddModelError("Image", "僅接受 JPG、JPEG、PNG、WEBP 格式圖片。");
+                        return View(model);
+                    }
 
-				// 更新資料庫
-				_postService.UpdatePost(model);
+                    // 搜尋現有檔案，找出最大編號
+                    var existingFiles = Directory.GetFiles(uploadDir, "Post_*.jpg");
+                    int nextNumber = existingFiles
+                        .Select(file => Path.GetFileNameWithoutExtension(file))
+                        .Where(name => name.StartsWith("Post_"))
+                        .Select(name => int.TryParse(name.Replace("Post_", ""), out int num) ? num : 0)
+                        .DefaultIfEmpty(0)
+                        .Max() + 1;
+
+                    // 生成新檔案名稱
+                    string fileName = $"Post_{nextNumber}.jpg";
+                    string savePath = Path.Combine(uploadDir, fileName);
+
+                    // 儲存圖片
+                    Image.SaveAs(savePath);
+
+                    // 更新資料庫圖片路徑
+                    model.PostImg = $"https://localhost:44378/Images/{fileName}";
+
+                    // 如果需要刪除舊圖片
+                    if (!string.IsNullOrEmpty(model.OldPostImg))
+                    {
+                        var oldImagePath = Path.Combine(uploadDir, Path.GetFileName(model.OldPostImg));
+                        if (System.IO.File.Exists(oldImagePath))
+                        {
+                            System.IO.File.Delete(oldImagePath);
+                        }
+                    }
+                }
+                else if (deleteOldImage == true) // 如果勾選刪除舊圖片但未上傳新圖片
+                {
+                    // 檢查舊圖片路徑是否存在
+                    if (!string.IsNullOrEmpty(model.OldPostImg))
+                    {
+                        var uploadDir = HeartSpaceImage.ImageHelper.RootPath;
+                        var oldImagePath = Path.Combine(uploadDir, Path.GetFileName(model.OldPostImg));
+                        if (System.IO.File.Exists(oldImagePath))
+                        {
+                            try
+                            {
+                                System.IO.File.Delete(oldImagePath); // 刪除實體檔案
+                            }
+                            catch (Exception ex)
+                            {
+                                // Log 錯誤訊息以便調試
+                                Console.WriteLine($"無法刪除檔案: {ex.Message}");
+                            }
+                        }
+                    }
+                    model.PostImg = null; // 將資料庫中的圖片路徑設為 null
+                }
+            
+
+            // 更新資料庫
+            _postService.UpdatePost(model);
 
 				TempData["SuccessMessage"] = "貼文已成功更新！";
 				return RedirectToAction("PostDetails", "Post", new { id = model.Id });

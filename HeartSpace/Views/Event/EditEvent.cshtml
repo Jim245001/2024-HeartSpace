@@ -129,6 +129,7 @@
     </style>
 </head>
 <body>
+   
     <div class="outerbox mt-5">
         <div class="title-style">
             <i class="fa-solid fa-user-pen"></i>
@@ -137,13 +138,14 @@
 
         @using (Html.BeginForm("EditEvent", "Event", FormMethod.Post, new { enctype = "multipart/form-data", @class = "mx-auto", style = "max-width: 600px;" }))
         {
+            <input type="hidden" name="MemberId" value="@Model.MemberId" />
             @Html.AntiForgeryToken()
 
             <!-- 活動照片 -->
             <div class="text-center mb-4">
                 @if (!string.IsNullOrEmpty(Model.EventImg))
                 {
-                    <img src="@Url.Content("~/" + Model.EventImg)" alt="活動圖片" class="img-fluid"
+                    <img src="@Url.Content(Model.EventImg)" alt="活動圖片" class="img-fluid"
                          style=" aspect-ratio: 3 / 2; border-radius: 10px; object-fit: cover; display: block; margin: 0 auto;" />
                     <div class="form-check deletecheck">
                         <!-- 隱藏欄位，確保未勾選時傳遞 false -->
@@ -151,7 +153,7 @@
                         <!-- 勾選時，傳遞 true -->
                         <input type="checkbox" name="removePhoto" id="removePhoto" value="true" class="form-check-input">
                         <label for="removePhoto" class="form-check-label deletechecktext">刪除目前活動照片</label>
-                    
+
                     </div>
                 }
 

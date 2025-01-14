@@ -1,6 +1,8 @@
 ﻿@model HeartSpace.Models.ViewModels.EventViewModel
 @using System.Text.RegularExpressions
 
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -167,7 +169,7 @@
             <div class="text-center mb-4">
                 @if (!string.IsNullOrEmpty(Model.EventImg))
                 {
-                    <img src="@Url.Content("~/" + Model.EventImg)" alt="活動圖片" class="img-fluid"
+                    <img src="@Model.EventImg" alt="活動圖片" class="img-fluid"
                          style=" aspect-ratio: 3 / 1; border-radius: 10px; object-fit: cover; display: block; margin: 0 auto;" />
                 }
                 else
@@ -484,7 +486,7 @@
 
                                 <!-- 留言內容與編輯圖標 -->
                                 <div class="d-flex align-items-center justify-content-between">
-                                  
+
                                     @if (comment.Disabled != null)
                                     {
                                         <p class="mb-1 text-muted" style="font-style: italic; color:#949597"><i class="fa-solid fa-xmark"></i>此則留言已遭作者刪除</p>
