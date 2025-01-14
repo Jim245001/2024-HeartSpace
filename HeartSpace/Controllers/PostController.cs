@@ -319,7 +319,7 @@ namespace HeartSpace.Controllers
 			try
 			{
 				// 確保 UserId 的存在（模擬登入或測試版本）
-				int userId = ViewBag.CurrentUserId ?? 1; // 測試用 1 表示當前使用者 ID
+				int userId = GetCurrentMemberId();
 
 				// 新增留言到資料庫
 				using (var db = new AppDbContext())
@@ -418,6 +418,8 @@ namespace HeartSpace.Controllers
 			throw new Exception("票據中的用戶 ID 無效。");
 		}
 
+
+		
 
 	}
 }
