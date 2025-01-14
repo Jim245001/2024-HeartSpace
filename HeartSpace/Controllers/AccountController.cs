@@ -159,7 +159,7 @@ namespace HeartSpace.Controllers.Account
 			try
 			{
 				ProcessRegister(model); // 處理註冊邏輯
-				TempData["SuccessMessage"] = "註冊成功！請使用您的帳號登入。";
+				//TempData["SuccessMessage"] = "註冊成功！請使用您的帳號登入。";
 				return RedirectToAction("Login");
 			}
 			catch (Exception ex)
