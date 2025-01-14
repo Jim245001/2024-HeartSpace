@@ -44,6 +44,7 @@ namespace HeartSpaceAdmin.Controllers
 				return NotFound();
 			}
 
+
 			var viewModel = new PostViewModel
 			{
 				Id = post.Id,

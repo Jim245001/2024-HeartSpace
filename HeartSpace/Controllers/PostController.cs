@@ -139,8 +139,9 @@ if (Image != null && Image.ContentLength > 0)
 			Debug.WriteLine($"CategoryName: {post.CategoryName}");
 
 
+            model.MemberId = GetCurrentMemberId();
 
-			if (post == null)
+            if (post == null)
 			{
 				return HttpNotFound("找不到該貼文！");
 			}
@@ -402,10 +403,10 @@ if (Image != null && Image.ContentLength > 0)
 			try
 			{
 				// 確保 UserId 的存在（模擬登入或測試版本）
-				int userId = ViewBag.CurrentUserId ?? 1; // 測試用 1 表示當前使用者 ID
+				int userId = GetCurrentMemberId();
 
-				// 新增留言到資料庫
-				using (var db = new AppDbContext())
+                // 新增留言到資料庫
+                using (var db = new AppDbContext())
 				{
 					var newComment = new PostComment
 					{
