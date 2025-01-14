@@ -1,5 +1,7 @@
 ﻿@model EventViewModel
 
+
+<br />
 <h1>@Model.EventName</h1>
 <p>發起人: @Model.OrganizerName</p>
 <p>描述: @Model.Description</p>
@@ -31,6 +33,7 @@
 <table class="table">
     <thead>
         <tr>
+            <th>Id</th>
             <th>會員名稱</th>
             <th>留言內容</th>
             <th>留言時間</th>
@@ -42,6 +45,7 @@
         @foreach (var comment in Model.Comments)
         {
             <tr>
+                <td>@comment.Id</td>
                 <td>@comment.MemberName</td>
                 <td>@comment.CommentContent</td>
                 <td>@comment.CommentTime</td>
@@ -63,3 +67,5 @@
 
 
 <a asp-controller="Event" asp-action="Index" class="btn btn-secondary btnstyle">返回</a>
+
+<a href="https://localhost:44344/Event/EventDetail/@Model.Id" class="btn btn-success btnstyle" target="_blank">檢視前台</a>

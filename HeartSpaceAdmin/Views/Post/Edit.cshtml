@@ -1,12 +1,31 @@
 ﻿@model HeartSpaceAdmin.Models.PostViewModel
-
+<br />
 <h1>@Model.Title</h1>
 <p><strong>作者:</strong> @Model.AuthorName</p>
 <p><strong>發布時間:</strong> @Model.PublishTime</p>
 <div>
-    <h3>內容</h3>
+
+    <strong>
+        內容:
+    </strong>
     <p>@Model.PostContent</p>
 </div>
+<div class="form-group">
+    <strong>
+        貼文圖片:
+    </strong>
+    @if (!string.IsNullOrEmpty(Model.PostImg))
+    {
+        <img src="@Model.PostImg" alt="揪團圖片" style="max-width: 200px; max-height: 200px;" />
+    }
+    else
+    {
+        <p>(目前沒有上傳圖片)</p>
+    }
+</div>
+
+
+<br />
 
 <h3>留言板</h3>
 <table class="table">
@@ -38,3 +57,8 @@
         }
     </tbody>
 </table>
+
+
+<a asp-controller="Post" asp-action="Index" class="btn btn-secondary btnstyle">返回</a>
+
+<a href="https://localhost:44344/Post/PostDetails/@Model.Id" class="btn btn-success btnstyle" target="_blank">檢視前台</a>

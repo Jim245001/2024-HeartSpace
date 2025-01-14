@@ -24,6 +24,7 @@ namespace HeartSpaceAdmin.Models
 		public int? AbsenceCount { get; set; }
 
 		public string? MemberImg { get; set; }
+		public IFormFile MemberImgFile { get; set; } // 用於上傳新圖片
 		[Required]
 		public string PasswordHash { get; set; }
 

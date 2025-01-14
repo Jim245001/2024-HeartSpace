@@ -41,7 +41,7 @@ public class MemberController : Controller
 	// Create (POST)
 	[HttpPost]
 	[ValidateAntiForgeryToken]
-	public IActionResult Create(MemberViewModel model)
+	public async Task<IActionResult> Create(MemberViewModel model)
 	{
 		if (ModelState.IsValid)
 		{
@@ -60,22 +60,51 @@ public class MemberController : Controller
 				Disabled = model.Disabled,
 				Role = model.Role,
 				AbsenceCount = model.AbsenceCount,
-				MemberImg = model.MemberImg,
 				PasswordHash = model.PasswordHash,
 				ConfirmCode = model.ConfirmCode,
 				IsConfirmed = model.IsConfirmed
 			};
 
 			try
-			{
+			{   // 處理圖片上傳
+				if (model.MemberImgFile != null && model.MemberImgFile.Length > 0)
+				{
+					// 確保目錄存在
+					var uploadDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Images");
+					if (!Directory.Exists(uploadDir))
+					{
+						Directory.CreateDirectory(uploadDir);
+					}
+
+					// 檔案名稱與路徑
+					var fileExtension = Path.GetExtension(model.MemberImgFile.FileName)?.ToLower();
+					var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+					if (!allowedExtensions.Contains(fileExtension))
+					{
+						ModelState.AddModelError("MemberImgFile", "僅接受 JPG、JPEG、PNG格式圖片。");
+						return View(model);
+					}
+
+					var fileName = $"Member_{Guid.NewGuid()}.jpg"; // 避免檔案重複
+					var savePath = Path.Combine(uploadDir, fileName);
+
+					using (var stream = new FileStream(savePath, FileMode.Create))
+					{
+						await model.MemberImgFile.CopyToAsync(stream); // 儲存檔案
+					}
+
+					member.MemberImg = $"/Images/{fileName}"; // 儲存相對路徑到資料庫
+				}
+
+				// 儲存會員資料
 				_context.Members.Add(member);
-				_context.SaveChanges();
+				await _context.SaveChangesAsync();
 				return RedirectToAction(nameof(Index));
 			}
 			catch (Exception ex)
 			{
 				ModelState.AddModelError("", "無法新增會員，請稍後再試！");
-				Console.WriteLine(ex.Message);
+				Console.WriteLine($"圖片處理失敗：{ex.Message}");
 			}
 		}
 
@@ -114,7 +143,7 @@ public class MemberController : Controller
 	// Edit (POST)
 	[HttpPost]
 	[ValidateAntiForgeryToken]
-	public IActionResult Edit(MemberViewModel model)
+	public async Task<IActionResult> Edit(MemberViewModel model)
 	{
 		if (ModelState.IsValid)
 		{
@@ -131,15 +160,65 @@ public class MemberController : Controller
 			member.Disabled = model.Disabled;
 			member.Role = model.Role;
 			member.AbsenceCount = model.AbsenceCount;
-			member.MemberImg = model.MemberImg;
 			member.PasswordHash = member.PasswordHash;
 			member.ConfirmCode = member.ConfirmCode;
 			member.IsConfirmed = member.IsConfirmed;
 
-			_context.SaveChanges();
-			return RedirectToAction(nameof(Index));
-		}
+			try
+			{
+				// 處理圖片上傳
+				// 檢查檔案格式
+				var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+				var fileExtension = Path.GetExtension(model.MemberImgFile.FileName)?.ToLower();
 
+				if (!allowedExtensions.Contains(fileExtension))
+				{
+					ModelState.AddModelError("MemberImgFile", "僅接受 JPG、JPEG、PNG 格式圖片。");
+					return View(model);
+				}
+
+				// 確保目錄存在
+				var uploadDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Images");
+				if (!Directory.Exists(uploadDir))
+				{
+					Directory.CreateDirectory(uploadDir);
+				}
+
+				// 生成檔案名稱
+				var fileName = $"Member_{Guid.NewGuid()}{fileExtension}"; // 保留原始格式
+				var savePath = Path.Combine(uploadDir, fileName);
+
+				// 儲存圖片
+				using (var stream = new FileStream(savePath, FileMode.Create))
+				{
+					await model.MemberImgFile.CopyToAsync(stream);
+				}
+
+				// 刪除舊圖片（如果存在）
+				if (!string.IsNullOrEmpty(member.MemberImg))
+				{
+					var oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", member.MemberImg.TrimStart('/'));
+					if (System.IO.File.Exists(oldImagePath))
+					{
+						System.IO.File.Delete(oldImagePath);
+					}
+				}
+
+				// 更新圖片路徑到資料庫
+				member.MemberImg = $"/Images/{fileName}";
+
+
+				// 儲存變更到資料庫
+				await _context.SaveChangesAsync();
+				return RedirectToAction(nameof(Index));
+		}
+			catch (Exception ex)
+			{
+				// 記錄錯誤
+				ModelState.AddModelError("", "更新會員資料失敗，請稍後再試！");
+				Console.WriteLine($"圖片處理失敗：{ex.Message}");
+			}
+		}
 		return View(model);
 	}
 

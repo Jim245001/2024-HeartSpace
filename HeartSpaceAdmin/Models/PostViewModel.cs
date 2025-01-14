@@ -6,6 +6,7 @@
 		public string Title { get; set; }
 		public string PostContent { get; set; }
 		public string AuthorName { get; set; }
+		public string PostImg { get; set; }
 		public DateTime PublishTime { get; set; }
 		public bool Disabled { get; set; }
 		public List<PostCommentViewModel> Comments { get; set; } = new List<PostCommentViewModel>();

@@ -2,7 +2,7 @@
 
 <h1>編輯會員</h1>
 
-<form asp-action="Edit" method="post">
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
     <input type="hidden" asp-for="Id" />
     <div class="form-group">
@@ -53,10 +53,20 @@
         @Html.ValidationMessageFor(model => model.Role, "", new { @class = "text-danger" })
     </div>
     <div class="form-group">
-        <label for="MemberImg">會員圖片 (URL)</label>
-        <input asp-for="MemberImg" class="form-control" />
-        @Html.ValidationMessageFor(model => model.MemberImg, "", new { @class = "text-danger" })
+        <label for="MemberImgFile">會員圖片</label>
+        <input type="file" name="MemberImgFile" class="form-control" accept=".jpg,.jpeg,.png" />
+        <span asp-validation-for="MemberImgFile" class="text-danger"></span>
     </div>
+
+    <!-- 顯示當前圖片 -->
+    <div class="form-group">
+        <label>當前圖片</label>
+        @if (!string.IsNullOrEmpty(Model.MemberImg))
+        {
+            <img src="@Model.MemberImg" alt="會員圖片" style="max-width: 150px; max-height: 150px;" />
+        }
+    </div>
+
     <div class="form-group">
         <label for="AbsenceCount">缺席次數</label>
         <input asp-for="AbsenceCount" class="form-control" type="number" />

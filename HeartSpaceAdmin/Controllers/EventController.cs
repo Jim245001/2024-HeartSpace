@@ -54,6 +54,7 @@ namespace HeartSpaceAdmin.Controllers
 				DeadLine = eventEntity.DeadLine,
 				IsOnline = eventEntity.IsOnline,
 				Location = eventEntity.Location,
+				EventImg = eventEntity.EventImg,
 				ParticipantMax = eventEntity.ParticipantMax,
 				ParticipantMin = eventEntity.ParticipantMin,
 				Comments = eventEntity.EventComments?.Select(c => new EventCommentViewModel
