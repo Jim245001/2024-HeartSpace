@@ -476,7 +476,8 @@ if (Image != null && Image.ContentLength > 0)
 		{
 			if (!User.Identity.IsAuthenticated)
 			{
-				throw new UnauthorizedAccessException("使用者未登入。");
+				return - 1;
+				//throw new UnauthorizedAccessException("使用者未登入。");
 			}
 
 			var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
