@@ -329,10 +329,19 @@
                         }
                         else
                         {
-                            <!-- 報名活動按鈕 -->
+                            <!-- 報名活動按鈕，改跳轉 -->
+                            if(Model.GetCurrentUserId == -1) {
+
+                                <a class="btn w-100 py-2" href="@Url.Action("Login", "Account")">
+                                    報名活動
+                                </a>
+                            }
+                            else {
                             <button class="btn w-100 py-2" data-bs-toggle="modal" data-bs-target="#confirmRegisterModal">
                                 報名活動
                             </button>
+                            }
+
                         }
                     }
                 </div>
@@ -448,29 +457,32 @@
                     留言板
                 </div>
 
-                <!-- 留言輸入區 -->
-                <div class="mb-3">
-                    @using (Html.BeginForm("AddComment", "Event", FormMethod.Post, new { @class = "d-flex flex-column" }))
-                    {
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="eventId" value="@Model.Id" />
+                <!-- 留言輸入區，待改 --> 
+                @if(Model.GetCurrentUserId != -1) { 
+                    <div class="mb-3">
+                        @using (Html.BeginForm("AddComment", "Event", FormMethod.Post, new { @class = "d-flex flex-column" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="eventId" value="@Model.Id" />
 
-                        <!-- 留言框 -->
-                        <textarea id="commentContent" name="commentContent" class="form-control mb-2" rows="3" placeholder="留下你的意見" style="resize: none;"></textarea>
+                            <!-- 留言框 -->
+                            <textarea id="commentContent" name="commentContent" class="form-control mb-2" rows="3" placeholder="留下你的意見" style="resize: none;"></textarea>
 
-                        <!-- 按鈕區 -->
-                        <div class="d-flex justify-content-end align-items-center">
-                            <!-- 取消按鈕 -->
-                            <button type="button" class="btn btn-secondary me-2" id="cancelComment">
-                                取消
-                            </button>
-                            <!-- 留言按鈕 -->
-                            <button type="submit" id="submitComment" class="btn btn-warning" style="background-color: #FDD9A0; border: none;" disabled>
-                                留言
-                            </button>
-                        </div>
-                    }
-                </div>
+                            <!-- 按鈕區 -->
+                            <div class="d-flex justify-content-end align-items-center">
+                                <!-- 取消按鈕 -->
+                                <button type="button" class="btn btn-secondary me-2" id="cancelComment">
+                                    取消
+                                </button>
+                                <!-- 留言按鈕 -->
+                                <button type="submit" id="submitComment" class="btn btn-warning" style="background-color: #FDD9A0; border: none;" disabled>
+                                    留言
+                                </button>
+                            </div>
+                        }
+                    </div>
+
+                }
 
                 <!-- 留言列表 -->
                 <input type="hidden" id="eventId" value="@Model.Id" />
