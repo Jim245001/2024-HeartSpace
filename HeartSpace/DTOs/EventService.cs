@@ -233,7 +233,8 @@ namespace HeartSpace.BLL
 				CategoryName = eventEntity.Category?.CategoryName, // 假設有類別關聯
 				Comments = new List<CommentViewModel>(), // 初始化評論列表
 				MemberImg = memberImg, // 加入圖片
-				MemberNickName = memberNickName // 加入暱稱
+				MemberNickName = memberNickName, // 加入暱稱
+				GetCurrentUserId = currentMemberId // 當前用戶 ID
 			};
 
 			// 設置是否為活動發起人
