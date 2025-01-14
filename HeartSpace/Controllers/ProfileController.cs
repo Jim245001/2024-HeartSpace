@@ -83,7 +83,7 @@ namespace HeartSpace.Controllers
 
 			// 抓取 "您過去參與的揪團"（假設有 JoinTable 或 JoinLogs 紀錄參與者）
 			var participatedEvents = _context.EventMembers
-		.Where(em => em.MemberId == member.Id && em.IsAttend == true)
+		.Where(em => em.MemberId == member.Id)
 		.Select(em => em.Event)
 		.OrderByDescending(e => e.EventTime)
 		.Select(e => new EventCard

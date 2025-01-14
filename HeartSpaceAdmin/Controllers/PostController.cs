@@ -44,6 +44,11 @@ namespace HeartSpaceAdmin.Controllers
 				return NotFound();
 			}
 
+			if (post.Member == null)
+			{
+				// 處理 Member 為空的情況
+				return BadRequest("成員信息缺失。");
+			}
 
 			var viewModel = new PostViewModel
 			{
@@ -65,6 +70,7 @@ namespace HeartSpaceAdmin.Controllers
 
 			return View(viewModel);
 		}
+
 
 		// Toggle Delete Post
 		[HttpPost]

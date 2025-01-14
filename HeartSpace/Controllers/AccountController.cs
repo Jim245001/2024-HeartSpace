@@ -20,14 +20,16 @@ namespace HeartSpace.Controllers.Account
 		private readonly AppDbContext _db = new AppDbContext(); 
 
 		[HttpGet]
-		public ActionResult Login()
+		public ActionResult Login(string message)
 		{
+			ViewBag.Message = message;
 			return View(new LoginViewModel());
 		}
 
 		[HttpPost]
 		public ActionResult Login(LoginViewModel model)
 		{
+			
 			if (ModelState.IsValid == false) return View(model);
 
 			var result = ValidLogin(model);
@@ -50,6 +52,8 @@ namespace HeartSpace.Controllers.Account
 		{
 			var db = new AppDbContext();
 			var member = db.Members.FirstOrDefault(m => m.Account == model.Account);
+
+			if (member.Disabled) return (false, "您已被停權，無法登入！");
 
 			if (member == null) return (false, "帳密有誤");
 
@@ -160,7 +164,7 @@ namespace HeartSpace.Controllers.Account
 			{
 				ProcessRegister(model); // 處理註冊邏輯
 				//TempData["SuccessMessage"] = "註冊成功！請使用您的帳號登入。";
-				return RedirectToAction("Login");
+				return RedirectToAction("Login", new {message="註冊成功，請登入！" } );
 			}
 			catch (Exception ex)
 			{

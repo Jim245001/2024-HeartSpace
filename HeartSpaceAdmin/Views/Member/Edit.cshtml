@@ -25,11 +25,11 @@
         <input asp-for="Email" class="form-control" />
         @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
     </div>
-    <div class="form-group">
-        <label for="PasswordHash">密碼 (雜湊) <span class="text-danger">*</span></label>
-        <input asp-for="PasswordHash" class="form-control" />
-        @Html.ValidationMessageFor(model => model.PasswordHash, "", new { @class = "text-danger" })
-    </div>
+    @* <div class="form-group"> *@
+    @*     <label for="PasswordHash">密碼 (雜湊) <span class="text-danger">*</span></label> *@
+    @*     <input asp-for="PasswordHash" class="form-control" /> *@
+    @*     @Html.ValidationMessageFor(model => model.PasswordHash, "", new { @class = "text-danger" }) *@
+    @* </div> *@
     <div class="form-group">
         <label for="ConfirmCode">確認碼</label>
         <input asp-for="ConfirmCode" class="form-control" />
