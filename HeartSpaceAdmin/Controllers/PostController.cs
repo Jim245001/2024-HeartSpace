@@ -35,6 +35,7 @@ namespace HeartSpaceAdmin.Controllers
 		public IActionResult Edit(int id)
 		{
 			var post = _context.Posts
+				.Include(p => p.Member)
 				.Include(p => p.PostComments)
 				.ThenInclude(c => c.User)
 				.FirstOrDefault(p => p.Id == id);

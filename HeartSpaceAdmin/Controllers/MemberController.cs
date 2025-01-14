@@ -123,6 +123,7 @@ public class MemberController : Controller
 
 		var model = new MemberViewModel
 		{
+
 			Id = member.Id,
 			Account = member.Account,
 			Name = member.Name,
