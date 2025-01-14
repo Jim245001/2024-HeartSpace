@@ -89,10 +89,13 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
-    .nav-item:hover {
-    background-color: #fcb874;
-    color: black;
-    }
+
+
+
+        .nav-item:hover {
+            background-color: #fcb874;
+            color: black;
+        }
 
     /* 主內容區域寬度 */
     .container {
@@ -117,9 +120,9 @@
 
             <!-- 導覽按鈕 -->
             <div class="d-flex flex-wrap gap-2">
-                @if (User.IsInRole("Admin"))
+                @if (User.IsInRole("admin"))
                 {
-                    <a class="nav-item" href="#">後台</a>
+                    <a class="nav-item btn btn-danger" style="background-color: #fc3a3aa3" href="https://localhost:7075/">後台</a>
                 }
 
                 @if (User.Identity.IsAuthenticated)
