@@ -235,7 +235,8 @@ namespace HeartSpace.BLL
 				Comments = new List<CommentViewModel>(), // 初始化評論列表
 				MemberImg = memberImg, // 加入圖片
 				MemberNickName = memberNickName, // 加入暱稱
-				GetCurrentUserId = currentMemberId // 當前用戶 ID
+				GetCurrentUserId = currentMemberId, // 當前用戶 ID
+			
 			};
 
 			// 設置是否為活動發起人
@@ -263,7 +264,7 @@ namespace HeartSpace.BLL
 
 
             // 檢查是否已達報名上限
-            model.IsFull = model.ParticipantNow >= model.ParticipantMax;
+            //model.IsFull = model.ParticipantNow >= model.ParticipantMax;
 
 			return model;
 		}

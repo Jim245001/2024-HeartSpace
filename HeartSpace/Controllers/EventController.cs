@@ -235,8 +235,17 @@ namespace HeartSpace.Controllers
 		{
 			if (!ModelState.IsValid)
 			{
+				
+
 				try
 				{
+					// 確保圖片路徑被保留
+					var existingEvent = _eventService.GetEventById(model.Id);
+					if (existingEvent != null)
+					{
+						model.EventImg = existingEvent.EventImg; // 保留圖片路徑
+					}
+
 					model.Categories = _eventService.GetCategories()
 						.Select(c => new SelectListItem
 						{
@@ -258,6 +267,20 @@ namespace HeartSpace.Controllers
 				if (existingEvent == null)
 				{
 					return HttpNotFound("活動不存在");
+				}
+
+				// **新增驗證邏輯：檢查最大人數是否低於目前報名人數**
+				if (model.ParticipantMax < existingEvent.ParticipantNow)
+				{
+					ModelState.AddModelError(nameof(model.ParticipantMax), "最大參與人數不能低於目前報名人數。");
+					// 返回編輯頁面，並傳遞資料
+					model.Categories = _eventService.GetCategories()
+						.Select(c => new SelectListItem
+						{
+							Value = c.Id.ToString(),
+							Text = c.CategoryName
+						}).ToList();
+					return View(model);
 				}
 
 				// 更新活動的基本資料（不包括圖片）

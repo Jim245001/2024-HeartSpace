@@ -79,6 +79,7 @@ namespace HeartSpace.DAL
 			using (var context = new AppDbContext())
 			{
 				var query = context.Events
+					.Where(e => !e.Disabled) // 排除 Disabled 為 true 的活動
 					.Join(context.Categories, e => e.CategoryId, c => c.Id, (e, c) => new { e, c })
 					.Join(context.Members, ec => ec.e.MemberId, m => m.Id, (ec, m) => new
 					{
