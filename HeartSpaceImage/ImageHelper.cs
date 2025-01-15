@@ -16,10 +16,9 @@ namespace HeartSpaceImage
         private static string GetRootPath()
         {
             // 如果需要硬編碼路徑，直接返回硬編碼值
-            return @"C:\Users\user\source\repos\pj\HeartSpace\HeartSpaceImage\Images";
+            return @"C:\Users\kelly\source\repos\HeartSpace\HeartSpaceImage\Images";
 
-            
-        }
+		}
 
         // 確保資料夾存在
         public static void EnsureDirectoryExists()
