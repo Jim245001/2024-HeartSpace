@@ -263,7 +263,7 @@ namespace HeartSpace.BLL
 
 
             // 檢查是否已達報名上限
-            model.IsFull = model.ParticipantNow >= model.ParticipantMax;
+            //model.IsFull = model.ParticipantNow >= model.ParticipantMax;
 
 			return model;
 		}

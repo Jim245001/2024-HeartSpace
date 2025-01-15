@@ -237,6 +237,13 @@ namespace HeartSpace.Controllers
 			{
 				try
 				{
+
+					// 確保圖片路徑被保留
+					var existingEvent = _eventService.GetEventById(model.Id);
+					if (existingEvent != null)
+					{
+						model.EventImg = existingEvent.EventImg; // 保留圖片路徑
+					}
 					model.Categories = _eventService.GetCategories()
 						.Select(c => new SelectListItem
 						{
@@ -259,6 +266,8 @@ namespace HeartSpace.Controllers
 				{
 					return HttpNotFound("活動不存在");
 				}
+
+
 
 				// 更新活動的基本資料（不包括圖片）
 				existingEvent.EventName = model.EventName;
